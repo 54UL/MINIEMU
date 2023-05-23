@@ -123,7 +123,8 @@ void CC8_LoadProgram(const char *filePath)
 
 void CC8_QuitProgram()
 {
-	// free(buffer);
+	if (s_currentChipCtx != NULL)
+		free(s_currentChipCtx);
 }
 
 void CC8_Execute(uint16_t opcode)

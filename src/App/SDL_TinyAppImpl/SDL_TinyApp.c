@@ -51,7 +51,6 @@ void Init_SDL(uint16_t w, uint16_t h)
     // Register basic callbacks
 }
 
-
 uint8_t Step_SDL(StepCallBack renderCallback, ActionCallback actionsCallback)
 {
     //Consider to put this in a thread
@@ -86,12 +85,11 @@ uint8_t Step_SDL(StepCallBack renderCallback, ActionCallback actionsCallback)
 
 void Reset_SDL(void)
 {
-    // TODO
     free(s_pixels);
 }
 
 void Exit_SDL_App(void)
 {
-    // TODO
+    free(s_pixels);
 }
 
