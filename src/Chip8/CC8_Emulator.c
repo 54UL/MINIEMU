@@ -102,7 +102,7 @@ void CC8_LoadProgram(const char *filePath)
 	uint16_t addr = 0;
 	uint16_t loop_index = 0;
 
-	for (addr = boot_addr_start; (addr < boot_addr_start + CHIP_8_MAX_RAM); addr++)
+	for (addr = boot_addr_start; (addr < boot_addr_start + CHIP_8_RAM); addr++)
 	{
 		s_currentChipCtx->RAM[boot_addr_start + addr] = buffer[loop_index++];
 	}
@@ -127,84 +127,160 @@ void CC8_QuitProgram()
 		free(s_currentChipCtx);
 }
 
-void CC8_Execute(uint16_t opcode)
+void CC8_Step(uint16_t opcode)
 {
+	//decode instruction
 	int x = (opcode >> 8) & 0x0F;
 	int y = (opcode >> 4) & 0x0F;
 	int nnn = opcode & 0x0FFF;
 	int kk = opcode & 0x00FF;
 	int n = opcode & 0x000F;
 
+	//fetch and execute
 	switch (opcode & 0xF000)
 	{
-	case 0x0000:
-		switch (opcode & 0x00FF)
-		{
-		case 0x00E0:
-			CC8_CLS();
-			break;
-		case 0x00EE:
-			CC8_RET();
-			break;
-		default:
-			// Unknown instruction
-			break;
-		}
-		break;
-	case 0x1000:
-		CC8_JMP(nnn);
-		break;
-	case 0x2000:
-		CC8_CALL(nnn);
-		break;
-	case 0x3000:
-		CC8_SE_VX_BYTE(x, kk);
-		break;
-	case 0x4000:
-		CC8_SNE_VX_BYTE(x, kk);
-		break;
-	case 0x5000:
-		CC8_SE_VX_VY(x, y);
-		break;
-	case 0x6000:
-		CC8_LD_VX_BYTE(x, kk);
-		break;
-	case 0x7000:
-		CC8_ADD_VX_BYTE(x, kk);
-		break;
-	case 0x8000:
-		switch (opcode & 0x000F)
-		{
 		case 0x0000:
-			CC8_LD_VX_VY(x, y);
+			switch (opcode & 0x00FF)
+			{
+				case 0x00E0:
+					CC8_CLS();
+					break;
+
+				case 0x00EE:
+					CC8_RET();
+					break;
+
+				default:
+					// Unknown instruction
+					printf("0x0000 Unknow sub-instruction %06X", opcode & kk);
+			}
 			break;
-		case 0x0001:
-			CC8_OR_VX_VY(x, y);
+
+		case 0x1000:
+			CC8_JMP(nnn);
 			break;
+
+		case 0x2000:
+			CC8_CALL(nnn);
 			break;
-		}
-		break;
 
-	case 0x9000:
-		break;
+		case 0x3000:
+			CC8_SE_VX_BYTE(x, kk);
+			break;
 
-	case 0xA000:
-		break;
+		case 0x4000:
+			CC8_SNE_VX_BYTE(x, kk);
+			break;
 
-	case 0xB000:
-		break;
+		case 0x5000:
+			CC8_SE_VX_VY(x, y);
+			break;
 
-	case 0xC000:
-		break;
+		case 0x6000:
+			CC8_LD_VX_BYTE(x, kk);
+			break;
 
-	case 0xD000:
-		break;
+		case 0x7000:
+			CC8_ADD_VX_BYTE(x, kk);
+			break;
 
-	case 0xE000:
-		break;
+		case 0x8000:
+			switch (opcode & n)
+			{
+				case 0x0000:
+					CC8_LD_VX_VY(x, y);
+					break;
 
-	case 0xF000:
-		break;
+				case 0x0001:
+					CC8_OR_VX_VY(x, y);
+					break;
+
+				default:
+					printf("0x8000 Unknow sub-instruction %06X", opcode & kk);
+			}
+			break;
+
+		case 0x9000:
+			CC8_SNE_VX_VY(x, y);
+			break;
+
+		case 0xA000:
+			CC8_LD_I_ADDR(nnn);
+			break;
+
+		case 0xB000:
+			CC8_JP_V0_ADDR(nnn);
+			break;
+
+		case 0xC000:
+			CC8_RND_VX_BYTE(x, kk);
+			break;
+
+		case 0xD000:
+			CC8_DRW_VX_VY_NIBBLE(x, y, n);
+			break;
+
+		case 0xE000:
+			switch(opcode & kk)
+			{
+				case 0x9E:
+					CC8_SKP_VX(x);
+					break;
+				
+				case 0xA1:
+					CC8_SKNP_VX(x);
+					break
+				default:
+					printf("0xE000 Unknow sub-instruction %06X", opcode & kk);
+			}
+			break;
+	
+		case 0xF000:
+			switch(opcode & kk)
+			{
+				case 0x07:
+					CC8_LD_VX_DT(x);
+					break;
+				
+				case 0x0A:
+					CC8_LD_VX_K(x);
+					break
+
+				case 0X15:
+					CC8_LD_VX_DT(x);
+					break;
+				
+				case 0X18:
+					CC8_LD_ST_VX(x);
+					break;
+				
+				case 0x1E:
+					CC8_ADD_I_VX(x);
+					break;
+				
+				case 0x29:
+					CC8_LD_F_VX(x);
+					break;
+				
+				case 0x33:
+					CC8_LD_B_VX(x);
+					break;
+				
+				case 0x55:
+					CC8_LD_I_VX(x);
+					break;
+				
+				case 0x65:
+					CC8_LD_VX_I(x);
+					break;
+
+				default:
+					printf("0xF000 Unknow sub-instruction %06X", opcode & kk);
+			}
+			break;
+
+		default:
+			printf("Unknow instruction opcode: %06X", opcode);
 	}
 }
 
@@ -212,11 +288,10 @@ void CC8_TickEmulation()
 {
 	CC8_DebugMachine(s_currentChipCtx);
 
-
 	uint8_t lowerByte = s_currentChipCtx->RAM[s_currentChipCtx->PC];
 	uint8_t higherByte = s_currentChipCtx->RAM[s_currentChipCtx->PC + 1];
 	uint16_t value16 = ((uint16_t)higherByte << 8) | lowerByte;
-	CC8_Execute(value16);
+	CC8_Step(value16);
 	s_currentChipCtx->PC++;
 }
 
@@ -228,32 +303,86 @@ void CC8_SetEmulationContext(CC8_Machine *context)
 // ########## CHIP 8 INSTRUCTION SET IMPLEMENTATION
 void CC8_CLS()
 {
+	for (uint8_t i; i = CHIP_8_VRAM_SIZE; i--)
+	{
+		s_currentChipCtx->VRAM[i] = CHIP_8_BACKGROUND_DISPLAY_COLOR;
+	}
 }
+
 void CC8_RET()
 {
+	s_currentChipCtx->PC = s_currentChipCtx->STACK[s_currentChipCtx->SP];
+	s_currentChipCtx->SP--;
 }
+
 void CC8_JMP(uint16_t addr)
 {
+	s_currentChipCtx->PC = addr; 
 }
+
 void CC8_CALL(uint16_t addr)
 {
+	s_currentChipCtx->STACK[s_currentChipCtx->SP] = ++s_currentChipCtx->PC;
 }
+
 void CC8_SE_VX_BYTE(uint8_t x, uint8_t kk)
 {
+	s_currentChipCtx->PC += s_currentChipCtx->V[x] == kk ? 2 : 0;
 }
+
 void CC8_SNE_VX_BYTE(uint8_t x, uint8_t kk) 
 {
-	
+	s_currentChipCtx->PC += s_currentChipCtx->V[x] != kk ? 2 : 0;
 }
-void CC8_SE_VX_VY(uint8_t x, uint8_t y) {}
-void CC8_LD_VX_BYTE(uint8_t x, uint8_t kk) {}
-void CC8_ADD_VX_BYTE(uint8_t x, uint8_t kk) {}
-void CC8_LD_VX_VY(uint8_t x, uint8_t y) {}
-void CC8_OR_VX_VY(uint8_t x, uint8_t y) {}
-void CC8_AND_VX_VY(uint8_t x, uint8_t y) {}
-void CC8_XOR_VX_VY(uint8_t x, uint8_t y) {}
-void CC8_ADD_VX_VY(uint8_t x, uint8_t y) {}
-void CC8_SUB_VX_VY(uint8_t x, uint8_t y) {}
+
+void CC8_SE_VX_VY(uint8_t x, uint8_t y) 
+{
+	s_currentChipCtx->PC += s_currentChipCtx->V[x] == s_currentChipCtx->V[y] ? 2 : 0;
+}
+
+void CC8_LD_VX_BYTE(uint8_t x, uint8_t kk) 
+{
+	s_currentChipCtx->V[x] = kk;
+}
+
+void CC8_ADD_VX_BYTE(uint8_t x, uint8_t kk) 
+{
+	s_currentChipCtx->V[x] += kk;
+}
+
+void CC8_LD_VX_VY(uint8_t x, uint8_t y) 
+{
+	s_currentChipCtx->V[x] = s_currentChipCtx->V[y];
+}
+
+void CC8_OR_VX_VY(uint8_t x, uint8_t y) 
+{
+	s_currentChipCtx->V[x] |= s_currentChipCtx->V[y];
+}
+
+void CC8_AND_VX_VY(uint8_t x, uint8_t y) 
+{
+	s_currentChipCtx->V[x] &= s_currentChipCtx->V[y];
+}
+
+void CC8_XOR_VX_VY(uint8_t x, uint8_t y)
+{
+	s_currentChipCtx->V[x] ^= s_currentChipCtx->V[y];
+}
+
+void CC8_ADD_VX_VY(uint8_t x, uint8_t y) 
+{
+	uint16_t sum = s_currentChipCtx->V[x] + s_currentChipCtx->V[y]; 
+	s_currentChipCtx->V[0x0F] = sum > 0xff;
+	s_currentChipCtx->V[x] = sum & 0xFF;
+}
+
+void CC8_SUB_VX_VY(uint8_t x, uint8_t y) 
+{
+	s_currentChipCtx->V[0x0F] = s_currentChipCtx->V[x] > s_currentChipCtx->V[y];
+	s_currentChipCtx->V[x] -= s_currentChipCtx->V[y];
+}
+
 void CC8_SHR_VX(uint8_t x) {}
 void CC8_SUBN_VX_VY(uint8_t x, uint8_t y) {}
 void CC8_SHL_VX(uint8_t x) {}
