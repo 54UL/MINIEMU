@@ -31,7 +31,7 @@ void HexDump(uint8_t * buffer, size_t size)
 {
 	// Print header
 	printf("Hex dump:\n");
-	printf("-----------------------------------------------------------------\n");
+	printf("-----------------------------------------------------------------------\n");
 	printf("Offset |                         Hexadecimal                    | ASCII\n");
 	printf("-------|--------------------------------------------------------|------\n");
 
@@ -96,8 +96,8 @@ void CC8_LoadProgram(const char *filePath)
 	size_t bytes_read = fread(buffer, 1, file_size, file);
 
 	// LOAD PROGRAM AND FONT INTO RAM
+	const size_t font_addr_start = 0x000; // The first thing in memory is the font
 	const size_t boot_addr_start = 0x200; // 512
-	const size_t font_addr_start = 0x000; // 512
 
 	uint16_t addr = 0;
 	uint16_t loop_index = 0;
@@ -114,8 +114,9 @@ void CC8_LoadProgram(const char *filePath)
 		s_currentChipCtx->RAM[font_addr_start + addr] = CC8_DEFAULT_FONT[loop_index++];
 	}
 	
-	// Print the buffer (TODO:addd flag to print this thing)
+	//Print the buffer (TODO:addd flag to print this thing)
 	//HexDump(buffer, bytes_read);
+	
 	// Clean up resources
 	free(buffer);
 	fclose(file);
@@ -383,22 +384,105 @@ void CC8_SUB_VX_VY(uint8_t x, uint8_t y)
 	s_currentChipCtx->V[x] -= s_currentChipCtx->V[y];
 }
 
-void CC8_SHR_VX(uint8_t x) {}
-void CC8_SUBN_VX_VY(uint8_t x, uint8_t y) {}
-void CC8_SHL_VX(uint8_t x) {}
-void CC8_SNE_VX_VY(uint8_t x, uint8_t y) {}
-void CC8_LD_I_ADDR(uint16_t addr) {}
-void CC8_JP_V0_ADDR(uint16_t addr) {}
-void CC8_RND_VX_BYTE(uint8_t x, uint8_t kk) {}
-void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) {}
-void CC8_SKP_VX(uint8_t x) {}
-void CC8_SKNP_VX(uint8_t x) {}
-void CC8_LD_VX_DT(uint8_t x) {}
-void CC8_LD_VX_K(uint8_t x) {}
-void CC8_LD_DT_VX(uint8_t x) {}
-void CC8_LD_ST_VX(uint8_t x) {}
-void CC8_ADD_I_VX(uint8_t x) {}
-void CC8_LD_F_VX(uint8_t x) {}
-void CC8_LD_B_VX(uint8_t x) {}
-void CC8_LD_I_VX(uint8_t x) {}
-void CC8_LD_VX_I(uint8_t x) {}
+void CC8_SHR_VX(uint8_t x) 
+{	
+	s_currentChipCtx->V[0x0F] = (s_currentChipCtx->V[x] & 0x01) != 0;
+	s_currentChipCtx->V[x] /= 2;
+}
+
+void CC8_SUBN_VX_VY(uint8_t x, uint8_t y) 
+{
+	s_currentChipCtx->V[0x0F] = s_currentChipCtx->V[y] > s_currentChipCtx->V[x];
+	s_currentChipCtx->V[x] = s_currentChipCtx->V[y] - s_currentChipCtx->V[x];
+}
+
+void CC8_SHL_VX(uint8_t x) 
+{
+	s_currentChipCtx->V[0x0F] = (s_currentChipCtx->V[x] & 0x80) != 0;
+	s_currentChipCtx->V[x] *= 2;
+}
+
+void CC8_SNE_VX_VY(uint8_t x, uint8_t y) 
+{
+	s_currentChipCtx->PC += s_currentChipCtx->V[x] != s_currentChipCtx->V[y] ? 2 : 0;
+}
+
+void CC8_LD_I_ADDR(uint16_t addr) 
+{
+	s_currentChipCtx->I = addr;
+}
+
+void CC8_JP_V0_ADDR(uint16_t addr) 
+{
+	s_currentChipCtx->PC = addr + s_currentChipCtx->V[0];
+}
+
+void CC8_RND_VX_BYTE(uint8_t x, uint8_t kk) 
+{
+	s_currentChipCtx->V[x] = (rand() % 0xFF ) & kk
+}
+
+void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) 
+{
+	//The interpreter reads n bytes from memory, starting at the address stored in I. 
+	//These bytes are then displayed as sprites on screen at coordinates (Vx, Vy). 
+	//Sprites are XORed onto the existing screen.
+	// If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0. 
+	//If the sprite is positioned so part of it is outside the coordinates of the display, it wraps around to the opposite side of the screen. 
+	//See instruction 8xy3 for more information on XOR, and section 2.4, Display, for more information on the Chip-8 screen and sprites.
+}
+
+void CC8_SKP_VX(uint8_t x) 
+{
+
+}
+
+void CC8_SKNP_VX(uint8_t x) 
+{
+
+}
+
+void CC8_LD_VX_DT(uint8_t x) 
+{
+
+}
+
+void CC8_LD_VX_K(uint8_t x) 
+{
+
+}
+
+void CC8_LD_DT_VX(uint8_t x) 
+{
+
+}
+
+void CC8_LD_ST_VX(uint8_t x) 
+{
+
+}
+
+void CC8_ADD_I_VX(uint8_t x) 
+{
+
+}
+
+void CC8_LD_F_VX(uint8_t x) 
+{
+
+}
+
+void CC8_LD_B_VX(uint8_t x) 
+{
+
+}
+
+void CC8_LD_I_VX(uint8_t x) 
+{
+
+}
+
+void CC8_LD_VX_I(uint8_t x) 
+{
+
+}

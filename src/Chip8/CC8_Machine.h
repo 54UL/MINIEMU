@@ -15,7 +15,7 @@
 
 typedef struct 
 {
-    uint8_t  RAM[CHIP_8_RAM];
+    uint8_t  RAM[CHIP_8_MAX_RAM];
     uint8_t  V[CHIP_8_V_REGISTERS_COUNT];
     uint8_t  SOUND;
     uint8_t  DELAY;
