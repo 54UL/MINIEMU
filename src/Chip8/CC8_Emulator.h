@@ -6,6 +6,7 @@
 void CC8_LoadProgram(const char *filePath);
 void CC8_QuitProgram();
 void CC8_TickEmulation();
+void CC8_SetKeyboardValue(uint8_t key);
 void CC8_SetEmulationContext(CC8_Machine *context);
 
 //CHIP 8 IMPL

@@ -296,6 +296,11 @@ void CC8_TickEmulation()
 	s_currentChipCtx->PC++;
 }
 
+void CC8_SetKeyboardValue(uint8_t key)
+{
+	s_currentChipCtx->KEYBOARD = key;
+}
+
 void CC8_SetEmulationContext(CC8_Machine *context)
 {
 	s_currentChipCtx = context;
@@ -441,7 +446,7 @@ void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n)
 		const uint8_t vramData = s_currentChipCtx->VRAM[vramIndex];
 
 		// If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0. 
-		s_currentChipCtx->V[0x0F] = ramData ^ vramData != vramData;
+		s_currentChipCtx->V[0x0F] = ramData ^ vramData != 0;
 		
 		// Sprites are XORed onto the existing screen.
 		s_currentChipCtx->VRAM[vramIndex] ^= ramData;
@@ -450,55 +455,85 @@ void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n)
 
 void CC8_SKP_VX(uint8_t x) 
 {
-
+	s_currentChipCtx->PC += s_currentChipCtx->V[x] == s_currentChipCtx->KEYBOARD ? 2 : 0;
 }
 
 void CC8_SKNP_VX(uint8_t x) 
 {
-
+	s_currentChipCtx->PC += s_currentChipCtx->V[x] != s_currentChipCtx->KEYBOARD ? 2 : 0;
 }
 
 void CC8_LD_VX_DT(uint8_t x) 
 {
-
+	s_currentChipCtx->V[x] = s_currentChipCtx->DELAY;
 }
 
 void CC8_LD_VX_K(uint8_t x) 
 {
-
+	while (s_currentChipCtx->KEYBOARD == 0);
+	s_currentChipCtx->V[x] = s_currentChipCtx->KEYBOARD;
 }
 
 void CC8_LD_DT_VX(uint8_t x) 
 {
-
+	s_currentChipCtx->DELAY = s_currentChipCtx->V[x]; 
 }
 
 void CC8_LD_ST_VX(uint8_t x) 
 {
-
+	s_currentChipCtx->SOUND = s_currentChipCtx->V[x];
 }
 
 void CC8_ADD_I_VX(uint8_t x) 
 {
-
+	s_currentChipCtx->I += s_currentChipCtx->V[x];
 }
 
 void CC8_LD_F_VX(uint8_t x) 
 {
-
+	//Set I = location of sprite for digit Vx. (CHECK IF IT WORKS)
+	s_currentChipCtx->I = s_currentChipCtx->V[x] * 5;
 }
 
 void CC8_LD_B_VX(uint8_t x) 
 {
+	//Convert to bsd representation
+	const uint8_t rawValue = s_currentChipCtx->V[x];
+	const uint8_t hundreds = rawValue % 100;
+	const uint8_t tens     = rawValue % 10;
+	const uint8_t units    = rawValue % 1;
 
+	//Save the current i location
+	const uint16_t currentAddress = s_currentChipCtx->I;
+
+	//Store bcd converted values
+	s_currentChipCtx->RAM[currentAddress]     = hundreds;
+	s_currentChipCtx->RAM[currentAddress + 1] = tens;
+	s_currentChipCtx->RAM[currentAddress + 2] = units;
 }
 
 void CC8_LD_I_VX(uint8_t x) 
 {
+	const uint16_t startAddress = s_currentChipCtx->I;
+	const uint16_t endAddress = startAddress + s_currentChipCtx->V[x];
+	uint16_t ramIndex = startAddress;
+	uint8_t vIndex = 0;
 
+	for(ramIndex; ramIndex < endAddress; ramIndex++, vIndex++)
+	{
+		s_currentChipCtx->RAM[ramIndex] = s_currentChipCtx->V[vIndex];
+	}
 }
 
 void CC8_LD_VX_I(uint8_t x) 
 {
+	const uint16_t startAddress = s_currentChipCtx->I;
+	const uint16_t endAddress = startAddress + s_currentChipCtx->V[x];
+	uint16_t ramIndex = startAddress;
+	uint8_t vIndex = 0;
 
+	for(ramIndex; ramIndex < endAddress; ramIndex++, vIndex++)
+	{
+		 = s_currentChipCtx->V[vIndex] = s_currentChipCtx->RAM[ramIndex];
+	}
 }

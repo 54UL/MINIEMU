@@ -24,6 +24,7 @@ typedef struct
     uint8_t  SP;
     uint16_t STACK[16];
     uint8_t  VRAM[CHIP_8_VRAM_SIZE];
+    uint8_t  KEYBOARD;
 } CC8_Machine;
 
 #endif
