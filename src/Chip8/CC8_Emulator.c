@@ -102,7 +102,7 @@ void CC8_LoadProgram(const char *filePath)
 	uint16_t addr = 0;
 	uint16_t loop_index = 0;
 
-	for (addr = boot_addr_start; (addr < boot_addr_start + CHIP_8_RAM); addr++)
+	for (addr = boot_addr_start; (addr < boot_addr_start + CHIP_8_MAX_RAM); addr++)
 	{
 		s_currentChipCtx->RAM[boot_addr_start + addr] = buffer[loop_index++];
 	}
@@ -230,7 +230,7 @@ void CC8_Step(uint16_t opcode)
 				
 				case 0xA1:
 					CC8_SKNP_VX(x);
-					break
+					break;
 				default:
 					printf("0xE000 Unknow sub-instruction %06X", opcode & kk);
 			}
@@ -245,7 +245,7 @@ void CC8_Step(uint16_t opcode)
 				
 				case 0x0A:
 					CC8_LD_VX_K(x);
-					break
+					break;
 
 				case 0X15:
 					CC8_LD_VX_DT(x);
@@ -419,7 +419,7 @@ void CC8_JP_V0_ADDR(uint16_t addr)
 
 void CC8_RND_VX_BYTE(uint8_t x, uint8_t kk) 
 {
-	s_currentChipCtx->V[x] = (rand() % 0xFF ) & kk
+	s_currentChipCtx->V[x] = (rand() % 0xFF ) & kk;
 }
 
 void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) 
