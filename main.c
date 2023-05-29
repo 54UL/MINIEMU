@@ -13,6 +13,7 @@ CC8_Machine * context;
 void OnStep(unsigned int* pixels)
 {
     //Do something with thhe pixels
+    //uint8_t pixel = s_currentChipCtx.VRAM[y * CHIP_8_VRAM_WIDTH + x];
 }
 
 void OnInputAction(const char code)

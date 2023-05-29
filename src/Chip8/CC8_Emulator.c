@@ -424,12 +424,28 @@ void CC8_RND_VX_BYTE(uint8_t x, uint8_t kk)
 
 void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) 
 {
-	//The interpreter reads n bytes from memory, starting at the address stored in I. 
-	//These bytes are then displayed as sprites on screen at coordinates (Vx, Vy). 
-	//Sprites are XORed onto the existing screen.
-	// If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0. 
-	//If the sprite is positioned so part of it is outside the coordinates of the display, it wraps around to the opposite side of the screen. 
-	//See instruction 8xy3 for more information on XOR, and section 2.4, Display, for more information on the Chip-8 screen and sprites.
+	//The interpreter reads n bytes from memory, starting at the address stored in I.
+	const uint16_t startAddress = s_currentChipCtx->I;
+	
+	for(uint16_t ramIndex = startAddress; ramIndex < (startAddress + n); ramIndex++)
+	{
+		// Index = y * width + x. (1D GRAPHIC ADDRESSING FORMULA)
+		// These bytes are then displayed as sprites on screen at coordinates (Vx, Vy), 
+		// If the sprite is positioned so part of it is outside the coordinates of the display, it wraps around to the opposite side of the screen.
+		const uint8_t xCoord = s_currentChipCtx->V[x] < CHIP_8_VRAM_WIDTH ? s_currentChipCtx->V[x] : 0;
+		const uint8_t yCoord = s_currentChipCtx->V[y] < CHIP_8_VRAM_HEIGHT ? s_currentChipCtx->V[y] : 0;
+
+		// Fetch data from vram and current screen buffer (vram)
+		const uint16_t vramIndex = yCoord * CHIP_8_VRAM_WIDTH + xCoord;
+		const uint8_t ramData = s_currentChipCtx->RAM[ramIndex];
+		const uint8_t vramData = s_currentChipCtx->VRAM[vramIndex];
+
+		// If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0. 
+		s_currentChipCtx->V[0x0F] = ramData ^ vramData != vramData;
+		
+		// Sprites are XORed onto the existing screen.
+		s_currentChipCtx->VRAM[vramIndex] ^= ramData;
+	}	
 }
 
 void CC8_SKP_VX(uint8_t x) 
