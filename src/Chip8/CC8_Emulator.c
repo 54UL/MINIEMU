@@ -534,6 +534,6 @@ void CC8_LD_VX_I(uint8_t x)
 
 	for(ramIndex; ramIndex < endAddress; ramIndex++, vIndex++)
 	{
-		 = s_currentChipCtx->V[vIndex] = s_currentChipCtx->RAM[ramIndex];
+		s_currentChipCtx->V[vIndex] = s_currentChipCtx->RAM[ramIndex];
 	}
 }
