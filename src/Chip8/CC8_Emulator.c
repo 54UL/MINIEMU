@@ -92,7 +92,7 @@ void CC8_LoadProgram(const char *filePath)
 	fseek(file, 0L, SEEK_SET);
 
 	// Allocate a buffer for reading the file
-	uint8_t *buffer = (uint8_t *)calloc(1, CC8_FILE_PROGRAM_BUFFER_SIZE);
+	uint8_t *buffer = (uint8_t *)calloc(1, file_size + 1);
 	size_t bytes_read = fread(buffer, 1, file_size, file);
 
 	// LOAD PROGRAM AND FONT INTO RAM
@@ -102,9 +102,9 @@ void CC8_LoadProgram(const char *filePath)
 	uint16_t addr = 0;
 	uint16_t loop_index = 0;
 
-	for (addr = boot_addr_start; (addr < boot_addr_start + CHIP_8_MAX_RAM); addr++)
+	for (addr = boot_addr_start; (addr < boot_addr_start + bytes_read); addr++)
 	{
-		s_currentChipCtx->RAM[boot_addr_start + addr] = buffer[loop_index++];
+		s_currentChipCtx->RAM[addr] = buffer[loop_index++];
 	}
 
 	loop_index = 0;

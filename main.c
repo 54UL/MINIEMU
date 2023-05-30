@@ -20,32 +20,31 @@ void OnInputAction(const char code)
 {
     printf("Key pressed %c\n", code);
     //BOILER PLATE CODE
-    switch (code) 
-    {
-        case SDLK_q:
-            // Handle key A
-            break;
-        case SDLK_w:
-            // Handle key B
-            break;
-        case SDLK_e:
-            // Handle key C
-            break;
-        case SDLK_a:
-            // Handle key P
-            break;
-        case SDLK_s:
-            // Handle key Q
-            break;
-        case SDLK_d:
-            // Handle key R
-            break;
-    }
+    // switch (code) 
+    // {
+    //     case SDLK_q:
+    //         // Handle key A
+    //         break;
+    //     case SDLK_w:
+    //         // Handle key B
+    //         break;
+    //     case SDLK_e:
+    //         // Handle key C
+    //         break;
+    //     case SDLK_a:
+    //         // Handle key P
+    //         break;
+    //     case SDLK_s:
+    //         // Handle key Q
+    //         break;
+    //     case SDLK_d:
+    //         // Handle key R
+    //         break;
+    // }
 }
 
 int main(int argc, char** argv)
 {
-   
     App * chip8App = &TinySDLApp;
     CC8_Core * emulator = &Chip8Emulator;
     context = calloc(1, sizeof(CC8_Machine)); //Initialize machine state
@@ -61,6 +60,6 @@ int main(int argc, char** argv)
         SDL_Delay(200);
     }
 
-    emulator->QuitProgram();
-    chip8App->Exit(); 
+    // emulator->QuitProgram();
+    // chip8App->Exit(); 
 }
