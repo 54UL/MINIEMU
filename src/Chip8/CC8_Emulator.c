@@ -137,7 +137,7 @@ void CC8_Step(uint16_t opcode)
 	int kk = opcode & 0x00FF;
 	int n = opcode & 0x000F;
 
-	//fetch and execute
+	//Fetch and execute
 	switch (opcode & 0xF000)
 	{
 		case 0x0000:
@@ -186,7 +186,7 @@ void CC8_Step(uint16_t opcode)
 			break;
 
 		case 0x8000:
-			switch (opcode & n)
+			switch (opcode & 0x000F)
 			{
 				case 0x0000:
 					CC8_LD_VX_VY(x, y);
@@ -222,7 +222,7 @@ void CC8_Step(uint16_t opcode)
 			break;
 
 		case 0xE000:
-			switch(opcode & kk)
+			switch(opcode & 0x00FF)
 			{
 				case 0x9E:
 					CC8_SKP_VX(x);
@@ -237,7 +237,7 @@ void CC8_Step(uint16_t opcode)
 			break;
 	
 		case 0xF000:
-			switch(opcode & kk)
+			switch(opcode & 0x00FF)
 			{
 				case 0x07:
 					CC8_LD_VX_DT(x);
@@ -499,9 +499,10 @@ void CC8_LD_B_VX(uint8_t x)
 {
 	//Convert to bsd representation
 	const uint8_t rawValue = s_currentChipCtx->V[x];
-	const uint8_t hundreds = rawValue % 100;
-	const uint8_t tens     = rawValue % 10;
-	const uint8_t units    = rawValue % 1;
+	
+	const uint8_t hundreds = (rawValue % 1000 - rawValue % 100) / 100;
+	const uint8_t tens     = (rawValue % 100 - rawValue % 10) / 10;
+	const uint8_t units    = (rawValue % 10 - rawValue % 1) / 1;
 
 	//Save the current i location
 	const uint16_t currentAddress = s_currentChipCtx->I;
