@@ -10,35 +10,64 @@
 
 CC8_Machine * context;
 
+//5x8 bitmap font
+const uint8_t font_bitmap[] = {
+	0xF0, 0x90, 0x90, 0x90, 0xF0,  // "0"
+	0x20, 0x60, 0x20, 0x20, 0x70,  // "1"
+	0xF0, 0x10, 0xF0, 0x80, 0xF0,  // "2"
+	0xF0, 0x10, 0xF0, 0x10, 0xF0,  // "3"
+	0x90, 0x90, 0xF0, 0x10, 0x10,  // "4"
+	0xF0, 0x80, 0xF0, 0x10, 0xF0,  // "5"
+	0xF0, 0x80, 0xF0, 0x90, 0xF0,  // "6"
+	0xF0, 0x10, 0x20, 0x40, 0x40,  // "7"
+	0xF0, 0x90, 0xF0, 0x90, 0xF0,  // "8"
+	0xF0, 0x90, 0xF0, 0x10, 0xF0,  // "9"
+	0xF0, 0x90, 0xF0, 0x90, 0x90,  // "A"
+	0xE0, 0x90, 0xE0, 0x90, 0xE0,  // "B"
+	0xF0, 0x80, 0x80, 0x80, 0xF0,  // "C"
+	0xE0, 0x90, 0x90, 0x90, 0xE0,  // "D"
+	0xF0, 0x80, 0xF0, 0x80, 0xF0,  // "E"
+	0xF0, 0x80, 0xF0, 0x80, 0x80   // "F"
+	};
+
+
+void DrawCC8BitMapFont(uint8_t index, unsigned int* pixels, int x, int y){
+    uint8_t gylphIndex = 0;
+    uint8_t byteCount = 0;
+
+    //5 wide bytes fonts
+    for (gylphIndex = index * 5,byteCount = 0 ; gylphIndex < (index * 5)+5; gylphIndex++, byteCount++)
+    {
+        for (int bitIndex = 0; bitIndex < 8; bitIndex++)
+        {
+            //This renders propperly the font !!:) 
+            //formula: (y + x_offset) * SCREEN_HEIGHT + (y_offset + x)
+            pixels[ (y + byteCount) * SCREEN_HEIGHT + (bitIndex + x)] = ((font_bitmap[gylphIndex] << bitIndex) & 0x80) == 0x80? 0xFFFFFFFF : 0X00000000;
+        }    
+    }
+}
+
 void OnStep(unsigned int* pixels)
 {
-    // int i = 0,j = 0;
-    // for (i = 0; i < SCREEN_HEIGHT; i++) 
-    // {
-
-    //     for (j = 0; j < SCREEN_WIDTH; j++)
-    //     {
-
-    //         char value = context->VRAM[i*SCREEN_HEIGHT+j] > 0 ? 'X' :' ';
-    //         printf("%c",value);
-    //     }
-    //     printf("\n");
-    //     // printf("line draw at %i %i", i,j);
-    // }
+    //pixel rendering TES
     // printf("\n");
-        for(int i = 0; i < SCREEN_HEIGHT; ++i) {
-        for(int j = 0; j < SCREEN_WIDTH; ++j) {
-            if(context->VRAM[i * SCREEN_WIDTH + j] > 0) { 
-                // printf("X");
-                pixels[i+j*SCREEN_HEIGHT] = 0xFFFFFFFF;
-            } else {
-                // printf(" ");
-                pixels[i+j*SCREEN_HEIGHT] = 0x00000000;
-            }
-        }
-        // printf("\n");
+
+    //This renders propperly the font !!:)
+    for (int j = 0, charIndex = 0; j < 2; j++)
+    {
+        for (int i = 0; i < 8; i++)
+            DrawCC8BitMapFont(charIndex++, pixels, i * 6, j * 8);
     }
-    // Iterate over the rows and columns of the 2D array
+
+    //TODO Fix code below to render the contents of the vram
+    
+    // for (i = 0; i < SCREEN_HEIGHT; i++) {
+    //     for (j = 0; j < SCREEN_WIDTH; j++) {
+    //         // Copy the current element to the 1D array
+    //         pixels[index] = context->VRAM[i][j] == 0xFF ? 0xFF0ff0ffF : 0x000000ff0;
+    //         index++;
+    //     }
+    // }
 }
 
 void OnInputAction(const char code)
