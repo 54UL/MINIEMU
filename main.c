@@ -151,7 +151,7 @@ int main(int argc, char** argv)
     while(chip8App->Step(OnStep, OnInputAction))
     {
         emulator->TickEmulation();
-        SDL_Delay(200);
+        SDL_Delay(16);
         context->KEYBOARD = 0;//todo: check if the reset of the keyboard state is needed
     }
 

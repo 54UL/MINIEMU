@@ -126,14 +126,16 @@ void CC8_QuitProgram()
 
 void CC8_Step(uint16_t opcode)
 {
-	//decode instruction
+	// Decode instruction
 	int x = (opcode >> 8) & 0x0F;
 	int y = (opcode >> 4) & 0x0F;
 	int nnn = opcode & 0x0FFF;
 	int kk = opcode & 0x00FF;
 	int n = opcode & 0x000F;
+
 	printf("CURRENT OPCODE VALUE: %06X AT PC:%i\n", opcode, s_currentChipCtx->PC);
-	//Fetch and execute
+	
+	// Fetch and execute
 	switch (opcode & 0xF000)
 	{
 		case 0x0000:
@@ -284,9 +286,16 @@ void CC8_Step(uint16_t opcode)
 	}
 }
 
+void CC8_TickDelayTimer()
+{
+	if (s_currentChipCtx->DELAY != 0)
+		s_currentChipCtx->DELAY--;
+}
+
 void CC8_TickEmulation()
 {
 	CC8_DebugMachine(s_currentChipCtx);
+	CC8_TickDelayTimer();
 
 	uint8_t lowerByte = s_currentChipCtx->RAM[s_currentChipCtx->PC];
 	uint8_t higherByte = s_currentChipCtx->RAM[s_currentChipCtx->PC + 1];
