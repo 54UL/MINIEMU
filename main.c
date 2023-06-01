@@ -12,8 +12,33 @@ CC8_Machine * context;
 
 void OnStep(unsigned int* pixels)
 {
-    //Do something with thhe pixels
-    //uint8_t pixel = s_currentChipCtx.VRAM[y * CHIP_8_VRAM_WIDTH + x];
+    // int i = 0,j = 0;
+    // for (i = 0; i < SCREEN_HEIGHT; i++) 
+    // {
+
+    //     for (j = 0; j < SCREEN_WIDTH; j++)
+    //     {
+
+    //         char value = context->VRAM[i*SCREEN_HEIGHT+j] > 0 ? 'X' :' ';
+    //         printf("%c",value);
+    //     }
+    //     printf("\n");
+    //     // printf("line draw at %i %i", i,j);
+    // }
+    // printf("\n");
+        for(int i = 0; i < SCREEN_HEIGHT; ++i) {
+        for(int j = 0; j < SCREEN_WIDTH; ++j) {
+            if(context->VRAM[i * SCREEN_WIDTH + j] > 0) { 
+                // printf("X");
+                pixels[i+j*SCREEN_HEIGHT] = 0xFFFFFFFF;
+            } else {
+                // printf(" ");
+                pixels[i+j*SCREEN_HEIGHT] = 0x00000000;
+            }
+        }
+        // printf("\n");
+    }
+    // Iterate over the rows and columns of the 2D array
 }
 
 void OnInputAction(const char code)

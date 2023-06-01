@@ -38,15 +38,15 @@ void Init_SDL(uint16_t w, uint16_t h)
 
     s_pixels = calloc(s_width * s_height, sizeof(int));
 
-    //Randomize the buffer (ready state)
-    int i = 0,j = 0;
-    for (i = 0; i < s_height; i++) 
-    {
-        for (j = 0; j < s_width; j++)
-        {
-             s_pixels[i+j*s_height] = rand() % 0xffffff;
-        }
-    }
+    // //Randomize the buffer (ready state)
+    // int i = 0,j = 0;
+    // for (i = 0; i < s_height; i++) 
+    // {
+    //     for (j = 0; j < s_width; j++)
+    //     {
+    //          s_pixels[i+j*s_height] = rand() % 0xffffff;
+    //     }
+    // }
 
     // Register basic callbacks
 }

@@ -31,9 +31,9 @@ void HexDump(uint8_t * buffer, size_t size)
 {
 	// Print header
 	printf("Hex dump:\n");
-	printf("-----------------------------------------------------------------------\n");
-	printf("Offset |                         Hexadecimal                    | ASCII\n");
-	printf("-------|--------------------------------------------------------|------\n");
+	printf("---------------------------------------------------------------\n");
+	printf("Offset |                         Hexadecimal                   \n");
+	printf("-------|-------------------------------------------------------\n");
 
 	// Print buffer contents in hexadecimal format with ASCII representation
 	int i = 0;
@@ -47,13 +47,7 @@ void HexDump(uint8_t * buffer, size_t size)
 		// Print hexadecimal values
 		for (j = i; j < i + 16 && j < size; j++)
 		{
-			printf("%02X ", (unsigned char) buffer[j]);
-		}
-
-		// Print spaces to align columns
-		for (j = 0; j < 3 * (16 - (size - i)); j++)
-		{
-			printf(" ");
+			printf("%02X ", buffer[j]);
 		}
 		printf("\n");
 	}
@@ -106,6 +100,8 @@ void CC8_LoadProgram(const char *filePath)
 	{
 		s_currentChipCtx->RAM[addr] = buffer[loop_index++];
 	}
+	
+	s_currentChipCtx->PC = boot_addr_start + 1;
 
 	loop_index = 0;
 	printf("Loaded font size: %i", sizeof(CC8_DEFAULT_FONT));
@@ -115,7 +111,7 @@ void CC8_LoadProgram(const char *filePath)
 	}
 	
 	//Print the buffer (TODO:addd flag to print this thing)
-	//HexDump(buffer, bytes_read);
+	HexDump(buffer, bytes_read);
 	
 	// Clean up resources
 	free(buffer);
@@ -136,7 +132,7 @@ void CC8_Step(uint16_t opcode)
 	int nnn = opcode & 0x0FFF;
 	int kk = opcode & 0x00FF;
 	int n = opcode & 0x000F;
-
+	printf("CURRENT OPCODE VALUE: %06X AT PC:%i\n", opcode, s_currentChipCtx->PC);
 	//Fetch and execute
 	switch (opcode & 0xF000)
 	{
@@ -151,9 +147,12 @@ void CC8_Step(uint16_t opcode)
 					CC8_RET();
 					break;
 
+				case 0X0000:
+					printf("NOP?");
+					break;
 				default:
-					// Unknown instruction
-					printf("0x0000 Unknow sub-instruction %06X", opcode & kk);
+				// 	// Unknown instruction
+					printf("0x0000 Unknow sub-instruction %06X", opcode & 0x00FF);
 			}
 			break;
 
@@ -197,7 +196,7 @@ void CC8_Step(uint16_t opcode)
 					break;
 
 				default:
-					printf("0x8000 Unknow sub-instruction %06X", opcode & kk);
+					printf("0x8000 Unknow sub-instruction %06X", opcode & 0x000F);
 			}
 			break;
 
@@ -232,7 +231,7 @@ void CC8_Step(uint16_t opcode)
 					CC8_SKNP_VX(x);
 					break;
 				default:
-					printf("0xE000 Unknow sub-instruction %06X", opcode & kk);
+					printf("0xE000 Unknow sub-instruction %06X", opcode & 0x00FF);
 			}
 			break;
 	
@@ -293,7 +292,7 @@ void CC8_TickEmulation()
 	uint8_t higherByte = s_currentChipCtx->RAM[s_currentChipCtx->PC + 1];
 	uint16_t value16 = ((uint16_t)higherByte << 8) | lowerByte;
 	CC8_Step(value16);
-	s_currentChipCtx->PC++;
+	s_currentChipCtx->PC+=2;
 }
 
 void CC8_SetKeyboardValue(uint8_t key)
