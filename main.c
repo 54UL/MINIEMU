@@ -6,7 +6,7 @@
 
 #define SCREEN_HEIGHT 64
 #define SCREEN_WIDTH  32
-#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/1-chip8-logo.ch8"
+#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/1-chip8-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
 
 CC8_Machine * context;
 
@@ -42,59 +42,99 @@ void DrawCC8BitMapFont(uint8_t index, unsigned int* pixels, int x, int y){
         {
             //This renders propperly the font !!:) 
             //formula: (y + x_offset) * SCREEN_HEIGHT + (y_offset + x)
-            pixels[ (y + byteCount) * SCREEN_HEIGHT + (bitIndex + x)] = ((font_bitmap[gylphIndex] << bitIndex) & 0x80) == 0x80? 0xFFFFFFFF : 0X00000000;
+            pixels[ (y + byteCount) * SCREEN_HEIGHT + (bitIndex + x)] = ((font_bitmap[gylphIndex] << bitIndex) & 0x80) == 0x80 ? 0xFFFFFFFF : 0X00000000;
         }    
     }
 }
 
-void OnStep(unsigned int* pixels)
+void BitmapTest(unsigned int* pixels)
 {
-    //pixel rendering TES
-    // printf("\n");
-
     //This renders propperly the font !!:)
     for (int j = 0, charIndex = 0; j < 2; j++)
     {
         for (int i = 0; i < 8; i++)
             DrawCC8BitMapFont(charIndex++, pixels, i * 6, j * 8);
     }
+}
 
+void OnStep(unsigned int* pixels)
+{
     //TODO Fix code below to render the contents of the vram
-    
-    // for (i = 0; i < SCREEN_HEIGHT; i++) {
-    //     for (j = 0; j < SCREEN_WIDTH; j++) {
-    //         // Copy the current element to the 1D array
-    //         pixels[index] = context->VRAM[i][j] == 0xFF ? 0xFF0ff0ffF : 0x000000ff0;
-    //         index++;
-    //     }
-    // }
+    //BitmapTest(pixels) //WORKING RENDERING REFERENCE!!!
+    //TODO: Test this code below
+    for (int i = 0; i < SCREEN_HEIGHT; i++) 
+    {
+        for (int j = 0; j < SCREEN_WIDTH; j++) 
+        {
+            //formula: (y + x_offset) * SCREEN_HEIGHT + (y_offset + x)
+            for (int bitIndex = 0; bitIndex < 8; bitIndex++)
+            {
+                uint8_t vramLocation = context->VRAM[(i / CHIP_8_VERTICAL_BIT_PAGE_SIZE) * CHIP_8_VRAM_WIDTH + j];
+                unsigned int pixel = (( vramLocation << bitIndex) & 0x80) == 0x80 ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
+                pixels[i * SCREEN_HEIGHT + (j + bitIndex)] = pixel;
+            }
+        }
+    }
 }
 
 void OnInputAction(const char code)
 {
     printf("Key pressed %c\n", code);
-    //BOILER PLATE CODE
-    // switch (code) 
-    // {
-    //     case SDLK_q:
-    //         // Handle key A
-    //         break;
-    //     case SDLK_w:
-    //         // Handle key B
-    //         break;
-    //     case SDLK_e:
-    //         // Handle key C
-    //         break;
-    //     case SDLK_a:
-    //         // Handle key P
-    //         break;
-    //     case SDLK_s:
-    //         // Handle key Q
-    //         break;
-    //     case SDLK_d:
-    //         // Handle key R
-    //         break;
-    // }
+    switch (code) 
+    {
+        //1 2 3 C
+        case SDLK_1:
+            context->KEYBOARD = 0x01;
+            break;
+        case SDLK_2:
+            context->KEYBOARD = 0x02;
+            break;
+        case SDLK_3:
+            context->KEYBOARD = 0x03;
+            break;
+        case SDLK_4:
+            context->KEYBOARD = 0x0C;
+            break;      
+        //4 5 6 D
+        case SDLK_q:
+            context->KEYBOARD = 0x04;
+            break;
+        case SDLK_w:
+            context->KEYBOARD = 0x05;
+            break;        
+        case SDLK_e:
+            context->KEYBOARD = 0x06;
+            break;
+        case SDLK_r:
+            context->KEYBOARD = 0x0D;
+            break;
+        //7 8 9 E
+        case SDLK_a:
+            context->KEYBOARD = 0x07;
+            break;
+        case SDLK_s:
+            context->KEYBOARD = 0x08;
+            break;        
+        case SDLK_d:
+            context->KEYBOARD = 0x09;
+            break;
+        case SDLK_f:
+            context->KEYBOARD = 0x0E;
+            break;
+        //A 0 B F
+        case SDLK_z:
+            context->KEYBOARD = 0x0A;
+            break;
+        case SDLK_x:
+            context->KEYBOARD = 0x00;
+            break;        
+        case SDLK_c:
+            context->KEYBOARD = 0x0B;
+            break;
+        case SDLK_v:
+            context->KEYBOARD = 0x0F;
+            break;
+    }
 }
 
 int main(int argc, char** argv)
@@ -112,8 +152,9 @@ int main(int argc, char** argv)
     {
         emulator->TickEmulation();
         SDL_Delay(200);
+        context->KEYBOARD = 0;//todo: check if the reset of the keyboard state is needed
     }
 
-    // emulator->QuitProgram();
-    // chip8App->Exit(); 
+    emulator->QuitProgram();
+    chip8App->Exit(); 
 }

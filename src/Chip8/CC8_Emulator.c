@@ -440,7 +440,8 @@ void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n)
 		const uint8_t yCoord = s_currentChipCtx->V[y] < CHIP_8_VRAM_HEIGHT ? s_currentChipCtx->V[y] : 0;
 
 		// Fetch data from vram and current screen buffer (vram)
-		const uint16_t vramIndex = yCoord * CHIP_8_VRAM_WIDTH + xCoord;
+		// Todo: check for the division by zero and rounding errors (avoided for the moment XD)
+		const uint16_t vramIndex = (yCoord / CHIP_8_VERTICAL_BIT_PAGE_SIZE) * CHIP_8_VRAM_WIDTH + xCoord;
 		const uint8_t ramData = s_currentChipCtx->RAM[ramIndex];
 		const uint8_t vramData = s_currentChipCtx->VRAM[vramIndex];
 
