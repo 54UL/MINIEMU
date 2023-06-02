@@ -59,19 +59,22 @@ void BitmapTest(unsigned int* pixels)
 
 void OnStep(unsigned int* pixels)
 {
-    //TODO Fix code below to render the contents of the vram
-    //BitmapTest(pixels) //WORKING RENDERING REFERENCE!!!
     //TODO: Test this code below
+
     for (int i = 0; i < SCREEN_HEIGHT; i++) 
     {
-        for (int j = 0; j < SCREEN_WIDTH; j++) 
+        for (int j = 0; j < SCREEN_WIDTH / 8; j++) 
         {
-            //formula: (y + x_offset) * SCREEN_HEIGHT + (y_offset + x)
+            uint8_t vramLocation = context->VRAM[(i / CHIP_8_VERTICAL_BIT_PAGE_SIZE) * CHIP_8_VRAM_WIDTH + j];
             for (int bitIndex = 0; bitIndex < 8; bitIndex++)
             {
-                uint8_t vramLocation = context->VRAM[(i / CHIP_8_VERTICAL_BIT_PAGE_SIZE) * CHIP_8_VRAM_WIDTH + j];
-                unsigned int pixel = (( vramLocation << bitIndex) & 0x80) == 0x80 ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
-                pixels[i * SCREEN_HEIGHT + (j + bitIndex)] = pixel;
+                int pixelX = j * 8 + bitIndex;
+                // check if the pixel is in bound before drawing
+                if (pixelX < SCREEN_WIDTH && i < SCREEN_HEIGHT) 
+                {
+                    unsigned int pixel = ((vramLocation << bitIndex) & 0x80) == 0x80 ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
+                    pixels[i * SCREEN_WIDTH + pixelX] = pixel;
+                }
             }
         }
     }
