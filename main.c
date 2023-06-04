@@ -6,7 +6,7 @@
 
 #define SCREEN_HEIGHT 64
 #define SCREEN_WIDTH  32
-#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/1-chip8-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/2-ibm-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
 
 CC8_Machine * context;
 
@@ -59,22 +59,16 @@ void BitmapTest(unsigned int* pixels)
 
 void OnStep(unsigned int* pixels)
 {
-    //TODO: Test this code below
-
     for (int i = 0; i < SCREEN_HEIGHT; i++) 
     {
-        for (int j = 0; j < SCREEN_WIDTH / 8; j++) 
+        for (int j = 0; j < SCREEN_WIDTH ; j++) 
         {
             uint8_t vramLocation = context->VRAM[(i / CHIP_8_VERTICAL_BIT_PAGE_SIZE) * CHIP_8_VRAM_WIDTH + j];
             for (int bitIndex = 0; bitIndex < 8; bitIndex++)
             {
-                int pixelX = j * 8 + bitIndex;
-                // check if the pixel is in bound before drawing
-                if (pixelX < SCREEN_WIDTH && i < SCREEN_HEIGHT) 
-                {
-                    unsigned int pixel = ((vramLocation << bitIndex) & 0x80) == 0x80 ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
-                    pixels[i * SCREEN_WIDTH + pixelX] = pixel;
-                }
+                unsigned int pixel = ((vramLocation << bitIndex) & 0x80) == 0x80 ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
+
+                pixels[i * SCREEN_WIDTH + j] = pixel;
             }
         }
     }
@@ -154,7 +148,7 @@ int main(int argc, char** argv)
     while(chip8App->Step(OnStep, OnInputAction))
     {
         emulator->TickEmulation();
-        SDL_Delay(16);
+        // SDL_Delay(250);
         context->KEYBOARD = 0;//todo: check if the reset of the keyboard state is needed
     }
 

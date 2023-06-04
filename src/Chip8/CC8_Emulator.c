@@ -56,8 +56,10 @@ void HexDump(uint8_t * buffer, size_t size)
 	printf("-----------------------------------------------------------------\n");
 }
 
-void CC8_DebugMachine(CC8_Machine *machine) 
+void CC8_DebugMachine(CC8_Machine *machine,uint8_t enable) 
 {
+	if (!enable) return;
+
     printf("| %-10s | %-10s |\n", "Name", "Value");
     printf("|------------|------------|\n");
     printf("| %-10s | %-#10x |\n", "RAM", (unsigned int) machine->RAM);
@@ -133,7 +135,7 @@ void CC8_Step(uint16_t opcode)
 	int kk = opcode & 0x00FF;
 	int n = opcode & 0x000F;
 
-	printf("CURRENT OPCODE VALUE: %06X AT PC:%i\n", opcode, s_currentChipCtx->PC);
+	// printf("CURRENT OPCODE VALUE: %06X AT PC:%i\n", opcode, s_currentChipCtx->PC);
 	
 	// Fetch and execute
 	switch (opcode & 0xF000)
@@ -294,7 +296,7 @@ void CC8_TickDelayTimer()
 
 void CC8_TickEmulation()
 {
-	CC8_DebugMachine(s_currentChipCtx);
+	// CC8_DebugMachine(s_currentChipCtx, 1);
 	CC8_TickDelayTimer();
 
 	uint8_t lowerByte = s_currentChipCtx->RAM[s_currentChipCtx->PC];
@@ -439,9 +441,11 @@ void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n)
 {
 	//The interpreter reads n bytes from memory, starting at the address stored in I.
 	const uint16_t startAddress = s_currentChipCtx->I;
-	
-	for(uint16_t ramIndex = startAddress; ramIndex < (startAddress + n); ramIndex++)
+	printf("DRW: %06X,%06X,%06X (I:%06X)\n", x, y, n, s_currentChipCtx->I);
+	uint8_t renderIndx = 0;
+	for(uint16_t ramIndex = startAddress; ramIndex < (startAddress + n); ramIndex++, renderIndx++)
 	{
+		printf("DRW SPRITE RENDER INDEX: %i\n start address: %i\n", ramIndex, startAddress);
 		// Index = y * width + x. (1D GRAPHIC ADDRESSING FORMULA)
 		// These bytes are then displayed as sprites on screen at coordinates (Vx, Vy), 
 		// If the sprite is positioned so part of it is outside the coordinates of the display, it wraps around to the opposite side of the screen.
@@ -450,7 +454,7 @@ void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n)
 
 		// Fetch data from vram and current screen buffer (vram)
 		// Todo: check for the division by zero and rounding errors (avoided for the moment XD)
-		const uint16_t vramIndex = (yCoord / CHIP_8_VERTICAL_BIT_PAGE_SIZE) * CHIP_8_VRAM_WIDTH + xCoord;
+		const uint16_t vramIndex = ((yCoord)/CHIP_8_VERTICAL_BIT_PAGE_SIZE) * CHIP_8_VRAM_WIDTH + (xCoord);
 		const uint8_t ramData = s_currentChipCtx->RAM[ramIndex];
 		const uint8_t vramData = s_currentChipCtx->VRAM[vramIndex];
 
