@@ -89,7 +89,7 @@ void CC8_LoadProgram(const char *filePath)
 
 	// Allocate a buffer for reading the file
 	uint8_t *buffer = (uint8_t *)calloc(1, file_size + 1);
-	size_t bytes_read = fread(buffer, 1, file_size, file);
+	size_t bytes_read  = fread(buffer, 1, file_size, file);
 
 	// LOAD PROGRAM AND FONT INTO RAM
 	const size_t font_addr_start = 0x000; // The first thing in memory is the font
@@ -103,7 +103,7 @@ void CC8_LoadProgram(const char *filePath)
 		s_currentChipCtx->RAM[addr] = buffer[loop_index++];
 	}
 	
-	s_currentChipCtx->PC = boot_addr_start + 1;
+	s_currentChipCtx->PC = boot_addr_start;
 
 	loop_index = 0;
 	printf("Loaded font size: %i", sizeof(CC8_DEFAULT_FONT));
@@ -129,13 +129,14 @@ void CC8_QuitProgram()
 void CC8_Step(uint16_t opcode)
 {
 	// Decode instruction
-	int x = (opcode >> 8) & 0x0F;
-	int y = (opcode >> 4) & 0x0F;
-	int nnn = opcode & 0x0FFF;
-	int kk = opcode & 0x00FF;
-	int n = opcode & 0x000F;
+int x = (opcode >> 8) & 0x0F;
+int y = (opcode >> 4) & 0x0F;
+int nnn = opcode & 0x0FFF;
+int kk = opcode & 0x00FF;
+int n = opcode & 0x000F;
 
-	// printf("CURRENT OPCODE VALUE: %06X AT PC:%i\n", opcode, s_currentChipCtx->PC);
+	if (opcode != 00)
+	printf("CURRENT OPCODE VALUE: %06X AT PC:%i\n", opcode, s_currentChipCtx->PC);
 	
 	// Fetch and execute
 	switch (opcode & 0xF000)
@@ -152,11 +153,11 @@ void CC8_Step(uint16_t opcode)
 					break;
 
 				case 0X0000:
-					printf("NOP?");
+					
 					break;
 				default:
 				// 	// Unknown instruction
-					printf("0x0000 Unknow sub-instruction %06X", opcode & 0x00FF);
+					printf("0x0000 Unknow sub-instruction %06X\n", opcode & 0x00FF);
 			}
 			break;
 
@@ -200,7 +201,7 @@ void CC8_Step(uint16_t opcode)
 					break;
 
 				default:
-					printf("0x8000 Unknow sub-instruction %06X", opcode & 0x000F);
+					printf("0x8000 Unknow sub-instruction %06X\n", opcode & 0x000F);
 			}
 			break;
 
@@ -235,7 +236,7 @@ void CC8_Step(uint16_t opcode)
 					CC8_SKNP_VX(x);
 					break;
 				default:
-					printf("0xE000 Unknow sub-instruction %06X", opcode & 0x00FF);
+					printf("0xE000 Unknow sub-instruction %06X\n", opcode & 0x00FF);
 			}
 			break;
 	
@@ -279,12 +280,12 @@ void CC8_Step(uint16_t opcode)
 					break;
 
 				default:
-					printf("0xF000 Unknow sub-instruction %06X", opcode & kk);
+					printf("0xF000 Unknow sub-instruction %06X\n", opcode & kk);
 			}
 			break;
 
 		default:
-			printf("Unknow instruction opcode: %06X", opcode);
+			printf("Unknow instruction opcode: %06X\n", opcode);
 	}
 }
 
@@ -296,14 +297,15 @@ void CC8_TickDelayTimer()
 
 void CC8_TickEmulation()
 {
+	while (s_currentChipCtx->PC  > 512 + 300 ) while(1); 
 	// CC8_DebugMachine(s_currentChipCtx, 1);
 	CC8_TickDelayTimer();
 
 	uint8_t lowerByte = s_currentChipCtx->RAM[s_currentChipCtx->PC];
 	uint8_t higherByte = s_currentChipCtx->RAM[s_currentChipCtx->PC + 1];
-	uint16_t value16 = ((uint16_t)higherByte << 8) | lowerByte;
+	uint16_t value16 = (lowerByte << 8) | higherByte;
 	CC8_Step(value16);
-	s_currentChipCtx->PC+=2;
+	s_currentChipCtx->PC += 2;
 }
 
 void CC8_SetKeyboardValue(uint8_t key)
@@ -338,7 +340,7 @@ void CC8_JMP(uint16_t addr)
 
 void CC8_CALL(uint16_t addr)
 {
-	s_currentChipCtx->STACK[s_currentChipCtx->SP] = ++s_currentChipCtx->PC;
+	s_currentChipCtx->STACK[s_currentChipCtx->SP] = s_currentChipCtx->PC+=2;
 }
 
 void CC8_SE_VX_BYTE(uint8_t x, uint8_t kk)
@@ -439,32 +441,36 @@ void CC8_RND_VX_BYTE(uint8_t x, uint8_t kk)
 
 void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) 
 {
-	//The interpreter reads n bytes from memory, starting at the address stored in I.
-	const uint16_t startAddress = s_currentChipCtx->I;
-	printf("DRW: %06X,%06X,%06X (I:%06X)\n", x, y, n, s_currentChipCtx->I);
-	uint8_t renderIndx = 0;
-	for(uint16_t ramIndex = startAddress; ramIndex < (startAddress + n); ramIndex++, renderIndx++)
-	{
-		printf("DRW SPRITE RENDER INDEX: %i\n start address: %i\n", ramIndex, startAddress);
-		// Index = y * width + x. (1D GRAPHIC ADDRESSING FORMULA)
-		// These bytes are then displayed as sprites on screen at coordinates (Vx, Vy), 
-		// If the sprite is positioned so part of it is outside the coordinates of the display, it wraps around to the opposite side of the screen.
-		const uint8_t xCoord = s_currentChipCtx->V[x] < CHIP_8_VRAM_WIDTH ? s_currentChipCtx->V[x] : 0;
-		const uint8_t yCoord = s_currentChipCtx->V[y] < CHIP_8_VRAM_HEIGHT ? s_currentChipCtx->V[y] : 0;
+    const uint16_t startAddress = s_currentChipCtx->I;
+    printf("DRW: %06X,%06X,%06X (I:%06X)\n", x, y, n, s_currentChipCtx->I);
 
-		// Fetch data from vram and current screen buffer (vram)
-		// Todo: check for the division by zero and rounding errors (avoided for the moment XD)
-		const uint16_t vramIndex = ((yCoord)/CHIP_8_VERTICAL_BIT_PAGE_SIZE) * CHIP_8_VRAM_WIDTH + (xCoord);
-		const uint8_t ramData = s_currentChipCtx->RAM[ramIndex];
-		const uint8_t vramData = s_currentChipCtx->VRAM[vramIndex];
+    s_currentChipCtx->V[0x0F] = 0;
 
-		// If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0. 
-		s_currentChipCtx->V[0x0F] = ramData ^ vramData != 0;
-		
-		// Sprites are XORed onto the existing screen.
-		s_currentChipCtx->VRAM[vramIndex] ^= ramData;
-	}	
+    for (uint8_t byte = 0; byte < n; byte++) 
+    {
+        uint8_t line = s_currentChipCtx->RAM[startAddress + byte];
+
+        for (uint8_t bit = 0; bit < 8; bit++) 
+        {
+            if ((line & (0x80 >> bit)) != 0) 
+            {
+                uint8_t xPos = (s_currentChipCtx->V[x] + bit) % (CHIP_8_VRAM_WIDTH * 8);
+                uint8_t yPos = (s_currentChipCtx->V[y] + byte) % CHIP_8_VRAM_HEIGHT;
+
+                uint16_t vramIndex = (yPos * CHIP_8_VRAM_WIDTH) + xPos / 8;
+                uint8_t vramBit = 7 - (xPos % 8);
+
+                if ((s_currentChipCtx->VRAM[vramIndex] & (1 << vramBit)) != 0)
+                {
+                    s_currentChipCtx->V[0x0F] = 1;
+                }
+
+                s_currentChipCtx->VRAM[vramIndex] ^= (1 << vramBit);
+            }
+        }
+    }
 }
+
 
 void CC8_SKP_VX(uint8_t x) 
 {
