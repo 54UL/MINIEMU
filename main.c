@@ -6,7 +6,7 @@
 
 #define SCREEN_HEIGHT 64
 #define SCREEN_WIDTH  32
-#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/1-chip8-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/2-ibm-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
 
 CC8_Machine * context;
 
@@ -74,13 +74,13 @@ void DrawCC8VRAM(unsigned int* pixels)
 
 void OnStep(unsigned int* pixels)
 {
-    // BitmapTest(pixels);
+    BitmapTest(pixels);
     for (int i = 0; i < SCREEN_HEIGHT; i++) {
         for (int j = 0; j < SCREEN_WIDTH; j++) {
-            int byteIndex = (i * CHIP_8_VRAM_WIDTH + j / 8);
+            int byteIndex = (i * SCREEN_WIDTH + (j / 8));
             int bitIndex = j % 8;
             uint8_t vramByte = context->VRAM[byteIndex];
-            uint8_t vramBit = (vramByte >> (7 - bitIndex)) & 1;
+            uint8_t vramBit = (vramByte << (bitIndex)) & 0x80;
 
             pixels[i * SCREEN_WIDTH + j] = vramBit ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
         }

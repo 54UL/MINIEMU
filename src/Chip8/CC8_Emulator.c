@@ -129,11 +129,11 @@ void CC8_QuitProgram()
 void CC8_Step(uint16_t opcode)
 {
 	// Decode instruction
-int x = (opcode >> 8) & 0x0F;
-int y = (opcode >> 4) & 0x0F;
-int nnn = opcode & 0x0FFF;
-int kk = opcode & 0x00FF;
-int n = opcode & 0x000F;
+	int x = (opcode >> 8) & 0x0F;
+	int y = (opcode >> 4) & 0x0F;
+	int nnn = opcode & 0x0FFF;
+	int kk = opcode & 0x00FF;
+	int n = opcode & 0x000F;
 
 	if (opcode != 00)
 	printf("CURRENT OPCODE VALUE: %06X AT PC:%i\n", opcode, s_currentChipCtx->PC);
@@ -155,9 +155,9 @@ int n = opcode & 0x000F;
 				case 0X0000:
 					
 					break;
-				default:
-				// 	// Unknown instruction
-					printf("0x0000 Unknow sub-instruction %06X\n", opcode & 0x00FF);
+				// default:
+				// // 	// Unknown instruction
+				// 	printf("0x0000 Unknow sub-instruction %06X\n", opcode & 0x00FF);
 			}
 			break;
 
@@ -199,7 +199,7 @@ int n = opcode & 0x000F;
 				case 0x0001:
 					CC8_OR_VX_VY(x, y);
 					break;
-
+		
 				default:
 					printf("0x8000 Unknow sub-instruction %06X\n", opcode & 0x000F);
 			}
@@ -297,7 +297,7 @@ void CC8_TickDelayTimer()
 
 void CC8_TickEmulation()
 {
-	while (s_currentChipCtx->PC  > 512 + 300 ) while(1); 
+	// while (s_currentChipCtx->PC  > 512 + 300 ) while(1); 
 	// CC8_DebugMachine(s_currentChipCtx, 1);
 	CC8_TickDelayTimer();
 
@@ -439,29 +439,24 @@ void CC8_RND_VX_BYTE(uint8_t x, uint8_t kk)
 	s_currentChipCtx->V[x] = (rand() % 0xFF ) & kk;
 }
 
-void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) 
-{
+void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) {
     const uint16_t startAddress = s_currentChipCtx->I;
     printf("DRW: %06X,%06X,%06X (I:%06X)\n", x, y, n, s_currentChipCtx->I);
 
     s_currentChipCtx->V[0x0F] = 0;
 
-    for (uint8_t byte = 0; byte < n; byte++) 
-    {
+    for (uint8_t byte = 0; byte < n; byte++) {
         uint8_t line = s_currentChipCtx->RAM[startAddress + byte];
 
-        for (uint8_t bit = 0; bit < 8; bit++) 
-        {
-            if ((line & (0x80 >> bit)) != 0) 
-            {
+        for (uint8_t bit = 0; bit < 8; bit++) {
+            if ((line & (0x80 >> bit)) != 0) {
                 uint8_t xPos = (s_currentChipCtx->V[x] + bit) % (CHIP_8_VRAM_WIDTH * 8);
                 uint8_t yPos = (s_currentChipCtx->V[y] + byte) % CHIP_8_VRAM_HEIGHT;
 
-                uint16_t vramIndex = (yPos * CHIP_8_VRAM_WIDTH) + xPos / 8;
+                uint16_t vramIndex = (yPos * CHIP_8_VRAM_WIDTH) + (xPos / 8);
                 uint8_t vramBit = 7 - (xPos % 8);
 
-                if ((s_currentChipCtx->VRAM[vramIndex] & (1 << vramBit)) != 0)
-                {
+                if ((s_currentChipCtx->VRAM[vramIndex] & (1 << vramBit)) != 0) {
                     s_currentChipCtx->V[0x0F] = 1;
                 }
 
@@ -470,7 +465,6 @@ void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n)
         }
     }
 }
-
 
 void CC8_SKP_VX(uint8_t x) 
 {
@@ -514,46 +508,34 @@ void CC8_LD_F_VX(uint8_t x)
 	s_currentChipCtx->I = s_currentChipCtx->V[x] * 5;
 }
 
-void CC8_LD_B_VX(uint8_t x) 
-{
-	//Convert to bsd representation
-	const uint8_t rawValue = s_currentChipCtx->V[x];
-	
-	const uint8_t hundreds = (rawValue % 1000 - rawValue % 100) / 100;
-	const uint8_t tens     = (rawValue % 100 - rawValue % 10) / 10;
-	const uint8_t units    = (rawValue % 10 - rawValue % 1) / 1;
+void CC8_LD_B_VX(uint8_t x) {
+    const uint8_t rawValue = s_currentChipCtx->V[x];
 
-	//Save the current i location
-	const uint16_t currentAddress = s_currentChipCtx->I;
+    const uint8_t hundreds = rawValue / 100;
+    const uint8_t tens = (rawValue / 10) % 10;
+    const uint8_t units = rawValue % 10;
 
-	//Store bcd converted values
-	s_currentChipCtx->RAM[currentAddress]     = hundreds;
-	s_currentChipCtx->RAM[currentAddress + 1] = tens;
-	s_currentChipCtx->RAM[currentAddress + 2] = units;
+    const uint16_t currentAddress = s_currentChipCtx->I;
+
+    s_currentChipCtx->RAM[currentAddress] = hundreds;
+    s_currentChipCtx->RAM[currentAddress + 1] = tens;
+    s_currentChipCtx->RAM[currentAddress + 2] = units;
 }
 
-void CC8_LD_I_VX(uint8_t x) 
-{
-	const uint16_t startAddress = s_currentChipCtx->I;
-	const uint16_t endAddress = startAddress + s_currentChipCtx->V[x];
-	uint16_t ramIndex = startAddress;
-	uint8_t vIndex = 0;
+void CC8_LD_I_VX(uint8_t x) {
+    const uint16_t startAddress = s_currentChipCtx->I;
+    const uint16_t endAddress = startAddress + x;
 
-	for(ramIndex; ramIndex < endAddress; ramIndex++, vIndex++)
-	{
-		s_currentChipCtx->RAM[ramIndex] = s_currentChipCtx->V[vIndex];
-	}
+    for (uint16_t ramIndex = startAddress, vIndex = 0; ramIndex <= endAddress; ramIndex++, vIndex++) {
+        s_currentChipCtx->RAM[ramIndex] = s_currentChipCtx->V[vIndex];
+    }
 }
 
-void CC8_LD_VX_I(uint8_t x) 
-{
-	const uint16_t startAddress = s_currentChipCtx->I;
-	const uint16_t endAddress = startAddress + s_currentChipCtx->V[x];
-	uint16_t ramIndex = startAddress;
-	uint8_t vIndex = 0;
+void CC8_LD_VX_I(uint8_t x) {
+    const uint16_t startAddress = s_currentChipCtx->I;
+    const uint16_t endAddress = startAddress + x;
 
-	for(ramIndex; ramIndex < endAddress; ramIndex++, vIndex++)
-	{
-		s_currentChipCtx->V[vIndex] = s_currentChipCtx->RAM[ramIndex];
-	}
+    for (uint16_t ramIndex = startAddress, vIndex = 0; ramIndex <= endAddress; ramIndex++, vIndex++) {
+        s_currentChipCtx->V[vIndex] = s_currentChipCtx->RAM[ramIndex];
+    }
 }
