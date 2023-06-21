@@ -6,7 +6,10 @@
 
 #define SCREEN_HEIGHT 64
 #define SCREEN_WIDTH  32
-#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/2-ibm-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/1-chip8-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+// #define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/2-ibm-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+// #define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/3-corax+.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+// #define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/2-chip8-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
 
 CC8_Machine * context;
 
@@ -58,23 +61,9 @@ void BitmapTest(unsigned int* pixels)
     }
 }
 
-void DrawCC8VRAM(unsigned int* pixels)
-{
-    // for (int i = 0; i < SCREEN_HEIGHT; i++) 
-    // {
-    //     for (int j = 0; j < SCREEN_WIDTH; j++) 
-    //     {
-    //         uint8_t vramByte = context->VRAM[(i * CHIP_8_VRAM_WIDTH + j) / 8];
-    //         uint8_t vramBit = (vramByte >> (7 - j % 8)) & 1;
-
-    //         pixels[i * SCREEN_WIDTH + j] = vramBit ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
-    //     }
-    // }
-}
-
+int count;
 void OnStep(unsigned int* pixels)
 {
-    BitmapTest(pixels);
     for (int i = 0; i < SCREEN_HEIGHT; i++) {
         for (int j = 0; j < SCREEN_WIDTH; j++) {
             int byteIndex = (i * SCREEN_WIDTH + (j / 8));
@@ -82,9 +71,13 @@ void OnStep(unsigned int* pixels)
             uint8_t vramByte = context->VRAM[byteIndex];
             uint8_t vramBit = (vramByte << (bitIndex)) & 0x80;
 
-            pixels[i * SCREEN_WIDTH + j] = vramBit ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
+            // pixels[i * SCREEN_WIDTH + j] = vramBit ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
+            // pixels[i * SCREEN_WIDTH + j] =CHIP_8_FOREGROUND_DISPLAY_COLOR; //this renders all the screen... (instruction issue)
+            count++;
         }
     }
+    printf("render count :%i", count);
+    count = 0;
 }
 
 void OnInputAction(const char code)

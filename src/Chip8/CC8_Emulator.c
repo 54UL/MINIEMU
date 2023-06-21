@@ -153,7 +153,8 @@ void CC8_Step(uint16_t opcode)
 					break;
 
 				case 0X0000:
-					
+					printf("case 0X0000\n");
+
 					break;
 				// default:
 				// // 	// Unknown instruction
@@ -190,6 +191,7 @@ void CC8_Step(uint16_t opcode)
 			break;
 
 		case 0x8000:
+						//   0x8000
 			switch (opcode & 0x000F)
 			{
 				case 0x0000:
@@ -199,7 +201,35 @@ void CC8_Step(uint16_t opcode)
 				case 0x0001:
 					CC8_OR_VX_VY(x, y);
 					break;
-		
+
+				case 0x0002:
+					CC8_AND_VX_VY(x, y);
+					break;
+
+				case 0x0003:
+					CC8_XOR_VX_VY(x, y);
+					break;
+
+				case 0x0004:
+					CC8_ADD_VX_VY(x, y);
+					break;
+
+				case 0x0005:
+					CC8_SUB_VX_VY(x, y);
+					break;
+
+				case 0x0006:
+					CC8_SHR_VX(x);
+					break;
+
+				case 0x0007:
+					CC8_SUBN_VX_VY(x, y);
+					break;
+
+				case 0x000E:
+					CC8_SHL_VX(x);
+					break;
+				
 				default:
 					printf("0x8000 Unknow sub-instruction %06X\n", opcode & 0x000F);
 			}
@@ -335,12 +365,14 @@ void CC8_RET()
 
 void CC8_JMP(uint16_t addr)
 {
-	s_currentChipCtx->PC = addr; 
+	s_currentChipCtx->PC = addr & 0xFFF; 
 }
 
 void CC8_CALL(uint16_t addr)
 {
-	s_currentChipCtx->STACK[s_currentChipCtx->SP] = s_currentChipCtx->PC+=2;
+	s_currentChipCtx->SP++;
+	s_currentChipCtx->STACK[s_currentChipCtx->SP] = s_currentChipCtx->PC;
+	s_currentChipCtx->PC = addr;
 }
 
 void CC8_SE_VX_BYTE(uint8_t x, uint8_t kk)
@@ -380,18 +412,19 @@ void CC8_OR_VX_VY(uint8_t x, uint8_t y)
 
 void CC8_AND_VX_VY(uint8_t x, uint8_t y) 
 {
+	//Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx. A bitwise AND compares the corrseponding bits from two values, and if both bits are 1, then the same bit in the result is also 1. Otherwise, it is 0.
 	s_currentChipCtx->V[x] &= s_currentChipCtx->V[y];
 }
 
-void CC8_XOR_VX_VY(uint8_t x, uint8_t y)
+void CC8_XOR_VX_VY(uint8_t x, uint8_t y) 
 {
 	s_currentChipCtx->V[x] ^= s_currentChipCtx->V[y];
 }
 
 void CC8_ADD_VX_VY(uint8_t x, uint8_t y) 
 {
-	uint16_t sum = s_currentChipCtx->V[x] + s_currentChipCtx->V[y]; 
-	s_currentChipCtx->V[0x0F] = sum > 0xff;
+	uint16_t sum  = s_currentChipCtx->V[x] + s_currentChipCtx->V[y];
+	s_currentChipCtx->V[0X0F] = sum > 0xFF; //carry flag
 	s_currentChipCtx->V[x] = sum & 0xFF;
 }
 
