@@ -5,7 +5,7 @@
 
 void CC8_LoadProgram(const char *filePath);
 void CC8_QuitProgram();
-void CC8_TickEmulation();
+int  CC8_TickEmulation();
 void CC8_SetKeyboardValue(uint8_t key);
 void CC8_SetEmulationContext(CC8_Machine *context);
 
@@ -25,9 +25,9 @@ void CC8_AND_VX_VY(uint8_t x, uint8_t y);
 void CC8_XOR_VX_VY(uint8_t x, uint8_t y);
 void CC8_ADD_VX_VY(uint8_t x, uint8_t y);
 void CC8_SUB_VX_VY(uint8_t x, uint8_t y);
-void CC8_SHR_VX(uint8_t x);
+void CC8_SHR_VX_VY(uint8_t x, uint8_t y);
 void CC8_SUBN_VX_VY(uint8_t x, uint8_t y);
-void CC8_SHL_VX(uint8_t x);
+void CC8_SHL_VX_VY(uint8_t x, uint8_t y);
 void CC8_SNE_VX_VY(uint8_t x, uint8_t y);
 void CC8_LD_I_ADDR(uint16_t addr);
 void CC8_JP_V0_ADDR(uint16_t addr);

@@ -90,7 +90,8 @@ void CC8_LoadProgram(const char *filePath)
 	// Allocate a buffer for reading the file
 	uint8_t *buffer = (uint8_t *)calloc(1, file_size + 1);
 	size_t bytes_read  = fread(buffer, 1, file_size, file);
-
+	s_currentChipCtx->PROGRAM_SIZE = bytes_read;
+	
 	// LOAD PROGRAM AND FONT INTO RAM
 	const size_t font_addr_start = 0x000; // The first thing in memory is the font
 	const size_t boot_addr_start = 0x200; // 512
@@ -128,196 +129,231 @@ void CC8_QuitProgram()
 
 void CC8_Step(uint16_t opcode)
 {
-	// Decode instruction
-	int x = (opcode >> 8) & 0x0F;
-	int y = (opcode >> 4) & 0x0F;
-	int nnn = opcode & 0x0FFF;
-	int kk = opcode & 0x00FF;
-	int n = opcode & 0x000F;
+    // Decode instruction
+    int x = (opcode >> 8) & 0x0F;
+    int y = (opcode >> 4) & 0x0F;
+    int nnn = opcode & 0x0FFF;
+    int kk = opcode & 0x00FF;
+    int n = opcode & 0x000F;
 
-	if (opcode != 00)
-	printf("CURRENT OPCODE VALUE: %06X AT PC:%i\n", opcode, s_currentChipCtx->PC);
-	
-	// Fetch and execute
-	switch (opcode & 0xF000)
-	{
-		case 0x0000:
-			switch (opcode & 0x00FF)
-			{
-				case 0x00E0:
-					CC8_CLS();
-					break;
+    if (opcode != 0)
+        // printf("CURRENT OPCODE VALUE: %04X AT PC:%i\n", opcode, s_currentChipCtx->PC);
 
-				case 0x00EE:
-					CC8_RET();
-					break;
+    // Fetch and execute
+    switch (opcode & 0xF000)
+    {
+        case 0x0000:
+            switch (opcode & 0x00FF)
+            {
+                case 0x00E0:
+                    printf("CLS\n");
+                    CC8_CLS();
+                    break;
 
-				case 0X0000:
-					printf("case 0X0000\n");
+                case 0x00EE:
+                    printf("RET\n");
+                    CC8_RET();
+                    break;
 
-					break;
-				// default:
-				// // 	// Unknown instruction
-				// 	printf("0x0000 Unknow sub-instruction %06X\n", opcode & 0x00FF);
-			}
+                case 0x0000:
+                    printf("NOP\n");
+                    break;
+
+                default:
+                    printf("Unknow sub-instruction %06X\n", opcode & 0x00FF);
+            }
+            break;
+
+        case 0x1000:
+            printf("JMP 0x%03X\n", nnn);
+            CC8_JMP(nnn);
+            break;
+
+        case 0x2000:
+            printf("CALL 0x%03X\n", nnn);
+            CC8_CALL(nnn);
+            break;
+
+        case 0x3000:
+            printf("SE V%i, 0x%02X\n", x, kk);
+            CC8_SE_VX_BYTE(x, kk);
+            break;
+
+        case 0x4000:
+            printf("SNE V%i, 0x%02X\n", x, kk);
+            CC8_SNE_VX_BYTE(x, kk);
+            break;
+
+        case 0x5000:
+            printf("SE V%i, V%i\n", x, y);
+            CC8_SE_VX_VY(x, y);
+            break;
+
+        case 0x6000:
+            printf("LD V%i, 0x%02X\n", x, kk);
+            CC8_LD_VX_BYTE(x, kk);
+            break;
+
+        case 0x7000:
+            printf("ADD V%i, 0x%02X\n", x, kk);
+            CC8_ADD_VX_BYTE(x, kk);
+            break;
+
+        case 0x8000:
+            switch (opcode & 0x000F)
+            {
+                case 0x0000:
+                    printf("LD V%i, V%i\n", x, y);
+                    CC8_LD_VX_VY(x, y);
+                    break;
+
+                case 0x0001:
+                    printf("OR V%i, V%i\n", x, y);
+                    CC8_OR_VX_VY(x, y);
+                    break;
+
+                case 0x0002:
+                    printf("AND V%i, V%i\n", x, y);
+                    CC8_AND_VX_VY(x, y);
+                    break;
+
+                case 0x0003:
+                    printf("XOR V%i, V%i\n", x, y);
+                    CC8_XOR_VX_VY(x, y);
+                    break;
+
+                case 0x0004:
+                    printf("ADD V%i, V%i\n", x, y);
+                    CC8_ADD_VX_VY(x, y);
+                    break;
+
+                case 0x0005:
+                    printf("SUB V%i, V%i\n", x, y);
+                    CC8_SUB_VX_VY(x, y);
+                    break;
+
+                case 0x0006:
+                    printf("SHR V%i, V%i\n", x, y);
+                    CC8_SHR_VX_VY(x, y);
+                    break;
+
+                case 0x0007:
+                    printf("SUBN V%i, V%i\n", x, y);
+                    CC8_SUBN_VX_VY(x, y);
+                    break;
+
+                case 0x000E:
+                    printf("SHL V%i, V%i\n", x, y);
+                    CC8_SHL_VX_VY(x, y);
+                    break;
+
+                default:
+                    printf("Unknow sub-instruction %06X\n", opcode & 0x000F);
+            }
+            break;
+
+        case 0x9000:
+            printf("SNE V%i, V%i\n", x, y);
+            CC8_SNE_VX_VY(x, y);
+            break;
+
+        case 0xA000:
+            printf("LD I, 0x%03X\n", nnn);
+            CC8_LD_I_ADDR(nnn);
+            break;
+
+        case 0xB000:
+            printf("JP V0, 0x%03X\n", nnn);
+            CC8_JP_V0_ADDR(nnn);
+            break;
+
+        case 0xC000:
+            printf("RND V%i, 0x%02X\n", x, kk);
+            CC8_RND_VX_BYTE(x, kk);
+            break;
+
+        case 0xD000:
+			// printf("DRW V%i[%i], V%i[%i], %i\n", s_currentChipCtx->V[x], Vx, index_y, Vy, n);        
+			printf("DRW v[%i], v[%i], %i\n", s_currentChipCtx->V[x], s_currentChipCtx->V[y], n);      
+			CC8_DRW_VX_VY_NIBBLE(x, y, n);    
 			break;
 
-		case 0x1000:
-			CC8_JMP(nnn);
-			break;
+        case 0xE000:
+            switch (opcode & 0x00FF)
+            {
+                case 0x9E:
+                    printf("SKP V%i\n", x);
+                    CC8_SKP_VX(x);
+                    break;
 
-		case 0x2000:
-			CC8_CALL(nnn);
-			break;
+                case 0xA1:
+                    printf("SKNP V%i\n", x);
+                    CC8_SKNP_VX(x);
+                    break;
 
-		case 0x3000:
-			CC8_SE_VX_BYTE(x, kk);
-			break;
+                default:
+                    printf("Unknow sub-instruction %06X\n", opcode & 0x00FF);
+            }
+            break;
 
-		case 0x4000:
-			CC8_SNE_VX_BYTE(x, kk);
-			break;
+        case 0xF000:
+            switch (opcode & 0x00FF)
+            {
+                case 0x07:
+                    printf("LD V%i, DT\n", x);
+                    CC8_LD_VX_DT(x);
+                    break;
 
-		case 0x5000:
-			CC8_SE_VX_VY(x, y);
-			break;
+                case 0x0A:
+                    printf("LD V%i, K\n", x);
+                    CC8_LD_VX_K(x);
+                    break;
 
-		case 0x6000:
-			CC8_LD_VX_BYTE(x, kk);
-			break;
+                case 0x15:
+                    printf("LD DT, V%i\n", x);
+                    CC8_LD_DT_VX(x);
+                    break;
 
-		case 0x7000:
-			CC8_ADD_VX_BYTE(x, kk);
-			break;
+                case 0x18:
+                    printf("LD ST, V%i\n", x);
+                    CC8_LD_ST_VX(x);
+                    break;
 
-		case 0x8000:
-						//   0x8000
-			switch (opcode & 0x000F)
-			{
-				case 0x0000:
-					CC8_LD_VX_VY(x, y);
-					break;
+                case 0x1E:
+                    printf("ADD I, V%i\n", x);
+                    CC8_ADD_I_VX(x);
+                    break;
 
-				case 0x0001:
-					CC8_OR_VX_VY(x, y);
-					break;
+                case 0x29:
+                    printf("LD F, V%i\n", x);
+                    CC8_LD_F_VX(x);
+                    break;
 
-				case 0x0002:
-					CC8_AND_VX_VY(x, y);
-					break;
+                case 0x33:
+                    printf("LD B, V%i\n", x);
+                    CC8_LD_B_VX(x);
+                    break;
 
-				case 0x0003:
-					CC8_XOR_VX_VY(x, y);
-					break;
+                case 0x55:
+                    printf("LD [I], V%i\n", x);
+                    CC8_LD_I_VX(x);
+                    break;
 
-				case 0x0004:
-					CC8_ADD_VX_VY(x, y);
-					break;
+                case 0x65:
+                    printf("LD V%i, [I]\n", x);
+                    CC8_LD_VX_I(x);
+                    break;
 
-				case 0x0005:
-					CC8_SUB_VX_VY(x, y);
-					break;
+                default:
+                    printf("Unknow sub-instruction %06X\n", opcode & 0x00FF);
+            }
+            break;
 
-				case 0x0006:
-					CC8_SHR_VX(x);
-					break;
-
-				case 0x0007:
-					CC8_SUBN_VX_VY(x, y);
-					break;
-
-				case 0x000E:
-					CC8_SHL_VX(x);
-					break;
-				
-				default:
-					printf("0x8000 Unknow sub-instruction %06X\n", opcode & 0x000F);
-			}
-			break;
-
-		case 0x9000:
-			CC8_SNE_VX_VY(x, y);
-			break;
-
-		case 0xA000:
-			CC8_LD_I_ADDR(nnn);
-			break;
-
-		case 0xB000:
-			CC8_JP_V0_ADDR(nnn);
-			break;
-
-		case 0xC000:
-			CC8_RND_VX_BYTE(x, kk);
-			break;
-
-		case 0xD000:
-			CC8_DRW_VX_VY_NIBBLE(x, y, n);
-			break;
-
-		case 0xE000:
-			switch(opcode & 0x00FF)
-			{
-				case 0x9E:
-					CC8_SKP_VX(x);
-					break;
-				
-				case 0xA1:
-					CC8_SKNP_VX(x);
-					break;
-				default:
-					printf("0xE000 Unknow sub-instruction %06X\n", opcode & 0x00FF);
-			}
-			break;
-	
-		case 0xF000:
-			switch(opcode & 0x00FF)
-			{
-				case 0x07:
-					CC8_LD_VX_DT(x);
-					break;
-				
-				case 0x0A:
-					CC8_LD_VX_K(x);
-					break;
-
-				case 0X15:
-					CC8_LD_VX_DT(x);
-					break;
-				
-				case 0X18:
-					CC8_LD_ST_VX(x);
-					break;
-				
-				case 0x1E:
-					CC8_ADD_I_VX(x);
-					break;
-				
-				case 0x29:
-					CC8_LD_F_VX(x);
-					break;
-				
-				case 0x33:
-					CC8_LD_B_VX(x);
-					break;
-				
-				case 0x55:
-					CC8_LD_I_VX(x);
-					break;
-				
-				case 0x65:
-					CC8_LD_VX_I(x);
-					break;
-
-				default:
-					printf("0xF000 Unknow sub-instruction %06X\n", opcode & kk);
-			}
-			break;
-
-		default:
-			printf("Unknow instruction opcode: %06X\n", opcode);
-	}
+        default:
+            printf("Unknow instruction opcode: %06X\n", opcode);
+    }
 }
+
 
 void CC8_TickDelayTimer()
 {
@@ -325,17 +361,19 @@ void CC8_TickDelayTimer()
 		s_currentChipCtx->DELAY--;
 }
 
-void CC8_TickEmulation()
+int CC8_TickEmulation()
 {
-	// while (s_currentChipCtx->PC  > 512 + 300 ) while(1); 
 	// CC8_DebugMachine(s_currentChipCtx, 1);
 	CC8_TickDelayTimer();
 
-	uint8_t lowerByte = s_currentChipCtx->RAM[s_currentChipCtx->PC];
-	uint8_t higherByte = s_currentChipCtx->RAM[s_currentChipCtx->PC + 1];
-	uint16_t value16 = (lowerByte << 8) | higherByte;
+	uint8_t higherByte = s_currentChipCtx->RAM[s_currentChipCtx->PC];
+	uint8_t lowerByte = s_currentChipCtx->RAM[s_currentChipCtx->PC + 1];
+	uint16_t value16 = (higherByte << 8) | lowerByte;
+
 	CC8_Step(value16);
+
 	s_currentChipCtx->PC += 2;
+	return 1;
 }
 
 void CC8_SetKeyboardValue(uint8_t key)
@@ -351,7 +389,7 @@ void CC8_SetEmulationContext(CC8_Machine *context)
 // ########## CHIP 8 INSTRUCTION SET IMPLEMENTATION
 void CC8_CLS()
 {
-	for (uint8_t i; i = CHIP_8_VRAM_SIZE; i--)
+	for (uint16_t i = 0; i < CHIP_8_VRAM_SIZE; i++)
 	{
 		s_currentChipCtx->VRAM[i] = CHIP_8_BACKGROUND_DISPLAY_COLOR;
 	}
@@ -365,14 +403,14 @@ void CC8_RET()
 
 void CC8_JMP(uint16_t addr)
 {
-	s_currentChipCtx->PC = addr & 0xFFF; 
+	s_currentChipCtx->PC = addr -2; 
 }
 
 void CC8_CALL(uint16_t addr)
 {
 	s_currentChipCtx->SP++;
 	s_currentChipCtx->STACK[s_currentChipCtx->SP] = s_currentChipCtx->PC;
-	s_currentChipCtx->PC = addr;
+	s_currentChipCtx->PC = addr - 2;
 }
 
 void CC8_SE_VX_BYTE(uint8_t x, uint8_t kk)
@@ -397,7 +435,8 @@ void CC8_LD_VX_BYTE(uint8_t x, uint8_t kk)
 
 void CC8_ADD_VX_BYTE(uint8_t x, uint8_t kk) 
 {
-	s_currentChipCtx->V[x] += kk;
+	// printf("ADD\n x:%i k:%i\n",x,kk);
+	s_currentChipCtx->V[x] = (s_currentChipCtx->V[x] + kk) & 0xFF;
 }
 
 void CC8_LD_VX_VY(uint8_t x, uint8_t y) 
@@ -434,10 +473,10 @@ void CC8_SUB_VX_VY(uint8_t x, uint8_t y)
 	s_currentChipCtx->V[x] -= s_currentChipCtx->V[y];
 }
 
-void CC8_SHR_VX(uint8_t x) 
+void CC8_SHR_VX_VY(uint8_t x, uint8_t y) 
 {	
-	s_currentChipCtx->V[0x0F] = (s_currentChipCtx->V[x] & 0x01) != 0;
-	s_currentChipCtx->V[x] /= 2;
+	s_currentChipCtx->V[0x0F] = s_currentChipCtx->V[x] & 0x01;
+    s_currentChipCtx->V[x] >>= 1;
 }
 
 void CC8_SUBN_VX_VY(uint8_t x, uint8_t y) 
@@ -446,10 +485,10 @@ void CC8_SUBN_VX_VY(uint8_t x, uint8_t y)
 	s_currentChipCtx->V[x] = s_currentChipCtx->V[y] - s_currentChipCtx->V[x];
 }
 
-void CC8_SHL_VX(uint8_t x) 
+void CC8_SHL_VX_VY(uint8_t x, uint8_t y) 
 {
-	s_currentChipCtx->V[0x0F] = (s_currentChipCtx->V[x] & 0x80) != 0;
-	s_currentChipCtx->V[x] *= 2;
+    s_currentChipCtx->V[0x0F] = (s_currentChipCtx->V[x] & 0x80) >> 7;
+    s_currentChipCtx->V[x] <<= 1;
 }
 
 void CC8_SNE_VX_VY(uint8_t x, uint8_t y) 
@@ -459,7 +498,7 @@ void CC8_SNE_VX_VY(uint8_t x, uint8_t y)
 
 void CC8_LD_I_ADDR(uint16_t addr) 
 {
-	s_currentChipCtx->I = addr;
+	s_currentChipCtx->I = addr & 0xfff;
 }
 
 void CC8_JP_V0_ADDR(uint16_t addr) 
@@ -473,19 +512,17 @@ void CC8_RND_VX_BYTE(uint8_t x, uint8_t kk)
 }
 
 void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) {
-    const uint16_t startAddress = s_currentChipCtx->I;
-    printf("DRW: %06X,%06X,%06X (I:%06X)\n", x, y, n, s_currentChipCtx->I);
-
-    s_currentChipCtx->V[0x0F] = 0;
+    const uint16_t startAddress = s_currentChipCtx->I & 0xFFF;
+    // s_currentChipCtx->V[0x0F] = 0;
 
     for (uint8_t byte = 0; byte < n; byte++) {
         uint8_t line = s_currentChipCtx->RAM[startAddress + byte];
 
         for (uint8_t bit = 0; bit < 8; bit++) {
             if ((line & (0x80 >> bit)) != 0) {
-                uint8_t xPos = (s_currentChipCtx->V[x] + bit) % (CHIP_8_VRAM_WIDTH * 8);
+                uint8_t xPos = (s_currentChipCtx->V[x] + bit) % (CHIP_8_VRAM_WIDTH);
                 uint8_t yPos = (s_currentChipCtx->V[y] + byte) % CHIP_8_VRAM_HEIGHT;
-
+                printf("x[%i] y[%i]\n",xPos ,yPos);
                 uint16_t vramIndex = (yPos * CHIP_8_VRAM_WIDTH) + (xPos / 8);
                 uint8_t vramBit = 7 - (xPos % 8);
 
@@ -532,7 +569,7 @@ void CC8_LD_ST_VX(uint8_t x)
 
 void CC8_ADD_I_VX(uint8_t x) 
 {
-	s_currentChipCtx->I += s_currentChipCtx->V[x];
+	s_currentChipCtx->I = (s_currentChipCtx->I + s_currentChipCtx->V[x]) & 0xFFFF;
 }
 
 void CC8_LD_F_VX(uint8_t x) 

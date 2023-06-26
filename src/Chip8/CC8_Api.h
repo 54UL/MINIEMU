@@ -10,7 +10,7 @@ typedef struct
 {
     void            (*LoadProgram)(const char * filePath);
     void            (*QuitProgram)();
-    void            (*TickEmulation)();
+    int             (*TickEmulation)();
     void            (*SetEmulationContext)(CC8_Machine * context);
 } CC8_Core;
 

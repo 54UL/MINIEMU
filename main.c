@@ -6,10 +6,11 @@
 
 #define SCREEN_HEIGHT 64
 #define SCREEN_WIDTH  32
-#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/1-chip8-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
-// #define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/2-ibm-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+// #define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/1-chip8-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+#define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/2-ibm-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
 // #define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/3-corax+.ch8" //PUT YOUR EXECUTABLE PATH HERE...
-// #define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/2-chip8-logo.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+// #define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/4-flags.ch8" //PUT YOUR EXECUTABLE PATH HERE...
+// #define PROGRAM_PATH  "/home/dev/repos/chip-8-binaries/6-keypad.ch8" //PUT YOUR EXECUTABLE PATH HERE...
 
 CC8_Machine * context;
 
@@ -69,14 +70,12 @@ void OnStep(unsigned int* pixels)
             int byteIndex = (i * SCREEN_WIDTH + (j / 8));
             int bitIndex = j % 8;
             uint8_t vramByte = context->VRAM[byteIndex];
-            uint8_t vramBit = (vramByte << (bitIndex)) & 0x80;
+            uint8_t vramBit = (vramByte >> (7 - bitIndex)) & 0x1;
 
-            // pixels[i * SCREEN_WIDTH + j] = vramBit ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
-            // pixels[i * SCREEN_WIDTH + j] =CHIP_8_FOREGROUND_DISPLAY_COLOR; //this renders all the screen... (instruction issue)
-            count++;
+            pixels[i * SCREEN_WIDTH + j] = vramBit ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
         }
     }
-    printf("render count :%i", count);
+    // printf("render count :%i", count);
     count = 0;
 }
 
@@ -151,11 +150,10 @@ int main(int argc, char** argv)
     emulator->SetEmulationContext(context);
     emulator->LoadProgram(PROGRAM_PATH);
 
-    while(chip8App->Step(OnStep, OnInputAction))
+    while(chip8App->Step(OnStep, OnInputAction) && emulator->TickEmulation())
     {
-        emulator->TickEmulation();
-        // SDL_Delay(250);
-        context->KEYBOARD = 0;//todo: check if the reset of the keyboard state is needed
+        SDL_Delay(16);// 16 ms
+        context->KEYBOARD = 0;
     }
 
     emulator->QuitProgram();

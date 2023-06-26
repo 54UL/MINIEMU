@@ -11,7 +11,7 @@
 #define CHIP_8_VRAM_SIZE CHIP_8_VRAM_WIDTH * CHIP_8_VRAM_HEIGHT
 
 #define CHIP_8_FOREGROUND_DISPLAY_COLOR 0xFF00FFFF
-#define CHIP_8_BACKGROUND_DISPLAY_COLOR 0X0000FFFF
+#define CHIP_8_BACKGROUND_DISPLAY_COLOR 0XFFFFFFFF
 
 typedef struct 
 {
@@ -25,6 +25,7 @@ typedef struct
     uint16_t STACK[16];
     uint8_t  VRAM[CHIP_8_VRAM_SIZE];
     uint8_t  KEYBOARD;
+    uint16_t PROGRAM_SIZE;
 } CC8_Machine;
 
 #endif
