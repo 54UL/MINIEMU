@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "limits": "c",
+        "cc8_api.h": "c"
+    }
+}

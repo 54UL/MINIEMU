@@ -56,6 +56,22 @@ void HexDump(uint8_t * buffer, size_t size)
 	printf("-----------------------------------------------------------------\n");
 }
 
+void DrawCC8BitMapFont(uint8_t index, unsigned int* pixels, int x, int y){
+    uint8_t gylphIndex = 0;
+    uint8_t byteCount = 0;
+
+    //5 wide bytes fonts
+    for (gylphIndex = index * 5,byteCount = 0 ; gylphIndex < (index * 5)+5; gylphIndex++, byteCount++)
+    {
+        for (int bitIndex = 0; bitIndex < 8; bitIndex++)
+        {
+            //This renders propperly the font !!:) 
+            //formula: (y + x_offset) * SCREEN_HEIGHT + (y_offset + x)
+            pixels[ (y + byteCount) * CHIP_8_VRAM_HEIGHT + (bitIndex + x)] = ((CC8_DEFAULT_FONT[gylphIndex] << bitIndex) & 0x80) == 0x80 ? 0xFFFFFFFF : 0X00000000;
+        }    
+    }
+}
+
 void CC8_DebugMachine(CC8_Machine *machine,uint8_t enable) 
 {
 	if (!enable) return;
@@ -114,7 +130,7 @@ void CC8_LoadProgram(const char *filePath)
 	}
 	
 	//Print the buffer (TODO:addd flag to print this thing)
-	HexDump(buffer, bytes_read);
+	// HexDump(buffer, bytes_read);
 	
 	// Clean up resources
 	free(buffer);
@@ -130,14 +146,11 @@ void CC8_QuitProgram()
 void CC8_Step(uint16_t opcode)
 {
     // Decode instruction
-    int x = (opcode >> 8) & 0x0F;
-    int y = (opcode >> 4) & 0x0F;
-    int nnn = opcode & 0x0FFF;
-    int kk = opcode & 0x00FF;
-    int n = opcode & 0x000F;
-
-    if (opcode != 0)
-        // printf("CURRENT OPCODE VALUE: %04X AT PC:%i\n", opcode, s_currentChipCtx->PC);
+    uint8_t x = (opcode >> 8) & 0x0F;
+    uint8_t y = (opcode >> 4) & 0x0F;
+    uint16_t nnn = opcode & 0x0FFF;
+    uint8_t kk = opcode & 0x00FF;
+    uint8_t n = opcode & 0x000F;
 
     // Fetch and execute
     switch (opcode & 0xF000)
@@ -156,16 +169,15 @@ void CC8_Step(uint16_t opcode)
                     break;
 
                 case 0x0000:
-                    printf("NOP\n");
                     break;
 
-                default:
+               default:
                     printf("Unknow sub-instruction %06X\n", opcode & 0x00FF);
             }
             break;
 
         case 0x1000:
-            printf("JMP 0x%03X\n", nnn);
+            // printf("JMP 0x%03X\n", nnn);
             CC8_JMP(nnn);
             break;
 
@@ -190,12 +202,12 @@ void CC8_Step(uint16_t opcode)
             break;
 
         case 0x6000:
-            printf("LD V%i, 0x%02X\n", x, kk);
+            printf("LD_VX_BYTE V%i, %i\n", x, kk);
             CC8_LD_VX_BYTE(x, kk);
             break;
 
         case 0x7000:
-            printf("ADD V%i, 0x%02X\n", x, kk);
+            printf("ADD V%i, %i\n", x, kk);
             CC8_ADD_VX_BYTE(x, kk);
             break;
 
@@ -247,7 +259,8 @@ void CC8_Step(uint16_t opcode)
                     CC8_SHL_VX_VY(x, y);
                     break;
 
-                default:
+               default:
+                    
                     printf("Unknow sub-instruction %06X\n", opcode & 0x000F);
             }
             break;
@@ -258,7 +271,7 @@ void CC8_Step(uint16_t opcode)
             break;
 
         case 0xA000:
-            printf("LD I, 0x%03X\n", nnn);
+            printf("LD I, %i\n", nnn);
             CC8_LD_I_ADDR(nnn);
             break;
 
@@ -291,7 +304,7 @@ void CC8_Step(uint16_t opcode)
                     CC8_SKNP_VX(x);
                     break;
 
-                default:
+               default:
                     printf("Unknow sub-instruction %06X\n", opcode & 0x00FF);
             }
             break;
@@ -344,12 +357,12 @@ void CC8_Step(uint16_t opcode)
                     CC8_LD_VX_I(x);
                     break;
 
-                default:
+               default:
                     printf("Unknow sub-instruction %06X\n", opcode & 0x00FF);
             }
             break;
 
-        default:
+       default:
             printf("Unknow instruction opcode: %06X\n", opcode);
     }
 }
@@ -389,9 +402,9 @@ void CC8_SetEmulationContext(CC8_Machine *context)
 // ########## CHIP 8 INSTRUCTION SET IMPLEMENTATION
 void CC8_CLS()
 {
-	for (uint16_t i = 0; i < CHIP_8_VRAM_SIZE; i++)
+	for (uint16_t i = 0; i < sizeof(s_currentChipCtx->VRAM); i++)
 	{
-		s_currentChipCtx->VRAM[i] = CHIP_8_BACKGROUND_DISPLAY_COLOR;
+		s_currentChipCtx->VRAM[i] = 0xFF;
 	}
 }
 
@@ -512,20 +525,21 @@ void CC8_RND_VX_BYTE(uint8_t x, uint8_t kk)
 }
 
 void CC8_DRW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) {
-    const uint16_t startAddress = s_currentChipCtx->I & 0xFFF;
-    // s_currentChipCtx->V[0x0F] = 0;
+    const uint16_t startAddress = s_currentChipCtx->I;
+    s_currentChipCtx->V[0x0F] = 0;
 
     for (uint8_t byte = 0; byte < n; byte++) {
-        uint8_t line = s_currentChipCtx->RAM[startAddress + byte];
-
         for (uint8_t bit = 0; bit < 8; bit++) {
-            if ((line & (0x80 >> bit)) != 0) {
-                uint8_t xPos = (s_currentChipCtx->V[x] + bit) % (CHIP_8_VRAM_WIDTH);
-                uint8_t yPos = (s_currentChipCtx->V[y] + byte) % CHIP_8_VRAM_HEIGHT;
-                printf("x[%i] y[%i]\n",xPos ,yPos);
-                uint16_t vramIndex = (yPos * CHIP_8_VRAM_WIDTH) + (xPos / 8);
-                uint8_t vramBit = 7 - (xPos % 8);
+            uint8_t line = s_currentChipCtx->RAM[startAddress + byte];
 
+            if ((line & (0x80 >> bit)) != 0) {
+                // uint8_t xPos = (s_currentChipCtx->V[x] + bit) % (CHIP_8_VRAM_WIDTH);
+                // uint8_t yPos = (s_currentChipCtx->V[y] + byte) % CHIP_8_VRAM_HEIGHT;
+                uint8_t xPos = (s_currentChipCtx->V[x] + bit);
+                uint8_t yPos = (s_currentChipCtx->V[y] + byte);
+                uint16_t vramIndex = (yPos * CHIP_8_VRAM_WIDTH) + (xPos / 8);
+                uint8_t vramBit =(xPos % 8);
+                // printf("x pos : [%i]\n",xPos);
                 if ((s_currentChipCtx->VRAM[vramIndex] & (1 << vramBit)) != 0) {
                     s_currentChipCtx->V[0x0F] = 1;
                 }

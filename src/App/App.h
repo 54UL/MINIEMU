@@ -19,8 +19,8 @@ typedef void (*ActionCallback)(const char inputCode);
 
 typedef struct 
 {       
-    void        (*Init)(uint16_t w, uint16_t h);
-    uint8_t     (*Step)(StepCallBack renderCallback, ActionCallback actionsCallback);//todo: add input
+    void        (*Init)(uint16_t w, uint16_t h,ActionCallback eventCallback);
+    uint8_t     (*Step)(StepCallBack renderCallback);//todo: add input
     void        (*Reset)(void);
     void        (*Exit)(void);
 } App;

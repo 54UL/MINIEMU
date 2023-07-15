@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define CHIP_8_MAX_RAM 0xFFF
-#define CHIP_8_V_REGISTERS_COUNT 16
+#define CHIP_8_V_REGISTERS_COUNT 0X0F
 #define CHIP_8_VERTICAL_BIT_PAGE_SIZE 8
 #define CHIP_8_VRAM_WIDTH 64
 #define CHIP_8_VRAM_HEIGHT 32
@@ -23,7 +23,7 @@ typedef struct
     uint16_t PC;
     uint8_t  SP;
     uint16_t STACK[16];
-    uint8_t  VRAM[CHIP_8_VRAM_SIZE];
+    uint8_t  VRAM[CHIP_8_VRAM_WIDTH * CHIP_8_VRAM_HEIGHT];
     uint8_t  KEYBOARD;
     uint16_t PROGRAM_SIZE;
 } CC8_Machine;
