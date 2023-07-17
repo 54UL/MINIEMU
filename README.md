@@ -30,6 +30,10 @@ Space invaders (David winter)
 
 ![alt](images/space-invaders.png)
 
+Emulator UI Shell (WIP)
+
+![alt](images/shell-wip.png)
+
 ## Programs and rooms resources
 
 Chip 8 test suite

@@ -11,6 +11,7 @@ typedef struct
     void            (*LoadProgram)(const char * filePath);
     void            (*QuitProgram)();
     int             (*TickEmulation)();
+    int             (*TickDelayTimer)();
     void            (*SetEmulationContext)(CC8_Machine * context);
 } CC8_Core;
 
@@ -20,6 +21,7 @@ CC8_Core Chip8Emulator =
     .LoadProgram = CC8_LoadProgram,
     .QuitProgram = CC8_QuitProgram,
     .TickEmulation = CC8_TickEmulation,
+    .TickDelayTimer = CC8_TickDelayTimer,
     .SetEmulationContext = CC8_SetEmulationContext
 };
 

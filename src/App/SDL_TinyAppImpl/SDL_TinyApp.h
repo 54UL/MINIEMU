@@ -4,7 +4,7 @@
 #include "../App.h"
 
 //Function definitions
-void    Init_SDL(uint16_t w, uint16_t h, ActionCallback actionsCallback);
+void    Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorShell * shell);
 uint8_t Step_SDL(StepCallBack renderCallback);
 void    Reset_SDL(void);
 void    Exit_SDL_App(void);
