@@ -104,7 +104,7 @@ void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorSh
     s_chip8_frame_width = w;
     s_chip8_frame_height = h;
 
-    //TESTING EMULATOR BUFFER SIZE: 256 X 128 
+    //TESTING EMULATOR BUFFER SIZE: 300 X 128 
     s_emulator_frame_width = 300;
     s_emulator_frame_height = 128;
 
@@ -197,9 +197,12 @@ uint8_t Step_SDL(StepCallBack renderCallback)
     //TODO: FIX TIMING ISSUES
     if (delta_time >= 16)
     {
+        // Call callbacks 
         s_emulator_shell->UpdateFrame(s_emulator_pixels);
         renderCallback(s_chip8_pixels);
         Render();
+
+        //Update frame time...
         s_last_update_time = current_time;
     }   
 

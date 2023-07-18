@@ -7,8 +7,6 @@
 #define SCREEN_HEIGHT 32
 #define SCREEN_WIDTH 64
 
-#define PROGRAM_PATH  "/home/dev/repos/chip8-roms/demos/Sierpinski [Sergey Naydenov, 2010].ch8" //PUT YOUR EXECUTABLE PATH HERE...
-
 App *app;
 CC8_Core *emulator;
 CC8_Machine *context;
@@ -102,9 +100,7 @@ int main(int argc, char **argv)
     context = calloc(1, sizeof(CC8_Machine)); // Initialize machine state
 
     app->Init(SCREEN_WIDTH, SCREEN_HEIGHT, OnInputAction, &EmulatorUI);
-
     emulator->SetEmulationContext(context);
-    emulator->LoadProgram(PROGRAM_PATH);
 
     while (app->Render(OnStep))
     {

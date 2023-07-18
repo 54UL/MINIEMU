@@ -1,6 +1,12 @@
 {
     "files.associations": {
         "limits": "c",
-        "cc8_api.h": "c"
+        "cc8_api.h": "c",
+        "emulatorshell.h": "c",
+        "app.h": "c",
+        "stdint.h": "c",
+        "sdl_tinyapp.h": "c",
+        "sdl.h": "c",
+        "stdio.h": "c"
     }
 }
