@@ -1,12 +1,13 @@
 #include "SDL_TinyApp.h"
 #include "../UI/EmulatorShell.h"
-
 #include <SDL2/SDL.h>
 
+#define SCREEN_FACTOR 8
 
 // Window/presentation
 static SDL_Window *s_window;
 static SDL_Renderer *s_renderer;
+
 // Emulator shell
 static EmulatorShell * s_emulator_shell;
 
@@ -27,7 +28,51 @@ static SDL_Texture *s_emulator_ui_texture;
 static uint64_t s_rendering_ticks;
 static int s_chip8_frame_width, s_chip8_frame_height;
 static int s_emulator_frame_width, s_emulator_frame_height;
-#define SCREEN_FACTOR 8
+
+const char DesktopKeyMapping(const char code)
+{
+    switch (code)
+    {
+    // 1 2 3 C
+    case SDLK_1:
+        return 0x01;
+    case SDLK_2:
+        return 0x02;
+    case SDLK_3:
+        return 0x03;
+    case SDLK_4:
+        return 0x0C;
+    // 4 5 6 D
+    case SDLK_q:
+        return 0x04;
+    case SDLK_w:
+        return 0x05;
+    case SDLK_e:
+        return 0x06;
+    case SDLK_r:
+        return 0x0D;
+    // 7 8 9 E
+    case SDLK_a:
+        return 0x07;
+    case SDLK_s:
+        return 0x08;
+    case SDLK_d:
+        return 0x09;
+    case SDLK_f:
+        return 0x0E;
+    // A 0 B F
+    case SDLK_z:
+        return 0x0A;
+    case SDLK_x:
+        return 0x00;
+    case SDLK_c:
+        return 0x0B;
+    case SDLK_v:
+        return 0x0F;
+    case -100:
+        return 0xFF;
+    }
+}
 
 int EventThreadFunction()
 {
@@ -35,7 +80,6 @@ int EventThreadFunction()
    
     while (quitStatus)
     {
-        /* code */
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
@@ -46,7 +90,7 @@ int EventThreadFunction()
 
                 case SDL_KEYDOWN:
                     s_emulator_shell->OnInput(event.key.keysym.sym);
-                    s_eventCallback(event.key.keysym.sym);
+                    s_eventCallback(DesktopKeyMapping(event.key.keysym.sym));
                     break;
 
                 case SDL_KEYUP:
@@ -69,9 +113,7 @@ void Init_EventThread()
 
     if (eventThread == NULL)
     {
-        // std::cerr << "Thread creation failed: " << SDL_GetError() << std::endl;
         printf("Cannot create event thread....\n");
-        // return 1;
     }
 }
 
@@ -126,7 +168,7 @@ void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorSh
     s_chip8_pixels = calloc(s_chip8_frame_width * s_chip8_frame_height, sizeof(int));
     s_emulator_pixels = calloc(s_emulator_frame_height * s_emulator_frame_width, sizeof(int));
 
-    //Randomize the buffer (ready state) (CHIP 8 RENDERING TEST)
+    // Randomize the buffer (ready state) (CHIP 8 RENDERING TEST)
     int i = 0,j = 0;
     for (i = 0; i < s_chip8_frame_height; i++) 
     {
@@ -145,9 +187,14 @@ void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorSh
         }
     }
 
-    //Init event thread...
+    // Init event thread...
     Init_EventThread((void *) actionsCallback);
-    s_emulator_shell->Init();
+
+    // Init emulator shell (IF AVAILABLE)
+    if (s_emulator_shell != NULL)
+    {
+        s_emulator_shell->Init();
+    }
 }
 
 void Render()
@@ -189,7 +236,7 @@ void Render()
     SDL_RenderPresent(s_renderer);
 }
 
-uint8_t Step_SDL(StepCallBack renderCallback)
+uint8_t Step_SDL(StepCallback renderCallback)
 {
     Uint32  current_time = SDL_GetTicks();
     Uint32  delta_time = current_time - s_last_update_time;
@@ -206,7 +253,6 @@ uint8_t Step_SDL(StepCallBack renderCallback)
         s_last_update_time = current_time;
     }   
 
-    
     return quitStatus;
 }
 

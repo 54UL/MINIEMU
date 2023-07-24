@@ -8,7 +8,7 @@
 
 typedef struct 
 {
-    void            (*LoadProgram)(const char * filePath);
+    uint8_t         (*LoadProgram)(const char * filePath);
     void            (*QuitProgram)();
     int             (*TickEmulation)();
     int             (*TickDelayTimer)();

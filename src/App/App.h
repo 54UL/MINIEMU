@@ -4,6 +4,8 @@
 #include <stdint.h>
 
 typedef enum {Keyboard, Window, System} ActionType;
+typedef enum {Start, Stop, Reset, Quit} ShellAction;
+typedef enum {Idle, Starting, Running, Stopped, Exception} ShellState;
 
 //Models
 typedef struct 
@@ -13,16 +15,20 @@ typedef struct
     uint8_t     value;
 } ActionArg;
 
-//CallBacks
-typedef void (*StepCallBack)(unsigned int * pixels);
+//Callbacks
+typedef void (*StepCallback)(unsigned int * pixels);
 typedef void (*ActionCallback)(const char inputCode);
+typedef void (*ShellCallback)(void * data);
 
 typedef struct
 {
-    void    (*Init)(void);
-    void    (*UpdateFrame)(uint32_t *pixels);
-    void    (*OnInput)(const char code);
-    uint8_t (*Shown)(void);
+    void       (*Init)(void);
+    void       (*UpdateFrame)(uint32_t *pixels);
+    void       (*OnInput)(const char code);
+    uint8_t    (*Shown)(void);
+    void       (*ShellAction)(const ShellAction action, ShellCallback callback);
+    void       (*SetState)(const ShellState state);
+    ShellState (*GetState)();
 } EmulatorShell;
 
 typedef struct 
