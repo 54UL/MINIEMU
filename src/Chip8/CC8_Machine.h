@@ -22,13 +22,13 @@ typedef struct {
 } InstructionContext;
 
 typedef void (*instructionFnPtr)(const InstructionContext * ctx);
+#define CC8_INSTRUCTION_SET_LENGHT = 35;
 
 typedef struct 
 {
-    const uint16_t     instructionsCount = 35;
-    instructionFnPtr   instructions[instructionsCount];
+    instructionFnPtr   instructions[CC8_INSTRUCTION_SET_LENGHT];
 
-   void Assign(uint16_t mask, instructionFnPtr fn)
+   void Set(uint16_t mask, instructionFnPtr fn)
    {
         // get the opcode hash value
         uint16_t mask & 0xF000;
@@ -38,7 +38,7 @@ typedef struct
                    mask == 0xE000 ? 0x00FF : 
                    mask == 0xF000 ? 0x00FF : 0x00;
  
-        uint8_t index = opcode % instructionsCount;
+        uint8_t index = opcode % CC8_INSTRUCTION_SET_LENGHT;
         instructions[index] = fn;
    };
 
@@ -52,7 +52,7 @@ typedef struct
                    opcode == 0xE000 ? 0x00FF : 
                    opcode == 0xF000 ? 0x00FF : 0x00;
  
-        uint8_t index = opcode % instructionsCount;
+        uint8_t index = opcode % CC8_INSTRUCTION_SET_LENGHT;
         return instructions[index];
    };
 } InstructionSet;

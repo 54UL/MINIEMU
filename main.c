@@ -29,7 +29,6 @@ void OnStep(unsigned int *pixels)
     }
 }
 
-char lastCode;
 void OnInputAction(const char code)
 {
     switch (code)
@@ -90,7 +89,6 @@ void OnInputAction(const char code)
         context->KEYBOARD = 0xFF;
         break;
     }
-    lastCode = code;
 }
 
 int main(int argc, char **argv)
