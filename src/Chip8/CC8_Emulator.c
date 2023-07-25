@@ -38,24 +38,6 @@ void HexDump(uint8_t *buffer, size_t size)
     printf("-----------------------------------------------------------------\n");
 }
 
-void CC8_DebugMachine(CC8_Machine *machine, uint8_t enable)
-{
-    if (!enable)
-        return;
-
-    printf("| %-10s | %-10s |\n", "Name", "Value");
-    printf("|------------|------------|\n");
-    printf("| %-10s | %-#10x |\n", "RAM", (unsigned int)machine->RAM);
-    printf("| %-10s | %-#10x |\n", "V", (unsigned int)machine->V);
-    printf("| %-10s | %-#10x |\n", "SOUND", (unsigned int)machine->SOUND);
-    printf("| %-10s | %-#10x |\n", "DELAY", (unsigned int)machine->DELAY);
-    printf("| %-10s | %-#10x |\n", "I", (unsigned int)machine->I);
-    printf("| %-10s | %-#10x |\n", "PC", (unsigned int)machine->PC);
-    printf("| %-10s | %-#10x |\n", "SP", (unsigned int)machine->SP);
-    printf("| %-10s | %-#10x |\n", "STACK", (unsigned int)machine->STACK);
-    printf("| %-10s | %-#10x |\n", "VRAM", (unsigned int)machine->VRAM);
-}
-
 uint8_t CC8_LoadProgram(const char *filePath)
 {
     if (s_currentChipCtx == NULL)
@@ -79,18 +61,17 @@ uint8_t CC8_LoadProgram(const char *filePath)
     uint8_t *buffer = (uint8_t *)calloc(1, file_size + 1);
     size_t bytes_read = fread(buffer, 1, file_size, file);
     s_currentChipCtx->PROGRAM_SIZE = bytes_read;
+    s_currentChipCtx->PC = CC8_BOOT_ADDR_START;
 
-    // LOAD PROGRAM AND FONT INTO RAM
+    // LOAD PROGRAM
     uint16_t addr = 0;
     uint16_t loop_index = 0;
-
     for (addr = CC8_BOOT_ADDR_START; (addr < CC8_BOOT_ADDR_START + bytes_read); addr++)
     {
         s_currentChipCtx->RAM[addr] = buffer[loop_index++];
     }
 
-    s_currentChipCtx->PC = CC8_BOOT_ADDR_START;
-
+    // LOAD FONT
     loop_index = 0;
     printf("Loaded font size: %i\n", sizeof(CC8_FONT));
     for (addr = CC8_FONT_ADDR_START; (addr < CC8_FONT_ADDR_START + sizeof(CC8_DEFAULT_FONT)); addr++)
@@ -112,6 +93,7 @@ void CC8_QuitProgram()
     if (s_currentChipCtx != NULL)
     {
         free(s_currentChipCtx);
+        s_currentChipCtx = NULL;
     }
 }
 

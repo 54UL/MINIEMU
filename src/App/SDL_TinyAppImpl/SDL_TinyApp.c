@@ -117,6 +117,55 @@ void Init_EventThread()
     }
 }
 
+// AUDIO IMPLEMENTATION
+
+void audioCallback(void* userdata, Uint8* stream, int len) {
+    // BASIC SQUARE GENERATION
+    static int phase = 0;
+    int frequency = *(int*)(userdata);
+
+    for (int i = 0; i < len; i += 2) {
+        int sample = (phase++ % (SAMPLE_RATE / frequency)) < (SAMPLE_RATE / (2 * frequency)) ? AMPLITUDE : -AMPLITUDE;
+        stream[i] = static_cast<Uint8>(sample & 0xFF);
+        stream[i + 1] = static_cast<Uint8>((sample >> 8) & 0xFF);
+    }
+}
+
+static SDL_AudioSpec s_audioSpec;
+
+void Init_App_Audio()
+{
+    if (SDL_Init(SDL_INIT_AUDIO) != 0) 
+    {
+        std::cout << "SDL initialization failed: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    s_audioSpec.freq = SAMPLE_RATE;
+    s_audioSpec.format = AUDIO_S16SYS;
+    s_audioSpec.channels = 1;
+    s_audioSpec.samples = 1024;
+    s_audioSpec.callback = audioCallback;
+    s_audioSpec.userdata = 440; // Police siren freq
+}
+
+void PlaySquareWave(int frequency, int duration) 
+{
+    SDL_AudioSpec obtainedSpec;
+    if (SDL_OpenAudio(&s_audioSpec, &obtainedSpec) != 0) 
+    {
+        std::cout << "Failed to open audio: " << SDL_GetError() << std::endl;
+        return;
+    }
+    SDL_PauseAudio(0);
+
+    // Play the beep for the specified duration
+    SDL_Delay(duration);
+
+    SDL_CloseAudio();
+}
+
+// END AUDIO IMPLEMENTATION
 
 void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorShell * shell)
 {
@@ -130,7 +179,10 @@ void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorSh
         s_emulator_shell = shell;
     }
 
-    // SDL Initialization
+    // SDL audio initialization
+    Init_App_Audio();
+    
+    // SDL Video initialization
     SDL_Init(SDL_INIT_VIDEO);
 
     s_window = SDL_CreateWindow("CC8",
@@ -238,8 +290,8 @@ void Render()
 
 uint8_t Step_SDL(StepCallback renderCallback)
 {
-    Uint32  current_time = SDL_GetTicks();
-    Uint32  delta_time = current_time - s_last_update_time;
+    uint32_t  current_time = SDL_GetTicks();
+    uint32_t  delta_time = current_time - s_last_update_time;
 
     //TODO: FIX TIMING ISSUES
     if (delta_time >= 16)
@@ -270,5 +322,9 @@ void Exit_SDL_App(void)
 
     free(s_chip8_pixels);
     free(s_emulator_pixels);
+    
+    // Release SDL
+    SDL_CloseAudio();
+    SDL_Quit();
 }
 

@@ -1,40 +1,39 @@
-# CC8
-Chip 8 portable lib for embbed devices (WIP)
+# MIEMU
+Minimalist emulator implementations (IN-PROGRESS)
 
-Todos:
-- Multi room selector (from folder)
-    - Emulator ui frame buffer 
-    - Emulator ui 
-        - Basic file explorer
-        - Debug ???
-- uDisplay implementation (https://github.com/54UL/uDisplay/)
-- PSP SDL PORT
+## Features
+- Most minimal impementation (lightweight)
+- Minimal dependency count
+    - SDL_2
+- Emulator UI
+    - Shell
+        - Emulation control (start, stop, reset)
+        - File explorer 
+- Portable code
+    - Linux (ubuntu/debian)
+- Emulation engine api
+    - runs any emulator implemented on the Emulation api
+        - hotswapable and multi-emulator system
+- Implementations
+    - Chip 8
 
+Check the [road map](DOCS/emu_roadmap.md) for development notes uwu
 
-
-## Overview
-
-Corax+ opcode test
-
-![alt](images/Coraxp.png)
-
-Maze (David winter)
-
-![alt](images/maze-demo.png)
-
-Pong game 1P
-
-![alt](images/pong-game.png)
-
-Space invaders (David winter)
-
-![alt](images/space-invaders.png)
+## CC8 Overview (C CHIP-8 EMULATOR) 
 
 Emulator UI Shell (WIP)
 
 ![alt](images/shell-wip.png)
 
-## Programs and rooms resources
+Maze (David winter)
+
+![alt](images/maze-demo.png)
+
+
+## GAME BOY (W.I.P) 
+- TODO...
+
+## Resources
 
 Chip 8 test suite
 * https://github.com/Timendus/chip8-test-suite
@@ -42,3 +41,5 @@ Chip 8 test suite
 Chipo 8 roms
 * https://github.com/kripod/chip8-roms
 
+## Authors
+* TODO!!!

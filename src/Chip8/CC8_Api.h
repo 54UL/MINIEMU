@@ -2,7 +2,6 @@
 #define CC8_API_H
 #include <stdio.h>
 
-
 #include "CC8_Machine.h"
 #include "CC8_Emulator.h"
 
