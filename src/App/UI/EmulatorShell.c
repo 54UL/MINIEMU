@@ -10,6 +10,7 @@
 #include <math.h>
 
 #define MAX_ROMS 128
+#define PATH_LENGHT 64
 #define FRAME_WIDTH  300
 #define FRAME_HEIGHT 128
 #define MAX_SHELL_ACTIONS 4
@@ -17,11 +18,12 @@
 static volatile uint8_t s_showMenu = 1;
 static const uint32_t s_fontColor = 0X00FF00FF;
 static const uint32_t s_backgroundColor = 0X1E1E1E1E;
-static char s_files[MAX_ROMS][64]; // supports 128 paths with 32 characters wide path size
+static char s_files[MAX_ROMS][PATH_LENGHT]; // supports 128 paths with 64 characters wide path size
 static uint16_t s_readedRooms = 0;
 static int s_tabsIndex = 0;
 static int s_selectionIndex = 0;
-static ShellCallback[MAX_SHELL_ACTIONS] s_actions;
+static ShellCallback s_actions[MAX_SHELL_ACTIONS];
+ShellState s_currentState;
 
 void GetFolderContents(const char *folderPath)
 {
@@ -82,7 +84,7 @@ void DrawString()
 void EmuShell_Init()
 {
     // TODO: GET THIS VALUE FROM A CONFIG FILE
-    GetFolderContents("../ROMS");
+    GetFolderContents(CC8_ROMS_PATH);
 }
 
 int ShellRow(int * yAxis)
@@ -96,7 +98,7 @@ void EmuShell_UpdateFrame(uint32_t *pixels)
    int rowYLoc = 1;
    int cursorYPos = 2;
    const uint8_t cursorBounds = (8 * 8);
-   const char currentRomStr[128];
+   char currentRomStr[128];
    char currentStatusStr[32];
 
    // Clear rendering buffer
@@ -104,14 +106,28 @@ void EmuShell_UpdateFrame(uint32_t *pixels)
 
    EmuShell_DrawString("CC8 V1.0 (CHIP 8 EMULATOR BY XUL)", pixels, 32, ShellRow(&rowYLoc));
 
+
+
    switch (s_selectionIndex)
    {
-        case 0:
-            strcpy(currentStatusStr, "[IDLE]");
+        case 0: 
+              if (s_currentState == Idle )
+                strcpy(currentStatusStr, "[IDLE]");
+              else
+                strcpy(currentStatusStr, "[RUNNING]");
             break;
+            
         case 1:
-            strcpy(currentStatusStr, "[RUNNING]");
-            s_actions[ShellAction::Start](s_files[s_tabsIndex]);
+            if (s_currentState == Idle || s_currentState == Running)
+            {
+                strcpy(currentStatusStr, "[STARTING]");
+                const char * romPath[PATH_LENGHT];
+                strcat(romPath, CC8_ROMS_PATH);
+                strcat(romPath, s_files[s_tabsIndex]);
+                s_actions[Start](romPath);
+                s_selectionIndex = 0;// antibounce
+            }
+
             break;
    }
 
@@ -173,14 +189,14 @@ void EmuShell_KeyPressed(const char code)
 
         // CANCEL 
         case SDLK_k:
-            s_selectionIndex--;
-            s_selectionIndex = ClampValue(s_selectionIndex, 0, 3);
+            s_selectionIndex++;
+            s_selectionIndex = ClampValue(s_selectionIndex, 0, 0);
             break;
 
         // ACCEPT (MULTIPLE LEVELS)
         case SDLK_SEMICOLON:
-            s_selectionIndex++;
-            s_selectionIndex = ClampValue(s_selectionIndex, 0, 3);
+            s_selectionIndex--;
+            s_selectionIndex = ClampValue(s_selectionIndex, 0, 1);
             break;
 
         default:
@@ -204,4 +220,14 @@ void EmuShell_ShellAction(const ShellAction action, ShellCallback callback)
     }
 
     s_actions[action] = callback;
+}
+
+void EmuShell_SetState(const ShellState state)
+{
+    s_currentState = state;
+}
+
+ShellState EmuShell_GetState()
+{
+    return s_currentState;
 }

@@ -15,7 +15,7 @@ static EmulatorShell * s_emulator_shell;
 SDL_Thread* eventThread;
 static ActionCallback s_eventCallback;
 static SDL_Event * event;
-static volatile quitStatus = 1 ;
+static quitStatus = 1 ;
 
 // Rendering
 static uint32_t s_last_update_time;
@@ -29,7 +29,7 @@ static uint64_t s_rendering_ticks;
 static int s_chip8_frame_width, s_chip8_frame_height;
 static int s_emulator_frame_width, s_emulator_frame_height;
 
-const char DesktopKeyMapping(const char code)
+char DesktopKeyMapping(const char code)
 {
     switch (code)
     {
@@ -95,6 +95,7 @@ int EventThreadFunction()
 
                 case SDL_KEYUP:
                     s_eventCallback(-100);
+                    s_emulator_shell->OnInput(-100);
                     break;
 
                 default:
@@ -117,17 +118,20 @@ void Init_EventThread()
     }
 }
 
-// AUDIO IMPLEMENTATION
+
 
 void audioCallback(void* userdata, Uint8* stream, int len) {
+    // static int frequency = 440; // Adjust this for different frequencies
+    static const int AMPLITUDE = 28000;
+    static const int SAMPLE_RATE = 44100;
     // BASIC SQUARE GENERATION
     static int phase = 0;
     int frequency = *(int*)(userdata);
 
     for (int i = 0; i < len; i += 2) {
         int sample = (phase++ % (SAMPLE_RATE / frequency)) < (SAMPLE_RATE / (2 * frequency)) ? AMPLITUDE : -AMPLITUDE;
-        stream[i] = static_cast<Uint8>(sample & 0xFF);
-        stream[i + 1] = static_cast<Uint8>((sample >> 8) & 0xFF);
+        stream[i] = (uint8_t)(sample & 0xFF);
+        stream[i + 1] = (uint8_t)((sample >> 8) & 0xFF);
     }
 }
 
@@ -137,11 +141,11 @@ void Init_App_Audio()
 {
     if (SDL_Init(SDL_INIT_AUDIO) != 0) 
     {
-        std::cout << "SDL initialization failed: " << SDL_GetError() << std::endl;
+        printf("Failed to open audio: %s\n", SDL_GetError());
         return;
     }
 
-    s_audioSpec.freq = SAMPLE_RATE;
+    s_audioSpec.freq = 44100;
     s_audioSpec.format = AUDIO_S16SYS;
     s_audioSpec.channels = 1;
     s_audioSpec.samples = 1024;
@@ -154,7 +158,7 @@ void PlaySquareWave(int frequency, int duration)
     SDL_AudioSpec obtainedSpec;
     if (SDL_OpenAudio(&s_audioSpec, &obtainedSpec) != 0) 
     {
-        std::cout << "Failed to open audio: " << SDL_GetError() << std::endl;
+        printf("Failed to open audio: %s\n", SDL_GetError());
         return;
     }
     SDL_PauseAudio(0);

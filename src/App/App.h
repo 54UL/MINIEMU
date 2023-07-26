@@ -34,7 +34,7 @@ typedef struct
 typedef struct 
 {       
     void        (*Init)(uint16_t w, uint16_t h, ActionCallback eventCallback, EmulatorShell * shell);
-    uint8_t     (*Render)(StepCallBack renderCallback);//todo: add input
+    uint8_t     (*Render)(StepCallback renderCallback);//todo: add input
     void        (*Reset)(void);
     void        (*Exit)(void);
 } App;

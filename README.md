@@ -16,23 +16,18 @@ Minimalist emulator implementations (IN-PROGRESS)
         - hotswapable and multi-emulator system
 - Implementations
     - Chip 8
+    - Game boy (todo)
 
 Check the [road map](DOCS/emu_roadmap.md) for development notes uwu
 
-## CC8 Overview (C CHIP-8 EMULATOR) 
+## CC8 (C CHIP-8 EMULATOR) Overview 
 
-Emulator UI Shell (WIP)
+# Initial state
+![alt](images/initial-state.png)
+# Running state
+![alt](images/running-state.png)
 
-![alt](images/shell-wip.png)
-
-Maze (David winter)
-
-![alt](images/maze-demo.png)
-
-
-## GAME BOY (W.I.P) 
-- TODO...
-
+- Check [Chip 8 gallery](images/chip8-gallery.md)
 ## Resources
 
 Chip 8 test suite

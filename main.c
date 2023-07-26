@@ -23,32 +23,41 @@ void QuitEmulation(void * data);
 int main(int argc, char **argv)
 {
     Uint32 last_update_time;
+    Uint32 last_update_time_timers;
 
     app = &TinySDLApp;
     emulator = &Chip8Emulator;
 
     // Configure emulator shell actions (if available)
-    EmulatorUI.ShellAction(ShellAction::Start, StartEmulation);
-    EmulatorUI.ShellAction(ShellAction::Stop, StopEmulation);
-    EmulatorUI.ShellAction(ShellAction::Quit, QuitEmulation);
+    EmulatorUI.ShellAction(Start, StartEmulation);
+    EmulatorUI.ShellAction(Stop, StopEmulation);
+    EmulatorUI.ShellAction(Quit, QuitEmulation);
 
     // App and emulator initialization
-    emulator->SetEmulationContext(context);
     app->Init(SCREEN_WIDTH, SCREEN_HEIGHT, OnInputAction, &EmulatorUI);
+    uint8_t status = 1 ;
 
     // Main loop (render pass)
-    while (app->Render(OnRender) && EmulatorUI.GetState() == ShellState::Running)
+    while (status)
     {
         uint32_t current_time = SDL_GetTicks();
         uint32_t delta_time = current_time - last_update_time;
+        uint32_t delta_time_timers = current_time - last_update_time_timers;
 
-        // TODO: FIX TIMING ISSUES
-        // Emulator loop (cpu step)
-        if (delta_time >= 1)
+        if (delta_time >= 2 ) // CPU FREQ
         {
-            emulator->TickDelayTimer();
-            emulator->TickEmulation();
+            status = app->Render(OnRender);
 
+            if (EmulatorUI.GetState() == Running)
+            {
+                emulator->TickEmulation();
+
+                if (delta_time_timers > 16) // TIMERS FREQ
+                {
+                    emulator->TickDelayTimer();
+                    last_update_time_timers = current_time;
+                }
+            }
             last_update_time = current_time;
         }
     }
@@ -59,6 +68,7 @@ int main(int argc, char **argv)
 
 void OnRender(unsigned int *pixels)
 {
+    if (context == NULL) return;
     for (int i = 0; i < SCREEN_HEIGHT; i++)
     {
         for (int j = 0; j < SCREEN_WIDTH; j++)
@@ -75,6 +85,7 @@ void OnRender(unsigned int *pixels)
 
 void OnInputAction(const char code)
 {
+    if (context == NULL) return;
     context->KEYBOARD = code;
 }
 
@@ -85,21 +96,24 @@ void StartEmulation(void * data)
     const ShellState sate = EmulatorUI.GetState();
     switch (sate)
     {
-        case ShellState::Running:
-            EmulatorUI.SetState(ShellState::Starting);
+        case Running:
+            EmulatorUI.SetState(Starting);
             emulator->QuitProgram();
             break;
+
         default:
             break;
     }
+    context = calloc(1, sizeof(CC8_Machine));
+    emulator->SetEmulationContext(context);
 
     if (emulator->LoadProgram((const char*) data))
     {
-        EmulatorUI.SetState(ShellState::Running);
+        EmulatorUI.SetState(Running);
     }
     else
     {
-        EmulatorUI.SetState(ShellState::Exception);
+        EmulatorUI.SetState(Exception);
     }
 }
 

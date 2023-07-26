@@ -2,11 +2,30 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#define CC8_FONT_ADDR_START = 0x000;
-#define CC8_BOOT_ADDR_START = 0x200; 
+#define CC8_FONT_ADDR_START 0x000
+#define CC8_BOOT_ADDR_START 0x200
 #define CC8_FILE_PROGRAM_BUFFER_SIZE 4096
 
-static CC8_Machine *s_currentChipCtx = NULL;
+static CC8_Machine * s_currentChipCtx = NULL;
+
+const uint8_t CC8_FONT[] = {
+    0xF0, 0x90, 0x90, 0x90, 0xF0, // "0"
+    0x20, 0x60, 0x20, 0x20, 0x70, // "1"
+    0xF0, 0x10, 0xF0, 0x80, 0xF0, // "2"
+    0xF0, 0x10, 0xF0, 0x10, 0xF0, // "3"
+    0x90, 0x90, 0xF0, 0x10, 0x10, // "4"
+    0xF0, 0x80, 0xF0, 0x10, 0xF0, // "5"
+    0xF0, 0x80, 0xF0, 0x90, 0xF0, // "6"
+    0xF0, 0x10, 0x20, 0x40, 0x40, // "7"
+    0xF0, 0x90, 0xF0, 0x90, 0xF0, // "8"
+    0xF0, 0x90, 0xF0, 0x10, 0xF0, // "9"
+    0xF0, 0x90, 0xF0, 0x90, 0x90, // "A"
+    0xE0, 0x90, 0xE0, 0x90, 0xE0, // "B"
+    0xF0, 0x80, 0x80, 0x80, 0xF0, // "C"
+    0xE0, 0x90, 0x90, 0x90, 0xE0, // "D"
+    0xF0, 0x80, 0xF0, 0x80, 0xF0, // "E"
+    0xF0, 0x80, 0xF0, 0x80, 0x80  // "F"
+};
 
 // TODO:MOVE TO A PROPPER HEADER FILE called utils or such
 void HexDump(uint8_t *buffer, size_t size)
@@ -40,11 +59,6 @@ void HexDump(uint8_t *buffer, size_t size)
 
 uint8_t CC8_LoadProgram(const char *filePath)
 {
-    if (s_currentChipCtx == NULL)
-    {
-        s_currentChipCtx = calloc(1, sizeof(CC8_Machine)); // Initialize machine state
-    }
-
     FILE *file = fopen(filePath, "rb");
     if (file == NULL)
     {
@@ -74,9 +88,9 @@ uint8_t CC8_LoadProgram(const char *filePath)
     // LOAD FONT
     loop_index = 0;
     printf("Loaded font size: %i\n", sizeof(CC8_FONT));
-    for (addr = CC8_FONT_ADDR_START; (addr < CC8_FONT_ADDR_START + sizeof(CC8_DEFAULT_FONT)); addr++)
+    for (addr = CC8_FONT_ADDR_START; (addr < CC8_FONT_ADDR_START + sizeof(CC8_FONT)); addr++)
     {
-        s_currentChipCtx->RAM[CC8_FONT_ADDR_START + addr] = CC8_DEFAULT_FONT[loop_index++];
+        s_currentChipCtx->RAM[CC8_FONT_ADDR_START + addr] = CC8_FONT[loop_index++];
     }
 
     // TODO: ADD DEBUG FLAG for dumping hex

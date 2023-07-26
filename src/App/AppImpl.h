@@ -20,7 +20,9 @@ EmulatorShell EmulatorUI =
     .UpdateFrame = EmuShell_UpdateFrame,
     .Shown = EmuShell_Shown,
     .OnInput = EmuShell_KeyPressed,
-    .ShellAction = EmuShell_ShellAction
+    .ShellAction = EmuShell_ShellAction,
+    .SetState = EmuShell_SetState,
+    .GetState = EmuShell_GetState
 };
 
 #endif
