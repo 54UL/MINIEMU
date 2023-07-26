@@ -177,9 +177,9 @@ void CC8_Step(uint16_t opcode)
     {
         *fetchedInstruction(ctx);
     }
-    else
+    else if (opcode != 0x0000)
     {
-        printf("Invalid instruction: %06X\n", opcode);
+        printf("Invalid opcode: %06X\n", opcode);
     }
 }
 

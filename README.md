@@ -20,6 +20,31 @@ Minimalist emulator implementations (IN-PROGRESS)
 
 Check the [road map](DOCS/emu_roadmap.md) for development notes uwu
 
+### Setup
+
+1) Install dependencies
+```bash
+sudo apt-get update
+sudo apt-get install libsdl2-dev
+```
+2) Create `ROMS` folder
+4) Controls
+    * Chip 8 keypad map()
+        ```
+        1234 
+        QWER 
+        ASDF
+        ZXCV
+        ```
+    * Shell control
+        ```
+        O -> UP 
+        L -> DOWN
+        K -> BACK
+        ; -> ACCEPT
+        ```
+3) Enjoy
+
 ## CC8 (C CHIP-8 EMULATOR) Overview 
 
 # Initial state

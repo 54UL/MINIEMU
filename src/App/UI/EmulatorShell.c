@@ -106,8 +106,6 @@ void EmuShell_UpdateFrame(uint32_t *pixels)
 
    EmuShell_DrawString("CC8 V1.0 (CHIP 8 EMULATOR BY XUL)", pixels, 32, ShellRow(&rowYLoc));
 
-
-
    switch (s_selectionIndex)
    {
         case 0: 

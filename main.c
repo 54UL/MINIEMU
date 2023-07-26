@@ -104,6 +104,7 @@ void StartEmulation(void * data)
         default:
             break;
     }
+    
     context = calloc(1, sizeof(CC8_Machine));
     emulator->SetEmulationContext(context);
 
