@@ -1,4 +1,4 @@
-# MIEMU
+# MINIEMU
 Minimalist emulator implementations (IN-PROGRESS)
 
 ## Features
