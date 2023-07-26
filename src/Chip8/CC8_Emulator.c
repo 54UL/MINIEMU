@@ -2,12 +2,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
-static CC8_Machine *s_currentChipCtx = NULL;
-
+#define CC8_FONT_ADDR_START 0x000
+#define CC8_BOOT_ADDR_START 0x200
 #define CC8_FILE_PROGRAM_BUFFER_SIZE 4096
 
-const uint8_t CC8_DEFAULT_FONT[] = {
+static CC8_Machine * s_currentChipCtx = NULL;
+
+const uint8_t CC8_FONT[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // "0"
     0x20, 0x60, 0x20, 0x20, 0x70, // "1"
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // "2"
@@ -56,31 +57,13 @@ void HexDump(uint8_t *buffer, size_t size)
     printf("-----------------------------------------------------------------\n");
 }
 
-void CC8_DebugMachine(CC8_Machine *machine, uint8_t enable)
-{
-    if (!enable)
-        return;
-
-    printf("| %-10s | %-10s |\n", "Name", "Value");
-    printf("|------------|------------|\n");
-    printf("| %-10s | %-#10x |\n", "RAM", (unsigned int)machine->RAM);
-    printf("| %-10s | %-#10x |\n", "V", (unsigned int)machine->V);
-    printf("| %-10s | %-#10x |\n", "SOUND", (unsigned int)machine->SOUND);
-    printf("| %-10s | %-#10x |\n", "DELAY", (unsigned int)machine->DELAY);
-    printf("| %-10s | %-#10x |\n", "I", (unsigned int)machine->I);
-    printf("| %-10s | %-#10x |\n", "PC", (unsigned int)machine->PC);
-    printf("| %-10s | %-#10x |\n", "SP", (unsigned int)machine->SP);
-    printf("| %-10s | %-#10x |\n", "STACK", (unsigned int)machine->STACK);
-    printf("| %-10s | %-#10x |\n", "VRAM", (unsigned int)machine->VRAM);
-}
-
-void CC8_LoadProgram(const char *filePath)
+uint8_t CC8_LoadProgram(const char *filePath)
 {
     FILE *file = fopen(filePath, "rb");
     if (file == NULL)
     {
         printf("Unable to open file %s\n", filePath);
-        return;
+        return 0;
     }
 
     // Get the size of the file
@@ -92,40 +75,40 @@ void CC8_LoadProgram(const char *filePath)
     uint8_t *buffer = (uint8_t *)calloc(1, file_size + 1);
     size_t bytes_read = fread(buffer, 1, file_size, file);
     s_currentChipCtx->PROGRAM_SIZE = bytes_read;
+    s_currentChipCtx->PC = CC8_BOOT_ADDR_START;
 
-    // LOAD PROGRAM AND FONT INTO RAM
-    const size_t font_addr_start = 0x000; // The first thing in memory is the font
-    const size_t boot_addr_start = 0x200; // 512
-
+    // LOAD PROGRAM
     uint16_t addr = 0;
     uint16_t loop_index = 0;
-
-    for (addr = boot_addr_start; (addr < boot_addr_start + bytes_read); addr++)
+    for (addr = CC8_BOOT_ADDR_START; (addr < CC8_BOOT_ADDR_START + bytes_read); addr++)
     {
         s_currentChipCtx->RAM[addr] = buffer[loop_index++];
     }
 
-    s_currentChipCtx->PC = boot_addr_start;
-
+    // LOAD FONT
     loop_index = 0;
-    printf("Loaded font size: %i\n", sizeof(CC8_DEFAULT_FONT));
-    for (addr = font_addr_start; (addr < font_addr_start + sizeof(CC8_DEFAULT_FONT)); addr++)
+    printf("Loaded font size: %i\n", sizeof(CC8_FONT));
+    for (addr = CC8_FONT_ADDR_START; (addr < CC8_FONT_ADDR_START + sizeof(CC8_FONT)); addr++)
     {
-        s_currentChipCtx->RAM[font_addr_start + addr] = CC8_DEFAULT_FONT[loop_index++];
+        s_currentChipCtx->RAM[CC8_FONT_ADDR_START + addr] = CC8_FONT[loop_index++];
     }
 
-    // Print the buffer (TODO:addd flag to print this thing)
-    // HexDump(buffer, bytes_read);
+    // TODO: ADD DEBUG FLAG for dumping hex
+    HexDump(buffer, bytes_read);
 
     // Clean up resources
     free(buffer);
     fclose(file);
+    return 1;
 }
 
 void CC8_QuitProgram()
 {
     if (s_currentChipCtx != NULL)
+    {
         free(s_currentChipCtx);
+        s_currentChipCtx = NULL;
+    }
 }
 
 void CC8_Step(uint16_t opcode)
@@ -359,6 +342,8 @@ void CC8_TickDelayTimer()
 
 int CC8_TickEmulation()
 {
+    if (s_currentChipCtx == NULL) return 0;
+
     // CC8_DebugMachine(s_currentChipCtx, 1);
     // CC8_TickDelayTimer(); // TODO: FIX TIMING ISSUE (PUT THIS IN A SEPARATE THREAD)
 

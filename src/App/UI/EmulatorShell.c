@@ -7,14 +7,23 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
+#include <math.h>
 
 #define MAX_ROMS 128
+#define PATH_LENGHT 64
+#define FRAME_WIDTH  300
+#define FRAME_HEIGHT 128
+#define MAX_SHELL_ACTIONS 4
 
-static volatile uint8_t showMenu = 1;
-static const uint32_t fontColor = 0X00FF00FF;
-static const uint32_t backgroundColor = 0X1E1E1E1E;
-static char files[MAX_ROMS][64]; // supports 128 paths with 32 characters wide path size
-static uint16_t readedRooms = 0;
+static volatile uint8_t s_showMenu = 1;
+static const uint32_t s_fontColor = 0X00FF00FF;
+static const uint32_t s_backgroundColor = 0X1E1E1E1E;
+static char s_files[MAX_ROMS][PATH_LENGHT]; // supports 128 paths with 64 characters wide path size
+static uint16_t s_readedRooms = 0;
+static int s_tabsIndex = 0;
+static int s_selectionIndex = 0;
+static ShellCallback s_actions[MAX_SHELL_ACTIONS];
+ShellState s_currentState;
 
 void GetFolderContents(const char *folderPath)
 {
@@ -28,16 +37,16 @@ void GetFolderContents(const char *folderPath)
         {
             if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
             {
-                strcpy(files[fileIndex], entry->d_name);
+                strcpy(s_files[fileIndex], entry->d_name);
 
                 size_t lenght = strlen(entry->d_name);
-                files[fileIndex][lenght] = '\0';
+                s_files[fileIndex][lenght] = '\0';
 
                 fileIndex++;
             }
         }
 
-        readedRooms = fileIndex;
+        s_readedRooms = fileIndex;
         closedir(directory);
     }
 }
@@ -52,7 +61,7 @@ void EmuShell_DrawChar(unsigned char character, uint32_t *pixels, const int x, c
         //TODO: IMPLEMENT MULTI ARCH REMOVING AVR INTRINSICTS
         for (uint8_t bit = 0; bit < 8; bit++)
         {
-            pixels[(y+bit) * 300 + (x+gylphIndex)] = (BitMapFont[fontStartPos + gylphIndex] >> bit) & 0x01 ? fontColor : backgroundColor;
+            pixels[((y + bit) % FRAME_HEIGHT) * FRAME_WIDTH + ((x + gylphIndex) % FRAME_WIDTH)] = (BitMapFont[fontStartPos + gylphIndex] >> bit) & 0x01 ? s_fontColor : s_backgroundColor;
         }
     }
 }
@@ -74,40 +83,151 @@ void DrawString()
 
 void EmuShell_Init()
 {
-    GetFolderContents("/home/dev/repos/chip8-roms/games");
+    // TODO: GET THIS VALUE FROM A CONFIG FILE
+    GetFolderContents(CC8_ROMS_PATH);
 }
 
-void EmuShell_UpdateFrame(uint32_t * pixels)
+int ShellRow(int * yAxis)
 {
-   EmuShell_DrawString("Chip 8 emulator (CC8 V1.0 BY XUL)", pixels, 32, 0);
+   return *yAxis += DEFAUL_COL_Y_SPACING;
+}
 
-   EmuShell_DrawString("[PC:0XFFFF][PRG_SZ: 0XFFF] CURRENT ROM:", pixels, 0, 19);
-   EmuShell_DrawString("[Sierpinski [Sergey Naydenov, 2010].ch8]", pixels, 0, 29);
+void EmuShell_UpdateFrame(uint32_t *pixels)
+{
+   // Starting row position...
+   int rowYLoc = 1;
+   int cursorYPos = 2;
+   const uint8_t cursorBounds = (8 * 8);
+   char currentRomStr[128];
+   char currentStatusStr[32];
 
-   EmuShell_DrawString("ROMS Folder:", pixels, 8, 42);
+   // Clear rendering buffer
+   memset(pixels, s_backgroundColor, FRAME_WIDTH * FRAME_HEIGHT * sizeof(uint32_t));
 
+   EmuShell_DrawString("CC8 V1.0 (CHIP 8 EMULATOR BY XUL)", pixels, 32, ShellRow(&rowYLoc));
+
+
+
+   switch (s_selectionIndex)
+   {
+        case 0: 
+              if (s_currentState == Idle )
+                strcpy(currentStatusStr, "[IDLE]");
+              else
+                strcpy(currentStatusStr, "[RUNNING]");
+            break;
+            
+        case 1:
+            if (s_currentState == Idle || s_currentState == Running)
+            {
+                strcpy(currentStatusStr, "[STARTING]");
+                const char * romPath[PATH_LENGHT];
+                strcat(romPath, CC8_ROMS_PATH);
+                strcat(romPath, s_files[s_tabsIndex]);
+                s_actions[Start](romPath);
+                s_selectionIndex = 0;// antibounce
+            }
+
+            break;
+   }
+
+   sprintf(currentRomStr, "%s %s", currentStatusStr, s_files[s_tabsIndex]);
+   EmuShell_DrawString(currentRomStr, pixels, 16, ShellRow(&rowYLoc) + 2);
+   
+   ShellRow(&rowYLoc);
+   cursorYPos = rowYLoc + (2 * DEFAUL_COL_Y_SPACING);
+
+   EmuShell_DrawString("ROMS:", pixels, 8, ShellRow(&rowYLoc));
    for (int i = 0; i < 8; i++)
    {
-        int yLoc = (9 * i) + 52;
-        EmuShell_DrawString("* ", pixels, 2, yLoc);
-        EmuShell_DrawString(files[i], pixels, 16, yLoc);
+        int yLoc = ShellRow(&rowYLoc);
+        int cursorY =  (cursorYPos + (s_tabsIndex * 8) % cursorBounds);
+        EmuShell_DrawString("* ", pixels, 2, cursorY);
+        EmuShell_DrawString(s_files[i], pixels, 16, yLoc);
    }
 }
 
-void EmuShell_Invoke(const char* cmd, void * payload)
-{
-
+// BIG MF TODO: WTFFF I DID NOT WANT THIS...
+uint16_t ClampValue(uint16_t value, uint16_t min, uint16_t max){
+       if (value < min) {
+        return min;
+    } else if (value > max) {
+        return max;
+    } else {
+        return value;
+    }
 }
 
+// TODO: CHECK IF IS THIS PROCCESSED IN THE EVENT THREAD...
+char lastCode;
 void EmuShell_KeyPressed(const char code)
 {
-    if (SDLK_ESCAPE == code)
+    if (lastCode == code) 
     {
-        showMenu = !showMenu;
+        SDL_Delay(16);
+        return;
     }
+
+    switch (code)
+    {
+        // MENU
+        case SDLK_ESCAPE:
+            s_showMenu = !s_showMenu;
+            break;
+
+        // UP
+        case SDLK_o:
+            s_tabsIndex--;
+            s_tabsIndex = ClampValue(s_tabsIndex, 0, s_readedRooms - 1);
+            break;
+
+        // DOWN
+        case SDLK_l:
+            s_tabsIndex++;
+            s_tabsIndex =  ClampValue(s_tabsIndex, 0, s_readedRooms - 1);
+            break;
+
+        // CANCEL 
+        case SDLK_k:
+            s_selectionIndex++;
+            s_selectionIndex = ClampValue(s_selectionIndex, 0, 0);
+            break;
+
+        // ACCEPT (MULTIPLE LEVELS)
+        case SDLK_SEMICOLON:
+            s_selectionIndex--;
+            s_selectionIndex = ClampValue(s_selectionIndex, 0, 1);
+            break;
+
+        default:
+            break;
+    }
+
+    lastCode = code;
 }
 
 uint8_t EmuShell_Shown()
 {
-    return showMenu;
+    return s_showMenu;
+}
+
+void EmuShell_ShellAction(const ShellAction action, ShellCallback callback)
+{
+    if (action > MAX_SHELL_ACTIONS)
+    {
+        printf("Action: %i out of bounds(%i), skipping...\n", action, MAX_SHELL_ACTIONS);
+        return;
+    }
+
+    s_actions[action] = callback;
+}
+
+void EmuShell_SetState(const ShellState state)
+{
+    s_currentState = state;
+}
+
+ShellState EmuShell_GetState()
+{
+    return s_currentState;
 }

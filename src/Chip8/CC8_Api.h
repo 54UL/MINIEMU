@@ -2,13 +2,12 @@
 #define CC8_API_H
 #include <stdio.h>
 
-
 #include "CC8_Machine.h"
 #include "CC8_Emulator.h"
 
 typedef struct 
 {
-    void            (*LoadProgram)(const char * filePath);
+    uint8_t         (*LoadProgram)(const char * filePath);
     void            (*QuitProgram)();
     int             (*TickEmulation)();
     int             (*TickDelayTimer)();
