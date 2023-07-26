@@ -9,9 +9,53 @@
 #define CHIP_8_VRAM_WIDTH 64
 #define CHIP_8_VRAM_HEIGHT 32
 #define CHIP_8_VRAM_SIZE CHIP_8_VRAM_WIDTH * CHIP_8_VRAM_HEIGHT
-
 #define CHIP_8_FOREGROUND_DISPLAY_COLOR 0xFF00FF00
 #define CHIP_8_BACKGROUND_DISPLAY_COLOR 0XFFFFFF00
+
+typedef struct {
+    uint8_t x;
+    uint8_t y;
+    uint16_t nnn;
+    uint8_t kk;
+    uint8_t n;
+    CC8_Machine * machine;
+} InstructionContext;
+
+typedef void (*instructionFnPtr)(const InstructionContext * ctx);
+#define CC8_INSTRUCTION_SET_LENGHT = 35;
+
+typedef struct 
+{
+    instructionFnPtr   instructions[CC8_INSTRUCTION_SET_LENGHT];
+
+   void Set(uint16_t mask, instructionFnPtr fn)
+   {
+        // get the opcode hash value
+        uint16_t mask & 0xF000;
+
+        opcode |=  mask == 0x0000 ? 0x00FF : 
+                   mask == 0x8000 ? 0x000F : 
+                   mask == 0xE000 ? 0x00FF : 
+                   mask == 0xF000 ? 0x00FF : 0x00;
+ 
+        uint8_t index = opcode % CC8_INSTRUCTION_SET_LENGHT;
+        instructions[index] = fn;
+   };
+
+   instructionFnPtr * Fetch(uint16_t opcode)
+   {
+        // get the opcode hash value
+        uint16_t opcode & 0xF000;
+
+        opcode |=  opcode == 0x0000 ? 0x00FF : 
+                   opcode == 0x8000 ? 0x000F : 
+                   opcode == 0xE000 ? 0x00FF : 
+                   opcode == 0xF000 ? 0x00FF : 0x00;
+ 
+        uint8_t index = opcode % CC8_INSTRUCTION_SET_LENGHT;
+        return instructions[index];
+   };
+} InstructionSet;
 
 typedef struct 
 {
