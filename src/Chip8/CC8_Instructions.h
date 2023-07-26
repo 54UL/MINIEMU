@@ -5,8 +5,8 @@
 #include "CC8_Machine.h"
 
 //CHIP 8 IMPL
-void CC8_CLS();
-void CC8_RET();
+void CC8_CLS(InstructionContext * ctx);
+void CC8_RET(InstructionContext * ctx);
 void CC8_JMP(InstructionContext * ctx);
 void CC8_CALL(InstructionContext * ctx);
 void CC8_SE_VX_BYTE(InstructionContext * ctx);

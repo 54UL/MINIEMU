@@ -27,6 +27,13 @@ Check the [road map](DOCS/emu_roadmap.md) for development notes uwu
 sudo apt-get update
 sudo apt-get install libsdl2-dev
 ```
+
+2) Compile
+```bash
+mkdir build
+cd build && cmake ..
+cmake --build .
+```
 2) Create `ROMS` folder
 4) Controls
     * Chip 8 keypad map()

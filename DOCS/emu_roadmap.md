@@ -55,6 +55,15 @@ Chip 8 emulator
         - button
         - graph
 
+
+### XUL EMU BACKLOG
+* Emulators
+    - NES (Nintendo Entertainment System)
+    - SNES(Super Nintendo Entertainment System)
+    - GBA
+    - N64
+    - Play station 1
+
 ### Resources:
 - klib
 http://attractivechaos.github.io/klib/#Generic%20Programming%20in%20C
