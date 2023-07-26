@@ -12,8 +12,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 3. This notice may not be removed or altered from any source distribution.
 
-(Disclaimer: The following section is optional and can be included if desired)
-
 ------------------------------------------------------------------------------
 This software is based in part on the work of the zlib project (http://www.zlib.net/).
 ------------------------------------------------------------------------------
