@@ -10,6 +10,7 @@
 
 static CC8_Machine * s_currentChipCtx = NULL;
 static instructionFnPtr s_instructions[CC8_INSTRUCTION_SET_LENGHT];
+static uint16_t s_instructionMasks[CC8_INSTRUCTION_SET_LENGHT];
 
 const uint8_t CC8_FONT[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // "0"
@@ -32,29 +33,43 @@ const uint8_t CC8_FONT[] = {
 
 void ComputeInstructionMask(instructionFnPtr * instructions, uint16_t mask, instructionFnPtr fn)
 {
-    // get the opcode hash value
-    mask &= 0xF000;
+    // // get the opcode hash value
+    // if (mask & 0xFF00 == 0 )
+    //     mask 
 
-    mask |=  mask == 0x0000 ? 0x00FF : 
-            mask == 0x8000 ? 0x000F : 
-            mask == 0xE000 ? 0x00FF : 
-            mask == 0xF000 ? 0x00FF : 0x00;
+    // mask &=  mask == 0x0000 ? 0x00FF : 
+    //         mask == 0x8000 ? 0x000F : 
+    //         mask == 0xE000 ? 0x00FF : 
+    //         mask == 0xF000 ? 0x00FF : 0x00;
 
     uint8_t index = mask % CC8_INSTRUCTION_SET_LENGHT;
+    printf("Computed instruction index [%i] MASK:[%04X]\n",index, mask);
+
     instructions[index] = fn;
+    s_instructionMasks[index] = mask;
 }
 
 instructionFnPtr FetchInstruction(instructionFnPtr * instructions, uint16_t opcode)
 {
     // get the opcode hash value
-    opcode &= 0xF000;
+    uint16_t mask = 0x0000; 
+    uint16_t opcodeMask;
+    uint8_t  index;
 
-    opcode |= opcode == 0x0000 ? 0x00FF : 
-                opcode == 0x8000 ? 0x000F : 
-                opcode == 0xE000 ? 0x00FF : 
-                opcode == 0xF000 ? 0x00FF : 0x00;
+    // format:  opcode_mask == instruction_mask ? operands_mask : (next instruction mask decode)
+    
+    for(int i = 0; i < CC8_INSTRUCTION_SET_LENGHT; i++)
+    {
+        if (opcode & s_instructionMasks[i] == s_instructionMasks[i])
+        {
+            mask = s_instructionMasks[i];
+            break;
+        }
+    }
 
-    uint8_t index = opcode % CC8_INSTRUCTION_SET_LENGHT;
+    index = mask % CC8_INSTRUCTION_SET_LENGHT;
+    printf("Fetcheed instruction index [%i] mask:[%04X]\n",index, mask);
+
     return instructions[index];
 }
 
@@ -134,6 +149,7 @@ void HexDump(uint8_t *buffer, size_t size)
 
 uint8_t CC8_LoadProgram(const char *filePath)
 {
+    CC8_BuildInstructionLUT();
     FILE *file = fopen(filePath, "rb");
     if (file == NULL)
     {
@@ -191,7 +207,6 @@ void CC8_Step(uint16_t opcode)
     if (opcode == 0x0000) return; // NOP
 
     InstructionContext ctx;
-    instructionFnPtr * fetchedInstruction;
     
     // Instruction decoding
     ctx.x = (opcode >> 8) & 0x0F;
@@ -199,14 +214,15 @@ void CC8_Step(uint16_t opcode)
     ctx.nnn = opcode & 0x0FFF;
     ctx.kk = opcode & 0x00FF;
     ctx.n = opcode & 0x000F;
+    ctx.registers = s_currentChipCtx;
 
     // Instruction fetching
-    fetchedInstruction = FetchInstruction(s_instructions, opcode);
+    instructionFnPtr fetchedInstruction = FetchInstruction(s_instructions, opcode);
     
     // Instruction execution
     if (fetchedInstruction != NULL)
     {
-        (*fetchedInstruction)(&ctx);
+        fetchedInstruction(&ctx);
     }
     else
     {
