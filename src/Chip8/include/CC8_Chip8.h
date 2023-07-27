@@ -1,0 +1,15 @@
+#ifndef CC8_API_H
+#define CC8_API_H
+#include <stdio.h>
+
+//App implementation
+EmulationApi Chip8Emulator = 
+{
+    .LoadProgram = CC8_LoadProgram,
+    .QuitProgram = CC8_QuitProgram,
+    .TickEmulation = CC8_TickEmulation,
+    .TickDelayTimer = CC8_TickDelayTimer,
+    .SetEmulationContext = CC8_SetEmulationContext
+};
+
+#endif

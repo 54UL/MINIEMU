@@ -1,8 +1,7 @@
 #ifndef CC8_INSTRUCTIONS_H
 #define CC8_INSTRUCTIONS_H
-
+#include <CC8_InstructionContext.h>
 #include <stdint.h>
-#include "CC8_Machine.h"
 
 //CHIP 8 IMPL
 void CC8_CLS(InstructionContext * ctx);

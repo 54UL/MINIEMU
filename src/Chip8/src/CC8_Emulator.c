@@ -1,14 +1,13 @@
-#include "CC8_Emulator.h"
-
 #include <stdlib.h>
 #include <stdio.h>
-#include "CC8_Instructions.h"
+#include <CC8_Emulator.h>
+#include <CC8_Instructions.h>
 
 #define CC8_FONT_ADDR_START 0x000
 #define CC8_BOOT_ADDR_START 0x200
 #define CC8_FILE_PROGRAM_BUFFER_SIZE 4096
 
-static CC8_Machine * s_currentChipCtx = NULL;
+static CC8_Memory * s_currentChipCtx = NULL;
 static instructionFnPtr s_instructions[CC8_INSTRUCTION_SET_LENGHT];
 static uint16_t s_instructionMasks[CC8_INSTRUCTION_SET_LENGHT];
 
@@ -165,7 +164,6 @@ uint8_t CC8_LoadProgram(const char *filePath)
     // Allocate a buffer for reading the file
     uint8_t *buffer = (uint8_t *)calloc(1, file_size + 1);
     size_t bytes_read = fread(buffer, 1, file_size, file);
-    s_currentChipCtx->PROGRAM_SIZE = bytes_read;
     s_currentChipCtx->PC = CC8_BOOT_ADDR_START;
 
     // LOAD PROGRAM
@@ -255,7 +253,7 @@ void CC8_SetKeyboardValue(uint8_t key)
     s_currentChipCtx->KEYBOARD = key;
 }
 
-void CC8_SetEmulationContext(CC8_Machine *context)
+void CC8_SetEmulationContext(const void *context)
 {
-    s_currentChipCtx = context;
+    s_currentChipCtx = (CC8_Memory *) context;
 }

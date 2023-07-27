@@ -1,13 +1,12 @@
+#ifndef APP_H
+#define APP_H
 
-#ifndef APP_IMPL_H
-#define APP_IMPL_H
-
-#include "App.h"
-#include "SDL_TinyAppImpl/SDL_TinyApp.h"
-#include "UI/EmulatorShell.h"
+#include <minemu.h>
+#include <SDL_TinyApp.h>
+#include <EmulatorShell.h>
 
 //App implementation
-App TinySDLApp = {
+AppApi TinySDLApp = {
     .Init = Init_App,
     .Render = Step_SDL,
     .Reset = Reset_SDL,
@@ -24,5 +23,6 @@ EmulatorShell EmulatorUI =
     .SetState = EmuShell_SetState,
     .GetState = EmuShell_GetState
 };
+
 
 #endif

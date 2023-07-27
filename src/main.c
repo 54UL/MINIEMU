@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
-#include "src/App/AppImpl.h"
-#include "src/Chip8/CC8_Api.h"
+#include <CC8_Chip8.h>
+#include <App.h>
 
 #define SCREEN_HEIGHT 32
 #define SCREEN_WIDTH 64
@@ -106,7 +106,7 @@ void StartEmulation(void * data)
     }
     
     context = calloc(1, sizeof(CC8_Machine));
-    emulator->SetEmulationContext(context);
+    emulator->SetEmulationContext((void *) context);
 
     if (emulator->LoadProgram((const char*) data))
     {
