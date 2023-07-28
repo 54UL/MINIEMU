@@ -2,26 +2,26 @@
 #define APP_H
 
 #include <minemu.h>
-#include <SDL_TinyApp.h>
-#include <EmulatorShell.h>
+#include "../UI/EmulatorShell.h"
+#include "../SDL_TinyAppImpl/SDL_TinyApp.h"
 
 //App implementation
 AppApi TinySDLApp = {
-    .Init = Init_App,
+    .Init   = Init_App,
     .Render = Step_SDL,
-    .Reset = Reset_SDL,
-    .Exit = Exit_SDL_App
+    .Reset  = Reset_SDL,
+    .Exit   = Exit_SDL_App
 };
 
 EmulatorShell EmulatorUI = 
 {
-    .Init = EmuShell_Init,
+    .Init        = EmuShell_Init,
     .UpdateFrame = EmuShell_UpdateFrame,
-    .Shown = EmuShell_Shown,
-    .OnInput = EmuShell_KeyPressed,
+    .Shown       = EmuShell_Shown,
+    .OnInput     = EmuShell_KeyPressed,
     .ShellAction = EmuShell_ShellAction,
-    .SetState = EmuShell_SetState,
-    .GetState = EmuShell_GetState
+    .SetState    = EmuShell_SetState,
+    .GetState    = EmuShell_GetState
 };
 
 

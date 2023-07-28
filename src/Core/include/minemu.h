@@ -20,7 +20,6 @@ typedef struct
     void            (*SetEmulationContext)(const void * context);
 } EmulationApi;
 
-
 //Models
 typedef struct 
 {

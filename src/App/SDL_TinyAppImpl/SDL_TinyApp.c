@@ -1,5 +1,5 @@
 #include "SDL_TinyApp.h"
-#include <EmulatorShell.h>
+#include "../UI/EmulatorShell.h"
 #include <SDL2/SDL.h>
 
 #define SCREEN_FACTOR 8

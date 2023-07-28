@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.1)
 project(MINEMU C)
 
-# Add submodules
+# MINEMU MODULES
 add_subdirectory(src/Core)
 add_subdirectory(src/Chip8)
 add_subdirectory(src/App)
 
+
+# APP EXECUTABLE TARGET
 add_executable(MINEMU "src/main.c")
 target_link_libraries(MINEMU PRIVATE Core Chip8)
 # Custom targets

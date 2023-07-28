@@ -1,8 +1,6 @@
-#include <stdio.h>
-#include <SDL2/SDL.h>
-
-#include <CC8_Chip8.h>
+// MINEMU APP (UI + CORE + STATIC LINKED EMULATORS)
 #include <App.h>
+#include <CC8_Chip8.h>
 
 #define SCREEN_HEIGHT 32
 #define SCREEN_WIDTH 64
@@ -22,8 +20,8 @@ void QuitEmulation(void * data);
 
 int main(int argc, char **argv)
 {
-    Uint32 last_update_time;
-    Uint32 last_update_time_timers;
+    uint32_t last_update_time;
+    uint32_t last_update_time_timers;
 
     app = &TinySDLApp;
     emulator = &Chip8Emulator;
@@ -69,6 +67,7 @@ int main(int argc, char **argv)
 void OnRender(unsigned int *pixels)
 {
     if (context == NULL) return;
+
     for (int i = 0; i < SCREEN_HEIGHT; i++)
     {
         for (int j = 0; j < SCREEN_WIDTH; j++)
@@ -86,13 +85,12 @@ void OnRender(unsigned int *pixels)
 void OnInputAction(const char code)
 {
     if (context == NULL) return;
+
     context->KEYBOARD = code;
 }
 
 void StartEmulation(void * data)
 {
-    printf("StartEmulation: %s\n", (const char *) data);
-
     const ShellState sate = EmulatorUI.GetState();
     switch (sate)
     {

@@ -13,13 +13,15 @@ set(CHIP8_SOURCES
     src/CC8_Instructions.c
 )
 # Create the Chip8_MINEMU shared library
-add_library(Chip8 STATIC ${CHIP8_SOURCES})
+add_library(Chip8 SHARED ${CHIP8_SOURCES})
 
 # Include directories for Chip8
 target_include_directories(Chip8 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+target_compile_options(Chip8 PUBLIC -std=c11 -Wall -Wextra)
 
 # Link any necessary libraries 
 target_link_libraries(Chip8 PRIVATE Core)

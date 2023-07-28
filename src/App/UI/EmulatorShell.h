@@ -2,7 +2,7 @@
 #define EMULATOR_SHELL_H
 
 #include <stdint.h>
-#include "../include/App.h"
+#include <minemu.h>
 
 #define DEFAUL_COL_Y_SPACING 8
 #define CC8_ROMS_PATH "../ROMS/"
