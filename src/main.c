@@ -1,13 +1,14 @@
 // MINEMU APP (UI + CORE + STATIC LINKED EMULATORS)
-#include <App.h>
+#include <minemu.h>
 #include <CC8_Chip8.h>
+#include <App.h>
 
 #define SCREEN_HEIGHT 32
 #define SCREEN_WIDTH 64
 
-App *app;
-CC8_Core *emulator;
-CC8_Machine *context;
+AppApi *app;
+Emulation *emulator;
+CC8_Memory *context;
 
 // App
 void OnRender(unsigned int *pixels);
@@ -103,7 +104,7 @@ void StartEmulation(void * data)
             break;
     }
     
-    context = calloc(1, sizeof(CC8_Machine));
+    context = calloc(1, sizeof(CC8_Memory));
     emulator->SetEmulationContext((void *) context);
 
     if (emulator->LoadProgram((const char*) data))

@@ -1,7 +1,7 @@
 #ifndef APP_H
 #define APP_H
-
 #include <minemu.h>
+
 #include "../UI/EmulatorShell.h"
 #include "../SDL_TinyAppImpl/SDL_TinyApp.h"
 

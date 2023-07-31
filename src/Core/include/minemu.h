@@ -18,7 +18,7 @@ typedef struct
     int             (*TickEmulation)();
     int             (*TickDelayTimer)();
     void            (*SetEmulationContext)(const void * context);
-} EmulationApi;
+} Emulation;
 
 //Models
 typedef struct 

@@ -50,16 +50,13 @@ void ComputeInstructionMask(instructionFnPtr * instructions, uint16_t mask, inst
 
 instructionFnPtr FetchInstruction(instructionFnPtr * instructions, uint16_t opcode)
 {
-    // get the opcode hash value
-    uint16_t mask = 0x0000; 
-    uint16_t opcodeMask;
-    uint8_t  index;
+    uint16_t mask = 0x0000;
+    uint8_t index;
 
-    // format:  opcode_mask == instruction_mask ? operands_mask : (next instruction mask decode)
-    
-    for(int i = 0; i < CC8_INSTRUCTION_SET_LENGHT; i++)
+    // Format: opcode_mask == instruction_mask ? operands_mask : (next instruction mask decode)
+    for (int i = 0; i < CC8_INSTRUCTION_SET_LENGHT; i++)
     {
-        if (opcode & s_instructionMasks[i] == s_instructionMasks[i])
+        if ((opcode & s_instructionMasks[i]) == s_instructionMasks[i])
         {
             mask = s_instructionMasks[i];
             break;
@@ -67,7 +64,7 @@ instructionFnPtr FetchInstruction(instructionFnPtr * instructions, uint16_t opco
     }
 
     index = mask % CC8_INSTRUCTION_SET_LENGHT;
-    printf("Fetcheed instruction index [%i] mask:[%04X]\n",index, mask);
+    printf("Fetched instruction index [%i] mask:[%04X]\n", index, mask);
 
     return instructions[index];
 }
@@ -212,7 +209,7 @@ void CC8_Step(uint16_t opcode)
     ctx.nnn = opcode & 0x0FFF;
     ctx.kk = opcode & 0x00FF;
     ctx.n = opcode & 0x000F;
-    ctx.registers = s_currentChipCtx;
+    ctx.memory = s_currentChipCtx;
 
     // Instruction fetching
     instructionFnPtr fetchedInstruction = FetchInstruction(s_instructions, opcode);

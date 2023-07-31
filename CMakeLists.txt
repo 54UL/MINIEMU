@@ -6,10 +6,11 @@ add_subdirectory(src/Core)
 add_subdirectory(src/Chip8)
 add_subdirectory(src/App)
 
-
 # APP EXECUTABLE TARGET
 add_executable(MINEMU "src/main.c")
-target_link_libraries(MINEMU PRIVATE Core Chip8)
+target_link_libraries(MINEMU PUBLIC Core App Chip8)
+
+
 # Custom targets
 #add_custom_target(BUILD_MINEMU_APP
 #    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target src/App

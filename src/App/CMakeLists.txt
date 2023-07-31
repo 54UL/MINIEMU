@@ -25,10 +25,8 @@ target_compile_options(App PUBLIC -std=c11 -Wall -Wextra)
 # Include directories for App
 target_include_directories(App PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/UI
-    ${CMAKE_CURRENT_SOURCE_DIR}/SDL_TinyAppImpl
 )
 
 # Link any necessary libraries
-target_link_libraries(App PRIVATE SDL2 Core)
+target_link_libraries(App PUBLIC SDL2 Core)
 
