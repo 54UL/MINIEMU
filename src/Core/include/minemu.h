@@ -13,10 +13,10 @@ typedef void (*ShellCallback)(void * data);
 
 typedef struct 
 {
-    uint8_t         (*LoadProgram)(const char * filePath);
+    long            (*LoadProgram)(const char * filePath);
     void            (*QuitProgram)();
     int             (*TickEmulation)();
-    int             (*TickDelayTimer)();
+    void            (*TickDelayTimer)();
     void            (*SetEmulationContext)(const void * context);
 } Emulation;
 

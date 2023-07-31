@@ -1,16 +1,36 @@
 cmake_minimum_required(VERSION 3.1)
 project(MINEMU C)
 
+# BUILD CONFIGS
+set(MINEMU_TESTS ON)
+
+# gtests
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 # MINEMU MODULES
 add_subdirectory(src/Core)
 add_subdirectory(src/Chip8)
 add_subdirectory(src/App)
 
+if (MINEMU_TESTS)
+# TEST EXECUTABLE TARGET
+  message("MAP SERVER TESTS ENABLED")
+  add_subdirectory(src/Tests)
+else()
 # APP EXECUTABLE TARGET
-add_executable(MINEMU "src/main.c")
-target_link_libraries(MINEMU PUBLIC Core App Chip8)
+    add_executable(MINEMU "src/main.c")
+    target_compile_options(MINEMU PUBLIC -std=c11 -Wall -Wextra)
+    target_link_libraries(MINEMU PUBLIC Core App Chip8)
+endif()
 
-
+# TODO ADD CUSTOM TARGETS
 # Custom targets
 #add_custom_target(BUILD_MINEMU_APP
 #    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target src/App

@@ -107,7 +107,7 @@ void StartEmulation(void * data)
     context = calloc(1, sizeof(CC8_Memory));
     emulator->SetEmulationContext((void *) context);
 
-    if (emulator->LoadProgram((const char*) data))
+    if (emulator->LoadProgram((const char*) data) > 1)
     {
         EmulatorUI.SetState(Running);
     }

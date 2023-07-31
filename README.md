@@ -13,7 +13,7 @@ Minimalist emulator implementations (IN-PROGRESS)
     - Linux (ubuntu/debian)
 - Emulation engine api
     - runs any emulator implemented on the Emulation api
-        - hotswapable and multi-emulator system
+    - multi-emulator system
 - Implementations
     - Chip 8
     - Game boy (todo)

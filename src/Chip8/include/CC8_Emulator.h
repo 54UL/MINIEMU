@@ -5,7 +5,7 @@
 typedef void (*instructionFnPtr)(const InstructionContext * ctx);
 
 void    CC8_BuildInstructionsLUT();
-uint8_t CC8_LoadProgram(const char *filePath);
+long    CC8_LoadProgram(const char *filePath);
 void    CC8_QuitProgram();
 void    CC8_TickDelayTimer();
 int     CC8_TickEmulation();

@@ -12,8 +12,6 @@ set(CORE_SOURCES
 # Create the Core static library
 add_library(Core STATIC ${CORE_SOURCES})
 
-target_compile_options(Core PUBLIC -std=c11 -Wall -Wextra)
-
 # Include directories for Core
 target_include_directories(Core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include

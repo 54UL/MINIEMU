@@ -32,15 +32,6 @@ const uint8_t CC8_FONT[] = {
 
 void ComputeInstructionMask(instructionFnPtr * instructions, uint16_t mask, instructionFnPtr fn)
 {
-    // // get the opcode hash value
-    // if (mask & 0xFF00 == 0 )
-    //     mask 
-
-    // mask &=  mask == 0x0000 ? 0x00FF : 
-    //         mask == 0x8000 ? 0x000F : 
-    //         mask == 0xE000 ? 0x00FF : 
-    //         mask == 0xF000 ? 0x00FF : 0x00;
-
     uint8_t index = mask % CC8_INSTRUCTION_SET_LENGHT;
     printf("Computed instruction index [%i] MASK:[%04X]\n",index, mask);
 
@@ -143,7 +134,7 @@ void HexDump(uint8_t *buffer, size_t size)
     printf("-----------------------------------------------------------------\n");
 }
 
-uint8_t CC8_LoadProgram(const char *filePath)
+long CC8_LoadProgram(const char *filePath)
 {
     CC8_BuildInstructionLUT();
     FILE *file = fopen(filePath, "rb");
@@ -157,6 +148,8 @@ uint8_t CC8_LoadProgram(const char *filePath)
     fseek(file, 0L, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0L, SEEK_SET);
+
+    printf("Loaded file, %s: %i bytes\n", filePath, file_size);
 
     // Allocate a buffer for reading the file
     uint8_t *buffer = (uint8_t *)calloc(1, file_size + 1);
@@ -185,7 +178,7 @@ uint8_t CC8_LoadProgram(const char *filePath)
     // Clean up resources
     free(buffer);
     fclose(file);
-    return 1;
+    return file_size;
 }
 
 void CC8_QuitProgram()

@@ -1,4 +1,4 @@
-project(Chip8 C)
+project(Chip8 CXX)
 set(CMAKE_C_COMPILER "gcc")
 message("Configuring MINEMU Chip 8")
 
@@ -21,7 +21,6 @@ target_include_directories(Chip8 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_compile_options(Chip8 PUBLIC -std=c11 -Wall -Wextra)
 
 # Link any necessary libraries 
 target_link_libraries(Chip8 PRIVATE Core)
