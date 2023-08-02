@@ -2,14 +2,20 @@
 #include <stdio.h>
 #include <CC8_Emulator.h>
 #include <CC8_Instructions.h>
+#include <3rd/khash.h>
+
+KHASH_MAP_INIT_INT(instrHashTable, instructionFnPtr)
 
 #define CC8_FONT_ADDR_START 0x000
 #define CC8_BOOT_ADDR_START 0x200
 #define CC8_FILE_PROGRAM_BUFFER_SIZE 4096
 
 static CC8_Memory * s_currentChipCtx = NULL;
-static instructionFnPtr s_instructions[CC8_INSTRUCTION_HASH_LENGHT];
-static uint16_t s_instructionMasks[CC8_INSTRUCTION_HASH_LENGHT];
+static khash_t(instrHashTable)* instructionTable;
+
+static instructionFnPtr s_instructions[CC8_INSTRUCTION_SET_LENGHT];
+static uint16_t s_instructionMasks[CC8_INSTRUCTION_SET_LENGHT];
+ uint16_t s_instrIndex = 0;
 
 const uint8_t CC8_FONT[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // "0"
@@ -30,78 +36,87 @@ const uint8_t CC8_FONT[] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80  // "F"
 };
 
-void ComputeInstructionMask(instructionFnPtr * instructions, uint16_t mask, instructionFnPtr fn)
+void AddInstruction(uint16_t mask, instructionFnPtr fn)
 {
-    uint64_t instrIndex = mask % CC8_INSTRUCTION_HASH_LENGHT;
- 
-    printf("Computed instruction index [%i] MASK:[%04X] HASH_MASK[%04X]\n",instrIndex, mask, (mask >> 12));
-
-    instructions[instrIndex] = fn;
-    s_instructionMasks[instrIndex] = mask;
+    s_instructionMasks[s_instrIndex] = mask;
+    s_instructions[s_instrIndex] = fn;
+    s_instrIndex++;
 }
-
-instructionFnPtr FetchInstruction(instructionFnPtr * instructions, uint16_t opcode)
+static int columCount =0;
+instructionFnPtr FetchInstruction(uint16_t opcode)
 {
-    uint16_t mask = 0x0000;
-    uint8_t index;
+    uint16_t instrMask = 0x0000;
+    uint8_t  i = 0x00;
+    khint_t k;
 
-    // Format: opcode_mask == instruction_mask ? operands_mask : (next instruction mask decode)
-    for (int i = 1; i < CC8_INSTRUCTION_HASH_LENGHT + 1 ; i++)
+    // Brute force decoding (todo: improve this)
+    // for (k = kh_begin(instructionTable); k != kh_end(instructionTable); ++k)
+    // {
+    //     if (kh_exist(instructionTable, k))
+    //     {
+    //         instrMask = kh_key(instructionTable, k);
+    //         if ((instrMask & opcode) == instrMask)
+    //         {
+    //             printf(">[%04X] ", opcode);
+    //             return kh_value(instructionTable, k);
+    //         }
+    //     }
+    // }
+
+    for (; i < s_instrIndex; i++)
     {
-        uint16_t op = (opcode & s_instructionMasks[i]);
-        if (op != 0x0000 && op == s_instructionMasks[i])
-        {
-            mask = s_instructionMasks[i];
-            break;
+        if ((opcode & s_instructionMasks[i]) == s_instructionMasks[i]){
+            printf("[%04X] ", opcode);
+ 
+            if (columCount++ >= 16)
+                printf("\n");
+                
+            return s_instructions[i];
         }
     }
-
-    index = 1 + mask % CC8_INSTRUCTION_HASH_LENGHT;
-    printf("Fetched instruction index [%i] mask:[%04X]\n", index, mask);
-
-    return instructions[index];
+    return NULL;
 }
 
 void CC8_BuildInstructionLUT()
 {
+    //Allocate hash table
+    instructionTable = kh_init(instrHashTable);
     // Compute instructions LUT
 
-    // BASE CHIP 8 INSTRUCTIONS...
-    // ComputeInstructionMask(s_instructions, 0x0000, NULL); // NOP
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x00E0, CC8_CLS);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x00EE, CC8_RET);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x1000, CC8_JMP);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x2000, CC8_CALL);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x3000, CC8_SE_VX_BYTE);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x4000, CC8_SNE_VX_BYTE); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x5000, CC8_SE_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x6000, CC8_LD_VX_BYTE); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x7000, CC8_ADD_VX_BYTE); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x8000, CC8_LD_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x8001, CC8_OR_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x8002, CC8_AND_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x8003, CC8_XOR_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x8004, CC8_ADD_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x8005, CC8_SUB_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x8006, CC8_SHR_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x8007, CC8_SUBN_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x800E, CC8_SHL_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0x9000, CC8_SNE_VX_VY); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xA000, CC8_LD_I_ADDR); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xB000, CC8_JP_V0_ADDR); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xC000, CC8_RND_VX_BYTE); 
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xD000, CC8_DRW_VX_VY_NIBBLE);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xE09E, CC8_SKP_VX);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xE0A1, CC8_SKNP_VX);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xF007, CC8_LD_VX_DT);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xF00A, CC8_LD_VX_K);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xF015, CC8_LD_DT_VX);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xF018, CC8_LD_ST_VX);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xF01E, CC8_ADD_I_VX);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xF029, CC8_LD_F_VX);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xF033, CC8_LD_B_VX);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xF055, CC8_LD_I_VX);
-    ComputeInstructionMask(s_instructions,(uint16_t) 0xF065, CC8_LD_VX_I);
+    AddInstruction(0x00E0, CC8_CLS);
+    AddInstruction(0x00EE, CC8_RET);
+    AddInstruction(0x1000, CC8_JMP);
+    AddInstruction(0x2000, CC8_CALL);
+    AddInstruction(0x3000, CC8_SE_VX_BYTE);
+    AddInstruction(0x4000, CC8_SNE_VX_BYTE); 
+    AddInstruction(0x5000, CC8_SE_VX_VY); 
+    AddInstruction(0x6000, CC8_LD_VX_BYTE); 
+    AddInstruction(0x7000, CC8_ADD_VX_BYTE); 
+    AddInstruction(0x8000, CC8_LD_VX_VY); 
+    AddInstruction(0x8001, CC8_OR_VX_VY); 
+    AddInstruction(0x8002, CC8_AND_VX_VY); 
+    AddInstruction(0x8003, CC8_XOR_VX_VY); 
+    AddInstruction(0x8004, CC8_ADD_VX_VY); 
+    AddInstruction(0x8005, CC8_SUB_VX_VY); 
+    AddInstruction(0x8006, CC8_SHR_VX_VY); 
+    AddInstruction(0x8007, CC8_SUBN_VX_VY); 
+    AddInstruction(0x800E, CC8_SHL_VX_VY); 
+    AddInstruction(0x9000, CC8_SNE_VX_VY); 
+    AddInstruction(0xA000, CC8_LD_I_ADDR); 
+    AddInstruction(0xB000, CC8_JP_V0_ADDR); 
+    AddInstruction(0xC000, CC8_RND_VX_BYTE); 
+    AddInstruction(0xD000, CC8_DRW_VX_VY_NIBBLE);
+    AddInstruction(0xE09E, CC8_SKP_VX);
+    AddInstruction(0xE0A1, CC8_SKNP_VX);
+    AddInstruction(0xF007, CC8_LD_VX_DT);
+    AddInstruction(0xF00A, CC8_LD_VX_K);
+    AddInstruction(0xF015, CC8_LD_DT_VX);
+    AddInstruction(0xF018, CC8_LD_ST_VX);
+    AddInstruction(0xF01E, CC8_ADD_I_VX);
+    AddInstruction(0xF029, CC8_LD_F_VX);
+    AddInstruction(0xF033, CC8_LD_B_VX);
+    AddInstruction(0xF055, CC8_LD_I_VX);
+    AddInstruction(0xF065, CC8_LD_VX_I);
 
     // TODO: ADD S-CHIP8 instructions below...
 }
@@ -207,7 +222,7 @@ void CC8_Step(uint16_t opcode)
     ctx.memory = s_currentChipCtx;
 
     // Instruction fetching
-    instructionFnPtr fetchedInstruction = FetchInstruction(s_instructions, opcode);
+    instructionFnPtr fetchedInstruction = FetchInstruction(opcode);
     
     // Instruction execution
     if (fetchedInstruction != NULL)
@@ -216,7 +231,7 @@ void CC8_Step(uint16_t opcode)
     }
     else
     {
-        printf("Invalid opcode: %06X\n", opcode);
+        printf("Invalid opcode: %04X\n", opcode);
     }
 }
 

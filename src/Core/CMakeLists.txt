@@ -7,6 +7,7 @@ set(CMAKE_C_COMPILER "gcc")
 set(CORE_SOURCES
     include/minemu.h
     include/minemu.c
+    include/3rd/khash.h
 )
 
 # Create the Core static library
