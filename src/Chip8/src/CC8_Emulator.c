@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <CC8_Emulator.h>
 #include <CC8_Instructions.h>
-#include <3rd/khash.h>
 
 KHASH_MAP_INIT_INT(instrHashTable, instructionFnPtr)
 
@@ -46,7 +45,6 @@ static int columCount =0;
 instructionFnPtr FetchInstruction(uint16_t opcode)
 {
     uint16_t instrMask = 0x0000;
-    uint8_t  i = 0x00;
     khint_t k;
 
     // Brute force decoding (todo: improve this)
@@ -63,9 +61,11 @@ instructionFnPtr FetchInstruction(uint16_t opcode)
     //     }
     // }
 
-    for (; i < s_instrIndex; i++)
+    for (int  i = 0; i < s_instrIndex ; i++)
     {
-        if ((opcode & s_instructionMasks[i]) == s_instructionMasks[i]){
+        // if (opcode > s_instructionMasks[i]) continue;
+        if ((opcode & s_instructionMasks[i]) == s_instructionMasks[i] && opcode < s_instructionMasks[i+1] )
+        {
             printf("[%04X] ", opcode);
  
             if (columCount++ >= 16)
@@ -228,10 +228,12 @@ void CC8_Step(uint16_t opcode)
     if (fetchedInstruction != NULL)
     {
         fetchedInstruction(&ctx);
+        s_currentChipCtx->INSTRUCTION = opcode; // Stores executed opcode to check later if was running fine
     }
     else
     {
         printf("Invalid opcode: %04X\n", opcode);
+        s_currentChipCtx->INSTRUCTION = 0XFFFF; // Invalidate last instruction entry
     }
 }
 
@@ -248,7 +250,7 @@ int CC8_TickEmulation()
     uint8_t higherByte = s_currentChipCtx->RAM[s_currentChipCtx->PC];
     uint8_t lowerByte = s_currentChipCtx->RAM[s_currentChipCtx->PC + 1];
     uint16_t value16 = (higherByte << 8) | lowerByte;
-
+    
     CC8_Step(value16);
 
     s_currentChipCtx->PC += 2;

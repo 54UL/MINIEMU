@@ -1,6 +1,7 @@
 #ifndef MINEMU_H
 #define MINEMU_H
 #include <stdint.h>
+#include "3rd/khash.h"
 
 typedef enum {Keyboard, Window, System} ActionType;
 typedef enum {Start, Stop, Reset, Quit} ShellAction;

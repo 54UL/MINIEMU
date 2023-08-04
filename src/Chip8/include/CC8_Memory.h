@@ -25,6 +25,7 @@ typedef struct
     uint16_t STACK[16];
     uint8_t  VRAM[CHIP_8_VRAM_WIDTH * CHIP_8_VRAM_HEIGHT];
     uint8_t  KEYBOARD;
+    uint16_t INSTRUCTION; // Only used for Unit testing
 } CC8_Memory;
 
 #endif
