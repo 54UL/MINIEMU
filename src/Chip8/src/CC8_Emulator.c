@@ -14,7 +14,7 @@ static khash_t(instrHashTable)* instructionTable;
 
 static instructionFnPtr s_instructions[CC8_INSTRUCTION_SET_LENGHT];
 static uint16_t s_instructionMasks[CC8_INSTRUCTION_SET_LENGHT];
- uint16_t s_instrIndex = 0;
+uint16_t s_instrIndex = 0;
 
 const uint8_t CC8_FONT[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // "0"
@@ -41,39 +41,22 @@ void AddInstruction(uint16_t mask, instructionFnPtr fn)
     s_instructions[s_instrIndex] = fn;
     s_instrIndex++;
 }
-static int columCount =0;
+
+static int columCount =0; // TODO: remove this debug var
 instructionFnPtr FetchInstruction(uint16_t opcode)
 {
-    uint16_t instrMask = 0x0000;
-    khint_t k;
-
-    // Brute force decoding (todo: improve this)
-    // for (k = kh_begin(instructionTable); k != kh_end(instructionTable); ++k)
-    // {
-    //     if (kh_exist(instructionTable, k))
-    //     {
-    //         instrMask = kh_key(instructionTable, k);
-    //         if ((instrMask & opcode) == instrMask)
-    //         {
-    //             printf(">[%04X] ", opcode);
-    //             return kh_value(instructionTable, k);
-    //         }
-    //     }
-    // }
-
-    for (int  i = 0; i < s_instrIndex ; i++)
+    // Implement hashing!!!
+    for (int  i = 0; i < 33 ; i++)
     {
-        // if (opcode > s_instructionMasks[i]) continue;
-        if ((opcode & s_instructionMasks[i]) == s_instructionMasks[i] && opcode < s_instructionMasks[i+1] )
+        uint16_t opmask = (opcode & s_instructionMasks[i]);
+
+        if ((opmask == s_instructionMasks[i]) && ((opcode < s_instructionMasks[i + 1]) || opmask == 0x8000 || opmask == 0XE000 || opmask == 0XF000))
         {
-            printf("[%04X] ", opcode);
- 
-            if (columCount++ >= 16)
-                printf("\n");
-                
+          
             return s_instructions[i];
         }
     }
+
     return NULL;
 }
 
@@ -209,7 +192,11 @@ void CC8_QuitProgram()
 
 void CC8_Step(uint16_t opcode)
 {
-    if (opcode == 0x0000) return; // NOP
+    if (opcode == 0x0000) // NOP
+    { 
+        s_currentChipCtx->INSTRUCTION = 0x0000;
+        return; 
+    }
 
     InstructionContext ctx;
     
@@ -227,13 +214,21 @@ void CC8_Step(uint16_t opcode)
     // Instruction execution
     if (fetchedInstruction != NULL)
     {
+        printf("[%04X] ", opcode);
+        if (columCount++ >= 16)
+        {
+            printf("\n");
+            columCount = 0;
+        }
+
         fetchedInstruction(&ctx);
         s_currentChipCtx->INSTRUCTION = opcode; // Stores executed opcode to check later if was running fine
     }
     else
     {
-        printf("Invalid opcode: %04X\n", opcode);
-        s_currentChipCtx->INSTRUCTION = 0XFFFF; // Invalidate last instruction entry
+        printf("[Invalid opcode: %04X]\n", opcode);
+        columCount = 0;
+        s_currentChipCtx->INSTRUCTION = CC8_INVALID_INSTRUCTION; // Invalidate last instruction entry
     }
 }
 
