@@ -19,15 +19,16 @@ add_subdirectory(src/Core)
 add_subdirectory(src/Chip8)
 add_subdirectory(src/App)
 
-if (MINEMU_TESTS)
-# TEST EXECUTABLE TARGET
-  message("MAP SERVER TESTS ENABLED")
+if (MINEMU_TESTS) 
+  # TEST EXECUTABLE TARGET
+  message("MINEMU TESTS TARGET")
   add_subdirectory(src/Tests)
 else()
-# APP EXECUTABLE TARGET
-    add_executable(MINEMU "src/main.c")
-    target_compile_options(MINEMU PUBLIC -std=c11 -Wall -Wextra)
-    target_link_libraries(MINEMU PUBLIC Core App Chip8)
+  # APP EXECUTABLE TARGET
+  message("MINEMU EXECUTABLE")
+  add_executable(MINEMU "src/main.c")
+  target_compile_options(MINEMU PUBLIC -std=c11 -Wall -Wextra)
+  target_link_libraries(MINEMU PUBLIC Core App Chip8)
 endif()
 
 # TODO ADD CUSTOM TARGETS
