@@ -49,8 +49,9 @@ instructionFnPtr FetchInstruction(uint16_t opcode)
     for (int  i = 0; i < 33 ; i++)
     {
         uint16_t opmask = (opcode & s_instructionMasks[i]);
+uint16_t index  = opmask & 0xF000;
 
-        if ((opmask == s_instructionMasks[i]) && ((opcode < s_instructionMasks[i + 1]) || opmask == 0x8000 || opmask == 0XE000 || opmask == 0XF000))
+        if ((opmask == s_instructionMasks[i]) && ((opcode < s_instructionMasks[i + 1])))
         {
           
             return s_instructions[i];
