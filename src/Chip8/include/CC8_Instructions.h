@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 //CHIP 8 IMPL
+void CC8_SYS_ADDR(InstructionContext * ctx);
 void CC8_CLS(InstructionContext * ctx);
 void CC8_RET(InstructionContext * ctx);
 void CC8_JMP(InstructionContext * ctx);

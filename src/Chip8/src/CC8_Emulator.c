@@ -3,106 +3,68 @@
 #include <CC8_Emulator.h>
 #include <CC8_Instructions.h>
 
-KHASH_MAP_INIT_INT(instrHashTable, instructionFnPtr)
+static CC8_Memory * s_currentChipCtx;
+static int columCount =0; // TODO: remove this debug var
 
-#define CC8_FONT_ADDR_START 0x000
-#define CC8_BOOT_ADDR_START 0x200
-#define CC8_FILE_PROGRAM_BUFFER_SIZE 4096
+typedef struct {
+    uint16_t mask;
+    uint16_t opcode;
+    instructionFnPtr handler;
+} Instruction;
 
-static CC8_Memory * s_currentChipCtx = NULL;
-static khash_t(instrHashTable)* instructionTable;
-
-static instructionFnPtr s_instructions[CC8_INSTRUCTION_SET_LENGHT];
-static uint16_t s_instructionMasks[CC8_INSTRUCTION_SET_LENGHT];
-uint16_t s_instrIndex = 0;
-
-const uint8_t CC8_FONT[] = {
-    0xF0, 0x90, 0x90, 0x90, 0xF0, // "0"
-    0x20, 0x60, 0x20, 0x20, 0x70, // "1"
-    0xF0, 0x10, 0xF0, 0x80, 0xF0, // "2"
-    0xF0, 0x10, 0xF0, 0x10, 0xF0, // "3"
-    0x90, 0x90, 0xF0, 0x10, 0x10, // "4"
-    0xF0, 0x80, 0xF0, 0x10, 0xF0, // "5"
-    0xF0, 0x80, 0xF0, 0x90, 0xF0, // "6"
-    0xF0, 0x10, 0x20, 0x40, 0x40, // "7"
-    0xF0, 0x90, 0xF0, 0x90, 0xF0, // "8"
-    0xF0, 0x90, 0xF0, 0x10, 0xF0, // "9"
-    0xF0, 0x90, 0xF0, 0x90, 0x90, // "A"
-    0xE0, 0x90, 0xE0, 0x90, 0xE0, // "B"
-    0xF0, 0x80, 0x80, 0x80, 0xF0, // "C"
-    0xE0, 0x90, 0x90, 0x90, 0xE0, // "D"
-    0xF0, 0x80, 0xF0, 0x80, 0xF0, // "E"
-    0xF0, 0x80, 0xF0, 0x80, 0x80  // "F"
+static Instruction s_instructionSet[CC8_INSTRUCTION_SET_LENGHT] = 
+{
+    {0XF000, 0X0000, (instructionFnPtr) CC8_CLS},
+    {0XFFFF, 0X00E0, (instructionFnPtr) CC8_CLS},
+    {0xFFFF, 0x00EE, (instructionFnPtr) CC8_RET},
+    {0xF000, 0x1000, (instructionFnPtr) CC8_JMP},
+    {0xF000, 0x2000, (instructionFnPtr) CC8_CALL},
+    {0xF000, 0x3000, (instructionFnPtr) CC8_SE_VX_BYTE},
+    {0xF000, 0x4000, (instructionFnPtr) CC8_SNE_VX_BYTE},
+    {0xF000, 0x5000, (instructionFnPtr) CC8_SE_VX_VY},
+    {0xF000, 0x6000, (instructionFnPtr) CC8_LD_VX_BYTE},
+    {0xF000, 0x7000, (instructionFnPtr) CC8_ADD_VX_BYTE},
+    {0xF000, 0x8000, (instructionFnPtr) CC8_LD_VX_VY},
+    {0xF00E, 0x8001, (instructionFnPtr) CC8_OR_VX_VY},
+    {0xF00E, 0x8002, (instructionFnPtr) CC8_AND_VX_VY},
+    {0xF00E, 0x8003, (instructionFnPtr) CC8_XOR_VX_VY},
+    {0xF00E, 0x8004, (instructionFnPtr) CC8_ADD_VX_VY},
+    {0xF00E, 0x8005, (instructionFnPtr) CC8_SUB_VX_VY},
+    {0xF00E, 0x8006, (instructionFnPtr) CC8_SHR_VX_VY},
+    {0xF00E, 0x8007, (instructionFnPtr) CC8_SUBN_VX_VY},
+    {0xF00E, 0x800E, (instructionFnPtr) CC8_SHL_VX_VY},
+    {0xF000, 0x9000, (instructionFnPtr) CC8_SNE_VX_VY},
+    {0xF000, 0xA000, (instructionFnPtr) CC8_LD_I_ADDR},
+    {0xF000, 0xB000, (instructionFnPtr) CC8_JP_V0_ADDR},
+    {0xF000, 0xC000, (instructionFnPtr) CC8_RND_VX_BYTE},
+    {0xF000, 0xD000, (instructionFnPtr) CC8_DRW_VX_VY_NIBBLE},
+    {0xF0FF, 0xE09E, (instructionFnPtr) CC8_SKP_VX},
+    {0xF0FF, 0xE0A1, (instructionFnPtr) CC8_SKNP_VX},
+    {0xF00F, 0xF007, (instructionFnPtr) CC8_LD_VX_DT},
+    {0xF00F, 0xF00A, (instructionFnPtr) CC8_LD_VX_K},
+    {0xF0FF, 0xF015, (instructionFnPtr) CC8_LD_DT_VX},
+    {0xF0FF, 0xF018, (instructionFnPtr) CC8_LD_ST_VX},
+    {0xF0FF, 0xF01E, (instructionFnPtr) CC8_ADD_I_VX},
+    {0xF0FF, 0xF029, (instructionFnPtr) CC8_LD_F_VX},
+    {0xF0FF, 0xF033, (instructionFnPtr) CC8_LD_B_VX},
+    {0xF0FF, 0xF055, (instructionFnPtr) CC8_LD_I_VX},
+    {0xF0FF, 0xF065, (instructionFnPtr) CC8_LD_VX_I}
 };
 
-void AddInstruction(uint16_t mask, instructionFnPtr fn)
-{
-    s_instructionMasks[s_instrIndex] = mask;
-    s_instructions[s_instrIndex] = fn;
-    s_instrIndex++;
-}
-
-static int columCount =0; // TODO: remove this debug var
 instructionFnPtr FetchInstruction(uint16_t opcode)
 {
     // Implement hashing!!!
-    for (int  i = 0; i < 33 ; i++)
+    for (int  i = 0; i < CC8_INSTRUCTION_SET_LENGHT ; i++)
     {
-        uint16_t opmask = (opcode & s_instructionMasks[i]);
-uint16_t index  = opmask & 0xF000;
+        uint16_t opmask = (opcode & s_instructionSet[i].mask);
 
-        if ((opmask == s_instructionMasks[i]) && ((opcode < s_instructionMasks[i + 1])))
+        if ((opmask == s_instructionSet[i].opcode))
         {
-          
-            return s_instructions[i];
+            return s_instructionSet[i].handler;
         }
     }
 
     return NULL;
-}
-
-void CC8_BuildInstructionLUT()
-{
-    //Allocate hash table
-    instructionTable = kh_init(instrHashTable);
-    // Compute instructions LUT
-
-    AddInstruction(0x00E0, CC8_CLS);
-    AddInstruction(0x00EE, CC8_RET);
-    AddInstruction(0x1000, CC8_JMP);
-    AddInstruction(0x2000, CC8_CALL);
-    AddInstruction(0x3000, CC8_SE_VX_BYTE);
-    AddInstruction(0x4000, CC8_SNE_VX_BYTE); 
-    AddInstruction(0x5000, CC8_SE_VX_VY); 
-    AddInstruction(0x6000, CC8_LD_VX_BYTE); 
-    AddInstruction(0x7000, CC8_ADD_VX_BYTE); 
-    AddInstruction(0x8000, CC8_LD_VX_VY); 
-    AddInstruction(0x8001, CC8_OR_VX_VY); 
-    AddInstruction(0x8002, CC8_AND_VX_VY); 
-    AddInstruction(0x8003, CC8_XOR_VX_VY); 
-    AddInstruction(0x8004, CC8_ADD_VX_VY); 
-    AddInstruction(0x8005, CC8_SUB_VX_VY); 
-    AddInstruction(0x8006, CC8_SHR_VX_VY); 
-    AddInstruction(0x8007, CC8_SUBN_VX_VY); 
-    AddInstruction(0x800E, CC8_SHL_VX_VY); 
-    AddInstruction(0x9000, CC8_SNE_VX_VY); 
-    AddInstruction(0xA000, CC8_LD_I_ADDR); 
-    AddInstruction(0xB000, CC8_JP_V0_ADDR); 
-    AddInstruction(0xC000, CC8_RND_VX_BYTE); 
-    AddInstruction(0xD000, CC8_DRW_VX_VY_NIBBLE);
-    AddInstruction(0xE09E, CC8_SKP_VX);
-    AddInstruction(0xE0A1, CC8_SKNP_VX);
-    AddInstruction(0xF007, CC8_LD_VX_DT);
-    AddInstruction(0xF00A, CC8_LD_VX_K);
-    AddInstruction(0xF015, CC8_LD_DT_VX);
-    AddInstruction(0xF018, CC8_LD_ST_VX);
-    AddInstruction(0xF01E, CC8_ADD_I_VX);
-    AddInstruction(0xF029, CC8_LD_F_VX);
-    AddInstruction(0xF033, CC8_LD_B_VX);
-    AddInstruction(0xF055, CC8_LD_I_VX);
-    AddInstruction(0xF065, CC8_LD_VX_I);
-
-    // TODO: ADD S-CHIP8 instructions below...
 }
 
 // TODO:MOVE TO A PROPPER HEADER FILE called utils or such
@@ -137,7 +99,6 @@ void HexDump(uint8_t *buffer, size_t size)
 
 long CC8_LoadProgram(const char *filePath)
 {
-    CC8_BuildInstructionLUT();
     FILE *file = fopen(filePath, "rb");
     if (file == NULL)
     {
@@ -150,7 +111,7 @@ long CC8_LoadProgram(const char *filePath)
     long file_size = ftell(file);
     fseek(file, 0L, SEEK_SET);
 
-    printf("Loaded file, %s: %i bytes\n", filePath, file_size);
+    printf("Loaded file, %s: %li bytes\n", filePath, file_size);
 
     // Allocate a buffer for reading the file
     uint8_t *buffer = (uint8_t *)calloc(1, file_size + 1);
@@ -167,7 +128,7 @@ long CC8_LoadProgram(const char *filePath)
 
     // LOAD FONT
     loop_index = 0;
-    printf("Loaded font size: %i\n", sizeof(CC8_FONT));
+    printf("Loaded font size: %li\n", sizeof(CC8_FONT));
     for (addr = CC8_FONT_ADDR_START; (addr < CC8_FONT_ADDR_START + sizeof(CC8_FONT)); addr++)
     {
         s_currentChipCtx->RAM[CC8_FONT_ADDR_START + addr] = CC8_FONT[loop_index++];

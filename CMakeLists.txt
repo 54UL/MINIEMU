@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 project(MINEMU C)
 
 # BUILD CONFIGS
-set(MINEMU_TESTS OFF)
+set(MINEMU_TESTS ON)
 
 # gtests
 include(FetchContent)

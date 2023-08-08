@@ -1,6 +1,12 @@
 #include <CC8_Instructions.h>
 #include <CC8_InstructionContext.h>
 
+
+void CC8_SYS_ADDR(InstructionContext * ctx)
+{
+    ctx->memory->PC = ctx->nnn;
+}
+
 void CC8_CLS(InstructionContext * ctx)
 {
     for (uint16_t i = 0; i < sizeof(ctx->memory->VRAM); i++)
