@@ -14,6 +14,7 @@ typedef struct {
 
 static Instruction s_instructionSet[CC8_INSTRUCTION_SET_LENGHT] = 
 {
+    // MASK, OPCODE, HANDLER
     {0XF000, 0X0000, (instructionFnPtr) CC8_CLS},
     {0XFFFF, 0X00E0, (instructionFnPtr) CC8_CLS},
     {0xFFFF, 0x00EE, (instructionFnPtr) CC8_RET},
@@ -25,14 +26,14 @@ static Instruction s_instructionSet[CC8_INSTRUCTION_SET_LENGHT] =
     {0xF000, 0x6000, (instructionFnPtr) CC8_LD_VX_BYTE},
     {0xF000, 0x7000, (instructionFnPtr) CC8_ADD_VX_BYTE},
     {0xF000, 0x8000, (instructionFnPtr) CC8_LD_VX_VY},
-    {0xF00E, 0x8001, (instructionFnPtr) CC8_OR_VX_VY},
-    {0xF00E, 0x8002, (instructionFnPtr) CC8_AND_VX_VY},
-    {0xF00E, 0x8003, (instructionFnPtr) CC8_XOR_VX_VY},
-    {0xF00E, 0x8004, (instructionFnPtr) CC8_ADD_VX_VY},
-    {0xF00E, 0x8005, (instructionFnPtr) CC8_SUB_VX_VY},
-    {0xF00E, 0x8006, (instructionFnPtr) CC8_SHR_VX_VY},
-    {0xF00E, 0x8007, (instructionFnPtr) CC8_SUBN_VX_VY},
-    {0xF00E, 0x800E, (instructionFnPtr) CC8_SHL_VX_VY},
+    {0xF00F, 0x8001, (instructionFnPtr) CC8_OR_VX_VY},
+    {0xF00F, 0x8002, (instructionFnPtr) CC8_AND_VX_VY},
+    {0xF00F, 0x8003, (instructionFnPtr) CC8_XOR_VX_VY},
+    {0xF00F, 0x8004, (instructionFnPtr) CC8_ADD_VX_VY},
+    {0xF00F, 0x8005, (instructionFnPtr) CC8_SUB_VX_VY},
+    {0xF00F, 0x8006, (instructionFnPtr) CC8_SHR_VX_VY},
+    {0xF00F, 0x8007, (instructionFnPtr) CC8_SUBN_VX_VY},
+    {0xF00F, 0x800E, (instructionFnPtr) CC8_SHL_VX_VY},
     {0xF000, 0x9000, (instructionFnPtr) CC8_SNE_VX_VY},
     {0xF000, 0xA000, (instructionFnPtr) CC8_LD_I_ADDR},
     {0xF000, 0xB000, (instructionFnPtr) CC8_JP_V0_ADDR},
@@ -49,6 +50,7 @@ static Instruction s_instructionSet[CC8_INSTRUCTION_SET_LENGHT] =
     {0xF0FF, 0xF033, (instructionFnPtr) CC8_LD_B_VX},
     {0xF0FF, 0xF055, (instructionFnPtr) CC8_LD_I_VX},
     {0xF0FF, 0xF065, (instructionFnPtr) CC8_LD_VX_I}
+    // Super chip 8 instructions
 };
 
 instructionFnPtr FetchInstruction(uint16_t opcode)
