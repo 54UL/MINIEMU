@@ -40,6 +40,6 @@ TEST(Chip8InstructionsCheck, opcodeTest)
     }
 
     emulator->QuitProgram();
-    printf("Instructions executed [%li] of [%li]\n", executionCount, programSize);
+    MNE_Log("Instructions executed [%li] of [%li]\n", executionCount, programSize);
     EXPECT_TRUE(executionStatus);
 }

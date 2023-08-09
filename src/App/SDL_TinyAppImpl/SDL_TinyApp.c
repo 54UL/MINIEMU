@@ -114,7 +114,7 @@ void Init_EventThread()
 
     if (eventThread == NULL)
     {
-        printf("Cannot create event thread....\n");
+        MNE_Log("Cannot create event thread....\n");
     }
 }
 
@@ -141,7 +141,7 @@ void Init_App_Audio()
 {
     if (SDL_Init(SDL_INIT_AUDIO) != 0) 
     {
-        printf("Failed to open audio: %s\n", SDL_GetError());
+        MNE_Log("Failed to open audio: %s\n", SDL_GetError());
         return;
     }
 
@@ -158,7 +158,7 @@ void PlaySquareWave(int frequency, int duration)
     SDL_AudioSpec obtainedSpec;
     if (SDL_OpenAudio(&s_audioSpec, &obtainedSpec) != 0) 
     {
-        printf("Failed to open audio: %s\n", SDL_GetError());
+        MNE_Log("Failed to open audio: %s\n", SDL_GetError());
         return;
     }
     SDL_PauseAudio(0);
@@ -326,7 +326,7 @@ void Exit_SDL_App(void)
 {
     int eventThreadReturnValue;
     SDL_WaitThread(eventThread, &eventThreadReturnValue);
-    printf("Event thread returned:%i\n",eventThreadReturnValue);
+    MNE_Log("Event thread returned:%i\n",eventThreadReturnValue);
 
     free(s_chip8_pixels);
     free(s_emulator_pixels);

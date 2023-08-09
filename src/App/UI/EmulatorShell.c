@@ -130,7 +130,7 @@ void EmuShell_UpdateFrame(uint32_t *pixels)
             break;
    }
 
-   sprintf(currentRomStr, "%s %s", currentStatusStr, s_files[s_tabsIndex]);
+   sMNE_Log(currentRomStr, "%s %s", currentStatusStr, s_files[s_tabsIndex]);
    EmuShell_DrawString(currentRomStr, pixels, 16, ShellRow(&rowYLoc) + 2);
    
    ShellRow(&rowYLoc);
@@ -214,7 +214,7 @@ void EmuShell_ShellAction(const ShellAction action, ShellCallback callback)
 {
     if (action > MAX_SHELL_ACTIONS)
     {
-        printf("Action: %i out of bounds(%i), skipping...\n", action, MAX_SHELL_ACTIONS);
+        MNE_Log("Action: %i out of bounds(%i), skipping...\n", action, MAX_SHELL_ACTIONS);
         return;
     }
 

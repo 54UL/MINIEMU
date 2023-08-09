@@ -119,10 +119,10 @@ void StartEmulation(void * data)
 
 void StopEmulation(void * data)
 {
-    printf("StopEmulation\n");
+    MNE_Log("StopEmulation\n");
 }
 
 void QuitEmulation(void * data)
 {
-    printf("QuitEmulation\n");
+    MNE_Log("QuitEmulation\n");
 }

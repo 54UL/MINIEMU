@@ -81,7 +81,7 @@ void CC8_PopulateMemory(const uint8_t *buffer, size_t bytesRead)
 
     // LOAD FONT
     loop_index = 0;
-    printf("Loaded font size: %li\n", sizeof(CC8_FONT));
+    MNE_Log("Loaded font size: %li\n", sizeof(CC8_FONT));
     for (addr = CC8_FONT_ADDR_START; (addr < CC8_FONT_ADDR_START + sizeof(CC8_FONT)); addr++)
     {
         s_currentChipCtx->RAM[CC8_FONT_ADDR_START + addr] = CC8_FONT[loop_index++];
@@ -128,10 +128,10 @@ void CC8_Step(uint16_t opcode)
     // Instruction execution
     if (fetchedInstruction != NULL)
     {
-        printf("[%04X] ", opcode);
+        MNE_Log("[%04X] ", opcode);
         if (columCount++ >= 16)
         {
-            printf("\n");
+            MNE_Log("\n");
             columCount = 0;
         }
 
@@ -140,7 +140,7 @@ void CC8_Step(uint16_t opcode)
     }
     else
     {
-        printf("[Invalid opcode: %04X]\n", opcode);
+        MNE_Log("[Invalid opcode: %04X]\n", opcode);
         columCount = 0;
         s_currentChipCtx->INSTRUCTION = CC8_INVALID_INSTRUCTION; // Invalidate last instruction entry
     }
