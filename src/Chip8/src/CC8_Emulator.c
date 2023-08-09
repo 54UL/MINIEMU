@@ -15,9 +15,8 @@ typedef struct {
 static Instruction s_instructionSet[CC8_INSTRUCTION_SET_LENGHT] = 
 {
     // MASK, OPCODE, HANDLER
-    {0XF000, 0X0000, (instructionFnPtr) CC8_CLS},
     {0XFFFF, 0X00E0, (instructionFnPtr) CC8_CLS},
-    {0xFFFF, 0x00EE, (instructionFnPtr) CC8_RET},
+    {0XFFFF, 0x00EE, (instructionFnPtr) CC8_RET},
     {0xF000, 0x1000, (instructionFnPtr) CC8_JMP},
     {0xF000, 0x2000, (instructionFnPtr) CC8_CALL},
     {0xF000, 0x3000, (instructionFnPtr) CC8_SE_VX_BYTE},
@@ -25,7 +24,7 @@ static Instruction s_instructionSet[CC8_INSTRUCTION_SET_LENGHT] =
     {0xF000, 0x5000, (instructionFnPtr) CC8_SE_VX_VY},
     {0xF000, 0x6000, (instructionFnPtr) CC8_LD_VX_BYTE},
     {0xF000, 0x7000, (instructionFnPtr) CC8_ADD_VX_BYTE},
-    {0xF000, 0x8000, (instructionFnPtr) CC8_LD_VX_VY},
+    {0xF00F, 0x8000, (instructionFnPtr) CC8_LD_VX_VY},
     {0xF00F, 0x8001, (instructionFnPtr) CC8_OR_VX_VY},
     {0xF00F, 0x8002, (instructionFnPtr) CC8_AND_VX_VY},
     {0xF00F, 0x8003, (instructionFnPtr) CC8_XOR_VX_VY},
@@ -33,23 +32,23 @@ static Instruction s_instructionSet[CC8_INSTRUCTION_SET_LENGHT] =
     {0xF00F, 0x8005, (instructionFnPtr) CC8_SUB_VX_VY},
     {0xF00F, 0x8006, (instructionFnPtr) CC8_SHR_VX_VY},
     {0xF00F, 0x8007, (instructionFnPtr) CC8_SUBN_VX_VY},
-    {0xF00F, 0x800E, (instructionFnPtr) CC8_SHL_VX_VY},
+    {0xF00E, 0x800E, (instructionFnPtr) CC8_SHL_VX_VY},
     {0xF000, 0x9000, (instructionFnPtr) CC8_SNE_VX_VY},
     {0xF000, 0xA000, (instructionFnPtr) CC8_LD_I_ADDR},
     {0xF000, 0xB000, (instructionFnPtr) CC8_JP_V0_ADDR},
     {0xF000, 0xC000, (instructionFnPtr) CC8_RND_VX_BYTE},
     {0xF000, 0xD000, (instructionFnPtr) CC8_DRW_VX_VY_NIBBLE},
-    {0xF0FF, 0xE09E, (instructionFnPtr) CC8_SKP_VX},
-    {0xF0FF, 0xE0A1, (instructionFnPtr) CC8_SKNP_VX},
+    {0XF0FF, 0xE09E, (instructionFnPtr) CC8_SKP_VX},
+    {0XF0FF, 0xE0A1, (instructionFnPtr) CC8_SKNP_VX},
     {0xF00F, 0xF007, (instructionFnPtr) CC8_LD_VX_DT},
     {0xF00F, 0xF00A, (instructionFnPtr) CC8_LD_VX_K},
-    {0xF0FF, 0xF015, (instructionFnPtr) CC8_LD_DT_VX},
-    {0xF0FF, 0xF018, (instructionFnPtr) CC8_LD_ST_VX},
-    {0xF0FF, 0xF01E, (instructionFnPtr) CC8_ADD_I_VX},
-    {0xF0FF, 0xF029, (instructionFnPtr) CC8_LD_F_VX},
-    {0xF0FF, 0xF033, (instructionFnPtr) CC8_LD_B_VX},
-    {0xF0FF, 0xF055, (instructionFnPtr) CC8_LD_I_VX},
-    {0xF0FF, 0xF065, (instructionFnPtr) CC8_LD_VX_I}
+    {0XF0FF, 0xF015, (instructionFnPtr) CC8_LD_DT_VX},
+    {0XF0FF, 0xF018, (instructionFnPtr) CC8_LD_ST_VX},
+    {0XF0FF, 0xF01E, (instructionFnPtr) CC8_ADD_I_VX},
+    {0XF0FF, 0xF029, (instructionFnPtr) CC8_LD_F_VX},
+    {0XF0FF, 0xF033, (instructionFnPtr) CC8_LD_B_VX},
+    {0XF0FF, 0xF055, (instructionFnPtr) CC8_LD_I_VX},
+    {0XF0FF, 0xF065, (instructionFnPtr) CC8_LD_VX_I}
     // Super chip 8 instructions
 };
 
