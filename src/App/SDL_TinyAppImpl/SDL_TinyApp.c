@@ -221,8 +221,12 @@ void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorSh
                                          SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
                                          s_emulator_frame_width , s_emulator_frame_height );
 
-    s_chip8_pixels = calloc(s_chip8_frame_width * s_chip8_frame_height, sizeof(int));
-    s_emulator_pixels = calloc(s_emulator_frame_height * s_emulator_frame_width, sizeof(int));
+    MNE_New(s_chip8_pixels, s_chip8_frame_width * s_chip8_frame_height, int);
+    MNE_New(s_emulator_pixels, s_emulator_frame_height * s_emulator_frame_width, int);
+
+    //TODO: MOVE THIS WHEN TESTED MNE NEW MACROS...
+    // s_chip8_pixels = calloc(s_chip8_frame_width * s_chip8_frame_height, sizeof(int));
+    // s_emulator_pixels = calloc(s_emulator_frame_height * s_emulator_frame_width, sizeof(int));
 
     // Randomize the buffer (ready state) (CHIP 8 RENDERING TEST)
     int i = 0,j = 0;

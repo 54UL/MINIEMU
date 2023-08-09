@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <CC8_Emulator.h>
 #include <CC8_Instructions.h>
+#include <minemu.h>
 
 static CC8_Memory * s_currentChipCtx;
 static int columCount =0; // TODO: remove this debug var
@@ -68,61 +69,12 @@ instructionFnPtr FetchInstruction(uint16_t opcode)
     return NULL;
 }
 
-// TODO:MOVE TO A PROPPER HEADER FILE called utils or such
-void HexDump(uint8_t *buffer, size_t size)
+void CC8_PopulateMemory(const uint8_t *buffer, size_t bytesRead)
 {
-    // Print header
-    printf("Hex dump:\n");
-    printf("---------------------------------------------------------------\n");
-    printf("Offset |                         Hexadecimal                   \n");
-    printf("-------|-------------------------------------------------------\n");
-
-    // Print buffer contents in hexadecimal format with ASCII representation
-    int i = 0;
-    int j = 0;
-
-    for (i = 0; i < size; i += 16)
-    {
-        // Print offset
-        printf("%06X | ", i);
-
-        // Print hexadecimal values
-        for (j = i; j < i + 16 && j < size; j++)
-        {
-            printf("%02X ", buffer[j]);
-        }
-        printf("\n");
-    }
-
-    // Print footer
-    printf("-----------------------------------------------------------------\n");
-}
-
-long CC8_LoadProgram(const char *filePath)
-{
-    FILE *file = fopen(filePath, "rb");
-    if (file == NULL)
-    {
-        printf("Unable to open file %s\n", filePath);
-        return 0;
-    }
-
-    // Get the size of the file
-    fseek(file, 0L, SEEK_END);
-    long file_size = ftell(file);
-    fseek(file, 0L, SEEK_SET);
-
-    printf("Loaded file, %s: %li bytes\n", filePath, file_size);
-
-    // Allocate a buffer for reading the file
-    uint8_t *buffer = (uint8_t *)calloc(1, file_size + 1);
-    size_t bytes_read = fread(buffer, 1, file_size, file);
-    s_currentChipCtx->PC = CC8_BOOT_ADDR_START;
-
     // LOAD PROGRAM
     uint16_t addr = 0;
     uint16_t loop_index = 0;
-    for (addr = CC8_BOOT_ADDR_START; (addr < CC8_BOOT_ADDR_START + bytes_read); addr++)
+    for (addr = CC8_BOOT_ADDR_START; (addr < CC8_BOOT_ADDR_START + bytesRead); addr++)
     {
         s_currentChipCtx->RAM[addr] = buffer[loop_index++];
     }
@@ -135,13 +87,12 @@ long CC8_LoadProgram(const char *filePath)
         s_currentChipCtx->RAM[CC8_FONT_ADDR_START + addr] = CC8_FONT[loop_index++];
     }
 
-    // TODO: ADD DEBUG FLAG for dumping hex
-    HexDump(buffer, bytes_read);
+    s_currentChipCtx->PC = CC8_BOOT_ADDR_START;
+}
 
-    // Clean up resources
-    free(buffer);
-    fclose(file);
-    return file_size;
+long CC8_LoadProgram(const char *filePath)
+{
+    return MNE_ReadFile(filePath, MNE_HEX_DUMP_FILE_FLAG, CC8_PopulateMemory);
 }
 
 void CC8_QuitProgram()

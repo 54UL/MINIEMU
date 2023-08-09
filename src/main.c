@@ -104,7 +104,7 @@ void StartEmulation(void * data)
             break;
     }
     
-    context = calloc(1, sizeof(CC8_Memory));
+    MNE_New(context, 1, CC8_Memory);
     emulator->SetEmulationContext((void *) context);
 
     if (emulator->LoadProgram((const char*) data) > 1)

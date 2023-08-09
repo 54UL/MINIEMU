@@ -3,6 +3,11 @@
 #include <stdint.h>
 #include "3rd/khash.h"
 
+#include "minemu/MNE_Flags.h"
+#include "minemu/MNE_Log.h"
+#include "minemu/MNE_File.h"
+#include "minemu/MNE_Memory.h"
+
 typedef enum {Keyboard, Window, System} ActionType;
 typedef enum {Start, Stop, Reset, Quit} ShellAction;
 typedef enum {Idle, Starting, Running, Stopped, Exception} ShellState;

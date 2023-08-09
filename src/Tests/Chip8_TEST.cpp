@@ -19,11 +19,11 @@ TEST(Chip8InstructionsCheck, opcodeTest)
     bool executionStatus = true;
 
     emulator = &Chip8Emulator;
-    context = (CC8_Memory*) calloc(1, sizeof(CC8_Memory));
-
+    MNE_New(context, 1, CC8_Memory);
     emulator->SetEmulationContext((void *) context);
     programSize = emulator->LoadProgram(TEST_ROOM_PATH);
-
+    executionStatus = programSize > 0;
+    
     // Program size is just an reference for max execution limit (thus due to data in the code...)
     for (; executionCount < programSize; executionCount++)
     {

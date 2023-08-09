@@ -10,5 +10,6 @@ void    CC8_TickDelayTimer();
 int     CC8_TickEmulation();
 void    CC8_SetKeyboardValue(uint8_t key);
 void    CC8_SetEmulationContext(const void *context);
+void    CC8_PopulateMemory(const uint8_t *buffer, size_t bytesRead);
 
 #endif
