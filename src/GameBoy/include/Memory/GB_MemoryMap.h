@@ -1,0 +1,6 @@
+#ifndef GB_MEMORY_MAP_H
+#define GB_MEMORY_MAP_H
+
+//TODO: INSERT MEMORY RANGES HERE...
+
+#endif
