@@ -1,7 +1,9 @@
 #ifndef GB_EMULATION_H
 #define GB_EMULATION_H
 
+#include <GB_SystemContext.h
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef void (*instructionFnPtr)(const InstructionContext * ctx);
 

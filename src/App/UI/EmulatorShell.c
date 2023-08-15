@@ -130,7 +130,7 @@ void EmuShell_UpdateFrame(uint32_t *pixels)
             break;
    }
 
-   sMNE_Log(currentRomStr, "%s %s", currentStatusStr, s_files[s_tabsIndex]);
+   sprintf(currentRomStr, "%s %s", currentStatusStr, s_files[s_tabsIndex]);
    EmuShell_DrawString(currentRomStr, pixels, 16, ShellRow(&rowYLoc) + 2);
    
    ShellRow(&rowYLoc);

@@ -13,7 +13,7 @@ set(GB_SOURCES
 )
 
 # Create the GameBoy_MINEMU shared library
-add_library(GameBoy SHARED ${GB_HEADERS}${GB_SOURCES})
+add_library(GameBoy SHARED ${GB_HEADERS} ${GB_SOURCES})
 
 # Include directories for GameBoy
 target_include_directories(GameBoy PUBLIC

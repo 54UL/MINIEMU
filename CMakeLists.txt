@@ -17,6 +17,8 @@ FetchContent_MakeAvailable(googletest)
 # MINEMU MODULES
 add_subdirectory(src/Core)
 add_subdirectory(src/Chip8)
+add_subdirectory(src/GameBoy)
+
 add_subdirectory(src/App)
 
 if (MINEMU_TESTS) 
