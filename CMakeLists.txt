@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(MINEMU C)
+project(MINEMU)
 
 # BUILD CONFIGS
 set(MINEMU_TESTS OFF)
@@ -27,8 +27,23 @@ else()
   # APP EXECUTABLE TARGET
   message("MINEMU EXECUTABLE")
   add_executable(MINEMU "src/main.c")
-  target_compile_options(MINEMU PUBLIC -std=c11 -Wall -Wextra)
-  target_link_libraries(MINEMU PUBLIC Core App Chip8)
+  target_compile_options(MINEMU PUBLIC -Wall -Wextra)
+  target_link_libraries(MINEMU PUBLIC Core Chip8)
+
+  if(PSP)
+  message("PSP TOOLCHAIN FOUND, CREATING PBP FILE")
+
+    create_pbp_file(
+        TARGET ${PROJECT_NAME}
+        ICON_PATH NULL
+        BACKGROUND_PATH NULL
+        PREVIEW_PATH NULL
+        TITLE ${PROJECT_NAME}
+    )
+else()
+    message("PSP TOOLCHAIN NOT FOUND")
+endif()
+
 endif()
 
 # TODO ADD CUSTOM TARGETS

@@ -195,7 +195,7 @@ void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorSh
                                 SDL_WINDOW_RESIZABLE);
 
     s_renderer = SDL_CreateRenderer(s_window,
-                                    -1, SDL_RENDERER_ACCELERATED);
+                                    -1, SDL_RENDERER_SOFTWARE);// SDL_RENDERER_ACCELERATED FOR DESKTOP PLATFORMS...
 
     SDL_SetRenderTarget(s_renderer, NULL);  // Set the render target to the default
 

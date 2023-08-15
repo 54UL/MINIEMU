@@ -1,5 +1,5 @@
-project(App C)
-set(CMAKE_C_COMPILER "gcc")
+project(App)
+# set(CMAKE_C_COMPILER "gcc")
 
 # PACKAGES
 find_package(SDL2 REQUIRED)
