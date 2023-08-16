@@ -31,6 +31,7 @@ typedef struct
     };
     uint16_t SP;
     uint16_t PC;
+    uint16_t INSTRUCTION;
 } GB_Registers;
 
 #endif

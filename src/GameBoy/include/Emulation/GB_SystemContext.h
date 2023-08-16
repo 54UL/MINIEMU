@@ -4,15 +4,12 @@
 
 #include "../include/CPU/GB_Registers.h"
 
-
 typedef struct{
     //INSERT HERE DECODED INSTRUCTION PARTS
     uint16_t BusAddress;
     GB_Registers * registers;
-} InstructionContext;
+} SystemContext;
 
-typedef void (*instructionFnPtr)(const InstructionContext * ctx);
-
-
+typedef void (*instructionFnPtrGb)(const SystemContext * ctx);
 
 #endif

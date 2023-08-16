@@ -11,5 +11,5 @@ file(GLOB_RECURSE TEST_SOURCES "*.cpp")
 
 add_executable(UnitTesting ${TEST_SOURCES})
 
-target_link_libraries(UnitTesting PUBLIC gtest_main Core Chip8)
+target_link_libraries(UnitTesting PUBLIC gtest_main Core Chip8 GameBoy)
 gtest_discover_tests(UnitTesting)

@@ -1,11 +1,10 @@
 #ifndef GB_EMULATION_H
 #define GB_EMULATION_H
 
-#include <GB_SystemContext.h
+#include <Emulation/GB_SystemContext.h>
 #include <stdint.h>
 #include <stdlib.h>
-
-typedef void (*instructionFnPtr)(const InstructionContext * ctx);
+#define GB_INVALID_INSTRUCTION 0xAEAE
 
 long    GB_LoadProgram(const char *filePath);
 void    GB_QuitProgram();

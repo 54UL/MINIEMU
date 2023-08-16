@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 project(MINEMU C)
 
 # BUILD CONFIGS
-set(MINEMU_TESTS OFF)
+set(MINEMU_TESTS ON)
 
 # gtests
 include(FetchContent)
@@ -18,7 +18,6 @@ FetchContent_MakeAvailable(googletest)
 add_subdirectory(src/Core)
 add_subdirectory(src/Chip8)
 add_subdirectory(src/GameBoy)
-
 add_subdirectory(src/App)
 
 if (MINEMU_TESTS) 
