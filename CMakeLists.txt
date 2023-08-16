@@ -1,29 +1,41 @@
 cmake_minimum_required(VERSION 3.1)
+project(MINEMU C)
 
-project(CC8 C)
-set(CMAKE_C_COMPILER "gcc")
+# BUILD CONFIGS
+set(MINEMU_TESTS OFF)
 
-file(GLOB_RECURSE CC8_ENTRY_POINT "main.c")
+# gtests
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
-# Find SDL2 library
-find_package(SDL2 REQUIRED)
+# MINEMU MODULES
+add_subdirectory(src/Core)
+add_subdirectory(src/Chip8)
+add_subdirectory(src/App)
 
-# Add all .h and .c files to the project
-file(GLOB SOURCES "*.h" "*.c")
+if (MINEMU_TESTS) 
+  # TEST EXECUTABLE TARGET
+  message("MINEMU TESTS TARGET")
+  add_subdirectory(src/Tests)
+else()
+  # APP EXECUTABLE TARGET
+  message("MINEMU EXECUTABLE")
+  add_executable(MINEMU "src/main.c")
+  target_compile_options(MINEMU PUBLIC -std=c11 -Wall -Wextra)
+  target_link_libraries(MINEMU PUBLIC Core App Chip8)
+endif()
 
-# uDisplay library sources
-file(GLOB_RECURSE CC8_SOURCE "src/*.c")
-file(GLOB_RECURSE CC8_HEADERS "src/*.h")
-
-message(${CC8_SOURCE})
-message("headers")
-message(${CC8_HEADERS})
-
-# Add the source files to the project
-add_executable(CC8 ${CC8_HEADERS} ${CC8_SOURCE} ${CC8_ENTRY_POINT})
-
-# Create executable
-target_compile_options(CC8 PUBLIC -std=c11 -Wall -Wextra)
-
-# Link with SDL2 library
-target_link_libraries(CC8 SDL2)
+# TODO ADD CUSTOM TARGETS
+# Custom targets
+#add_custom_target(BUILD_MINEMU_APP
+#    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target src/App
+#)
+#add_custom_target(BUILD_MINEMU_EMULATORS
+#    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target src/Chip8
+#)

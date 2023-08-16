@@ -1,3 +1,4 @@
+// #include "../include/EmulatorShell.h"
 #include "EmulatorShell.h"
 #include <SDL2/SDL.h>
 #include "Fonts/Default_7x8.h"
@@ -106,8 +107,6 @@ void EmuShell_UpdateFrame(uint32_t *pixels)
 
    EmuShell_DrawString("CC8 V1.0 (CHIP 8 EMULATOR BY XUL)", pixels, 32, ShellRow(&rowYLoc));
 
-
-
    switch (s_selectionIndex)
    {
         case 0: 
@@ -215,7 +214,7 @@ void EmuShell_ShellAction(const ShellAction action, ShellCallback callback)
 {
     if (action > MAX_SHELL_ACTIONS)
     {
-        printf("Action: %i out of bounds(%i), skipping...\n", action, MAX_SHELL_ACTIONS);
+        MNE_Log("Action: %i out of bounds(%i), skipping...\n", action, MAX_SHELL_ACTIONS);
         return;
     }
 

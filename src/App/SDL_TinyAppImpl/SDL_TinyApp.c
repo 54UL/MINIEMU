@@ -114,7 +114,7 @@ void Init_EventThread()
 
     if (eventThread == NULL)
     {
-        printf("Cannot create event thread....\n");
+        MNE_Log("Cannot create event thread....\n");
     }
 }
 
@@ -141,7 +141,7 @@ void Init_App_Audio()
 {
     if (SDL_Init(SDL_INIT_AUDIO) != 0) 
     {
-        printf("Failed to open audio: %s\n", SDL_GetError());
+        MNE_Log("Failed to open audio: %s\n", SDL_GetError());
         return;
     }
 
@@ -158,7 +158,7 @@ void PlaySquareWave(int frequency, int duration)
     SDL_AudioSpec obtainedSpec;
     if (SDL_OpenAudio(&s_audioSpec, &obtainedSpec) != 0) 
     {
-        printf("Failed to open audio: %s\n", SDL_GetError());
+        MNE_Log("Failed to open audio: %s\n", SDL_GetError());
         return;
     }
     SDL_PauseAudio(0);
@@ -221,8 +221,12 @@ void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorSh
                                          SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
                                          s_emulator_frame_width , s_emulator_frame_height );
 
-    s_chip8_pixels = calloc(s_chip8_frame_width * s_chip8_frame_height, sizeof(int));
-    s_emulator_pixels = calloc(s_emulator_frame_height * s_emulator_frame_width, sizeof(int));
+    MNE_New(s_chip8_pixels, s_chip8_frame_width * s_chip8_frame_height, int);
+    MNE_New(s_emulator_pixels, s_emulator_frame_height * s_emulator_frame_width, int);
+
+    //TODO: MOVE THIS WHEN TESTED MNE NEW MACROS...
+    // s_chip8_pixels = calloc(s_chip8_frame_width * s_chip8_frame_height, sizeof(int));
+    // s_emulator_pixels = calloc(s_emulator_frame_height * s_emulator_frame_width, sizeof(int));
 
     // Randomize the buffer (ready state) (CHIP 8 RENDERING TEST)
     int i = 0,j = 0;
@@ -322,7 +326,7 @@ void Exit_SDL_App(void)
 {
     int eventThreadReturnValue;
     SDL_WaitThread(eventThread, &eventThreadReturnValue);
-    printf("Event thread returned:%i\n",eventThreadReturnValue);
+    MNE_Log("Event thread returned:%i\n",eventThreadReturnValue);
 
     free(s_chip8_pixels);
     free(s_emulator_pixels);

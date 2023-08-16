@@ -1,15 +1,14 @@
-#include <stdio.h>
-#include <SDL2/SDL.h>
-
-#include "src/App/AppImpl.h"
-#include "src/Chip8/CC8_Api.h"
+// MINEMU APP (UI + CORE + STATIC LINKED EMULATORS)
+#include <minemu.h>
+#include <CC8_Chip8.h>
+#include <App.h>
 
 #define SCREEN_HEIGHT 32
 #define SCREEN_WIDTH 64
 
-App *app;
-CC8_Core *emulator;
-CC8_Machine *context;
+AppApi *app;
+Emulation *emulator;
+CC8_Memory *context;
 
 // App
 void OnRender(unsigned int *pixels);
@@ -22,8 +21,8 @@ void QuitEmulation(void * data);
 
 int main(int argc, char **argv)
 {
-    Uint32 last_update_time;
-    Uint32 last_update_time_timers;
+    uint32_t last_update_time;
+    uint32_t last_update_time_timers;
 
     app = &TinySDLApp;
     emulator = &Chip8Emulator;
@@ -69,6 +68,7 @@ int main(int argc, char **argv)
 void OnRender(unsigned int *pixels)
 {
     if (context == NULL) return;
+
     for (int i = 0; i < SCREEN_HEIGHT; i++)
     {
         for (int j = 0; j < SCREEN_WIDTH; j++)
@@ -86,13 +86,12 @@ void OnRender(unsigned int *pixels)
 void OnInputAction(const char code)
 {
     if (context == NULL) return;
+
     context->KEYBOARD = code;
 }
 
 void StartEmulation(void * data)
 {
-    printf("StartEmulation: %s\n", (const char *) data);
-
     const ShellState sate = EmulatorUI.GetState();
     switch (sate)
     {
@@ -104,10 +103,11 @@ void StartEmulation(void * data)
         default:
             break;
     }
-    context = calloc(1, sizeof(CC8_Machine));
-    emulator->SetEmulationContext(context);
+    
+    MNE_New(context, 1, CC8_Memory);
+    emulator->SetEmulationContext((void *) context);
 
-    if (emulator->LoadProgram((const char*) data))
+    if (emulator->LoadProgram((const char*) data) > 1)
     {
         EmulatorUI.SetState(Running);
     }
@@ -119,10 +119,10 @@ void StartEmulation(void * data)
 
 void StopEmulation(void * data)
 {
-    printf("StopEmulation\n");
+    MNE_Log("StopEmulation\n");
 }
 
 void QuitEmulation(void * data)
 {
-    printf("QuitEmulation\n");
+    MNE_Log("QuitEmulation\n");
 }
