@@ -7,7 +7,7 @@
 
 typedef struct
 {
-    uint8_t memory[0xFFFF];
+    // uint8_t memory[0xFFFF];
     GB_Registers * registers;
 } SystemContext;
 

@@ -9,7 +9,8 @@ uint8_t GB_BusRead(uint16_t * memory, uint16_t address)
     return 0xFF;
 }
 
-void GB_BusWrite(uint16_t * memory,uint16_t address,uint8_t value){
+void GB_BusWrite(uint16_t * memory,uint16_t address,uint8_t value)
+{
 
 }
 

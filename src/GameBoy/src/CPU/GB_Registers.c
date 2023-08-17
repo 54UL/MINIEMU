@@ -1,11 +1,13 @@
 #include <CPU/GB_Registers.h>
 
-void setReg8(GB_Registers *registers, uint8_t rr, uint8_t value)
+void GB_SetReg8(GB_Registers *registers, uint8_t r, uint8_t value)
 {
-    registers->CPU[rr] = value;
+    uint8_t * halfregs = ((uint8_t * )registers->CPU); 
+    halfregs[r] = value;
 }
 
-uint8_t getReg8(const GB_Registers * registers, uint8_t rr)
+uint8_t GB_GetReg8(const GB_Registers * registers, uint8_t r)
 {
-    return registers->CPU[rr];
+    uint8_t * halfregs = ((uint8_t * )registers->CPU); 
+    return halfregs[r];
 }

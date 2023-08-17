@@ -1,25 +1,33 @@
 #include <CPU/GB_Instructions.h>
 #include <CPU/GB_Bus.h>
+#include <CPU/GB_Registers.h>
+
+#define xxx 0x38
+#define yyy 0x07
 
 // 8-BIT LOAD INSTRUCTIONS
 void GB_LD_R_R(const SystemContext *ctx)
 {
     //encoding: b01xxxyyy/various
-    uint8_t r1 = (ctx->registers->INSTRUCTION & 0x38) >> 3;
+    uint8_t r1 = (ctx->registers->INSTRUCTION & xxx) >> 3;
     uint8_t r2 = (ctx->registers->INSTRUCTION & 0x07);
-    ctx->registers->CPU[r1] = ctx->registers->CPU[r2];
+    GB_SetReg8(ctx->registers,r1, GB_GetReg8(ctx->registers,r2));
 }
 
 void GB_LD_R_N(const SystemContext *ctx)
 {
     //encoding: 0b00xxx110/various + n
-    uint8_t r1 = (ctx->registers->INSTRUCTION & 0x38) >> 3;
-    ctx->registers->CPU[r1] = GB_BusRead(ctx->memory, ctx->registers->PC + 1);
+    uint8_t r = (ctx->registers->INSTRUCTION & xxx) >> 3;
+    ctx->registers->CPU[r] = GB_BusRead(ctx->memory, ctx->registers->PC + 1, ctx->registers->CPU[GB_HL_OFFSET]);
 }
 
 void GB_LD_R_HL(const SystemContext *ctx)
 {
+    //encoding: 0b01xxx110/various
+    uint8_t r = (ctx->registers->INSTRUCTION & xxx) >> 3;
+    ctx->registers->CPU[r] = GB_BusRead(ctx->memory, ctx->registers->CPU[r]);
 }
+
 void GB_LD_HL_R(const SystemContext *ctx)
 {
 }
