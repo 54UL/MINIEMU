@@ -4,8 +4,10 @@
 #include <Emulation/GB_SystemContext.h>
 #include <stdint.h>
 #include <stdlib.h>
+
 #define GB_INVALID_INSTRUCTION 0xAEAE
 
+uint8_t GB_Initialize(int argc, const char ** argv);
 long    GB_LoadProgram(const char *filePath);
 void    GB_QuitProgram();
 void    GB_TickTimers();

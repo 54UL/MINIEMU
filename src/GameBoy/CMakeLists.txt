@@ -14,6 +14,7 @@ set(GB_HEADERS
 )
 
 set(GB_SOURCES
+    src/CPU/GB_Registers.c
     src/CPU/GB_Instructions.c
     src/Emulation/GB_Emulation.c
 )

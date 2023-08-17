@@ -1,13 +1,22 @@
 #include <CPU/GB_Instructions.h>
+#include <CPU/GB_Bus.h>
 
 // 8-BIT LOAD INSTRUCTIONS
 void GB_LD_R_R(const SystemContext *ctx)
 {
-    
+    //encoding: b01xxxyyy/various
+    uint8_t r1 = (ctx->registers->INSTRUCTION & 0x38) >> 3;
+    uint8_t r2 = (ctx->registers->INSTRUCTION & 0x07);
+    ctx->registers->CPU[r1] = ctx->registers->CPU[r2];
 }
+
 void GB_LD_R_N(const SystemContext *ctx)
 {
+    //encoding: 0b00xxx110/various + n
+    uint8_t r1 = (ctx->registers->INSTRUCTION & 0x38) >> 3;
+    ctx->registers->CPU[r1] = GB_BusRead(ctx->memory, ctx->registers->PC + 1);
 }
+
 void GB_LD_R_HL(const SystemContext *ctx)
 {
 }

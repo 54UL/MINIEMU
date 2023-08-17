@@ -19,11 +19,12 @@ typedef void (*ShellCallback)(void * data);
 
 typedef struct 
 {
-    long            (*LoadProgram)(const char * filePath);
-    void            (*QuitProgram)();
-    int             (*TickEmulation)();
-    void            (*TickDelayTimer)();
-    void            (*SetEmulationContext)(const void * context);
+    uint8_t (*Initialize)(int argc, const char ** argv);
+    long    (*LoadProgram)(const char * filePath);
+    void    (*QuitProgram)();
+    int     (*TickEmulation)();
+    void    (*TickDelayTimer)();
+    void    (*SetEmulationContext)(const void * context);
 } Emulation;
 
 //Models
@@ -47,10 +48,10 @@ typedef struct
 
 typedef struct 
 {       
-    void        (*Init)(uint16_t w, uint16_t h, ActionCallback eventCallback, EmulatorShell * shell);
-    uint8_t     (*Render)(StepCallback renderCallback);//todo: add input
-    void        (*Reset)(void);
-    void        (*Exit)(void);
+    void    (*Init)(uint16_t w, uint16_t h, ActionCallback eventCallback, EmulatorShell * shell);
+    uint8_t (*Render)(StepCallback renderCallback);
+    void    (*Reset)(void);
+    void    (*Exit)(void);
 } AppApi;
 
 #endif

@@ -3,10 +3,11 @@
 #include <stdint.h>
 
 #include "../include/CPU/GB_Registers.h"
+#define GB_MEMORY_SIZE 0xFFFF
 
-typedef struct{
-    //INSERT HERE DECODED INSTRUCTION PARTS
-    uint16_t BusAddress;
+typedef struct
+{
+    uint8_t memory[0xFFFF];
     GB_Registers * registers;
 } SystemContext;
 

@@ -6,6 +6,7 @@
 //App implementation
 Emulation GameBoyEmulator = 
 {
+    .Initialize = GB_Initialize,
     .LoadProgram = GB_LoadProgram,
     .QuitProgram = GB_QuitProgram,
     .TickEmulation = GB_TickEmulation,

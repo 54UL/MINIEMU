@@ -18,6 +18,8 @@ TEST(GameBoy_CPU, opcodeTest)
 
     emulator = &GameBoyEmulator;
     MNE_New(registers, 1, GB_Registers);
+
+    emulator->Initialize(NULL, NULL);
     emulator->SetEmulationContext((void *) registers);
     programSize = emulator->LoadProgram(TEST_ROOM_PATH);
     executionStatus = programSize > 0;
