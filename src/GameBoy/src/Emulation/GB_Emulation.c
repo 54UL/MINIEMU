@@ -5,8 +5,8 @@
 
 static const GameBoyInstruction s_gb_instruction_set[GB_INSTRUCTION_SET_LENGHT] =
 {
-    //-------------MASK----OPCODE-CYCLES-HANDLER                           ENCODING
-    GB_INSTRUCTION(0x00F0, 0x0040, 0X04, GB_LD_R_R),
+    //-------------MASK----OPCODE-CYCLES-HANDLER
+    GB_INSTRUCTION(0x00FF, 0x0040, 0X04, GB_LD_R_R),
     GB_INSTRUCTION(0x000F, 0x0006, 0X08, GB_LD_R_N)
 };
 

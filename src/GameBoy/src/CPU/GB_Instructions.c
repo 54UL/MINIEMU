@@ -8,74 +8,164 @@
 // 8-BIT LOAD INSTRUCTIONS
 void GB_LD_R_R(const SystemContext *ctx)
 {
-    //encoding: b01xxxyyy/various
-    uint8_t r1 = (ctx->registers->INSTRUCTION & xxx) >> 3;
-    uint8_t r2 = (ctx->registers->INSTRUCTION & 0x07);
-    GB_SetReg8(ctx->registers,r1, GB_GetReg8(ctx->registers,r2));
+    // encoding: b01xxxyyy/various
+    const uint8_t r1 = (ctx->registers->INSTRUCTION & xxx) >> 3;
+    const uint8_t r2 = (ctx->registers->INSTRUCTION & yyy);
+
+    GB_SetReg8(ctx->registers, r1, GB_GetReg8(ctx->registers, r2));
 }
 
 void GB_LD_R_N(const SystemContext *ctx)
 {
-    //encoding: 0b00xxx110/various + n
-    uint8_t r = (ctx->registers->INSTRUCTION & xxx) >> 3;
-    ctx->registers->CPU[r] = GB_BusRead(ctx->memory, ctx->registers->PC + 1, ctx->registers->CPU[GB_HL_OFFSET]);
+    // encoding: 0b00xxx110/various + n
+    const uint8_t r = (ctx->registers->INSTRUCTION & xxx) >> 3;
+
+    ctx->registers->CPU[r] = GB_BusRead(ctx->memory, ctx->registers->PC++);
 }
 
 void GB_LD_R_HL(const SystemContext *ctx)
 {
-    //encoding: 0b01xxx110/various
-    uint8_t r = (ctx->registers->INSTRUCTION & xxx) >> 3;
-    ctx->registers->CPU[r] = GB_BusRead(ctx->memory, ctx->registers->CPU[r]);
+    // encoding: 0b01xxx110/various
+    const uint8_t r = (ctx->registers->INSTRUCTION & xxx) >> 3;
+
+    ctx->registers->CPU[r] = GB_BusRead(ctx->memory, ctx->registers->CPU[GB_HL_OFFSET]);
 }
 
 void GB_LD_HL_R(const SystemContext *ctx)
 {
+    // encoding: 0b01110xxx
+    const uint8_t r = ctx->registers->INSTRUCTION & yyy;
+
+    GB_SetReg8(ctx->registers, r, GB_BusRead(ctx->memory, ctx->registers->CPU[GB_HL_OFFSET]));
 }
+
 void GB_LD_HL_N(const SystemContext *ctx)
 {
+    // 0b00110110/0x36 + n
+    /*
+    opcode = read(PC++)
+    if opcode == 0x36:
+        n = read(PC++)
+        write(HL, n)
+    */
+    const uint8_t n = GB_BusRead(ctx->memory, ctx->registers->PC++);
+
+    GB_BusWrite(ctx->memory, ctx->registers->CPU[GB_HL_OFFSET], n);
 }
+
 void GB_LD_A_BC(const SystemContext *ctx)
 {
+    /*
+    opcode = read(PC++)
+    if opcode == 0x0A:
+        A = read(BC)
+    */
+    ctx->registers->CPU[GB_A_OFFSET] = GB_BusRead(ctx->memory, ctx->registers->CPU[GB_BC_OFFSET]);
 }
+
 void GB_LD_A_DE(const SystemContext *ctx)
 {
+    ctx->registers->CPU[GB_A_OFFSET] = GB_BusRead(ctx->memory, ctx->registers->CPU[GB_DE_OFFSET]);
 }
+
 void GB_LD_A_NN(const SystemContext *ctx)
 {
+    /*
+    opcode = read(PC++)
+    if opcode == 0xFA:
+        nn = unsigned_16(lsb=read(PC++), msb=read(PC++))
+        A = read(nn)
+    */
+    const uint8_t lsb = GB_BusRead(ctx->memory, ctx->registers->PC++);
+    const uint8_t msb = GB_BusRead(ctx->memory, ctx->registers->PC++);
+    const uint16_t nn = (uint16_t)(lsb | (msb << 8));
+
+    ctx->registers->CPU[GB_A_OFFSET] = GB_BusRead(ctx->memory, nn);
 }
+
 void GB_LD_BC_A(const SystemContext *ctx)
 {
+    GB_BusWrite(ctx->memory, ctx->registers->CPU[GB_BC_OFFSET], GB_GetReg8(ctx->registers, GB_A_OFFSET));
 }
+
 void GB_LD_DE_A(const SystemContext *ctx)
 {
+    GB_BusWrite(ctx->memory, ctx->registers->CPU[GB_DE_OFFSET], GB_GetReg8(ctx->registers, GB_A_OFFSET));
 }
+
 void GB_LD_NN_A(const SystemContext *ctx)
 {
+    const uint8_t lsb = GB_BusRead(ctx->memory, ctx->registers->PC++);
+    const uint8_t msb = GB_BusRead(ctx->memory, ctx->registers->PC++);
+    const uint16_t nn = (uint16_t)(lsb | (msb << 8));
+
+    GB_BusWrite(ctx->memory, nn, ctx->registers->CPU[GB_A_OFFSET]);
 }
-void GB_LD_A_FF00_PLUS_N(const SystemContext *ctx)
+
+void GB_LDH_A_N(const SystemContext *ctx)
 {
+    /*
+    n = read(PC++)
+    A = read(unsigned_16(lsb=n, msb=0xFF))
+    */
+
+    const uint8_t n = GB_BusRead(ctx->memory, ctx->registers->PC++);
+    const uint16_t u16 = (uint16_t)(n | (0xFF << 8));
+
+    ctx->registers->CPU[GB_A_OFFSET] = GB_BusRead(ctx->memory, u16);
 }
-void GB_LD_FF00_PLUS_N_A(const SystemContext *ctx)
+
+void GB_LDH_N_A(const SystemContext *ctx)
 {
+    /*
+    n = read(PC++)
+    write(unsigned_16(lsb=n, msb=0xFF), A)
+    */
+    const uint8_t n = GB_BusRead(ctx->memory, ctx->registers->PC++);
+    const uint16_t u16 = (uint16_t)(n | (0xFF << 8));
+
+    GB_BusWrite(ctx->memory, u16, ctx->registers->CPU[GB_A_OFFSET]);
 }
-void GB_LD_A_FF00_PLUS_C(const SystemContext *ctx)
+
+void GB_LDH_A_C(const SystemContext *ctx)
 {
+    //A = read(unsigned_16(lsb=C, msb=0xFF))
+    const uint16_t u16 = (uint16_t)(GB_GetReg8(ctx->registers, GB_C_OFFSET) | (0xFF << 8));
+    GB_SetReg8(ctx->registers, GB_A_OFFSET, GB_BusRead(ctx->memory, u16));
 }
-void GB_LD_FF00_PLUS_C_A(const SystemContext *ctx)
+
+void GB_LDH_C_A(const SystemContext *ctx)
 {
+    //write(unsigned_16(lsb=C, msb=0xFF), A)
+    const uint16_t u16 = (uint16_t)(GB_GetReg8(ctx->registers, GB_C_OFFSET) | (0xFF << 8));
+    GB_BusWrite(ctx->memory, u16,ctx->registers->CPU[GB_A_OFFSET]);
 }
+
 void GB_LDI_HL_A(const SystemContext *ctx)
 {
+    //write(HL++, A)
+    GB_BusWrite(ctx->memory, ctx->registers->CPU[GB_HL_OFFSET]++, GB_GetReg8(ctx->registers, GB_A_OFFSET));
 }
+
 void GB_LDI_A_HL(const SystemContext *ctx)
 {
+    //A = read(HL++)
+    GB_SetReg8(ctx->registers, GB_A_OFFSET, GB_BusRead(ctx->memory, ctx->registers->CPU[GB_HL_OFFSET]++));
 }
+
 void GB_LDD_HL_A(const SystemContext *ctx)
 {
+    //write(HL--, A)
+    GB_BusWrite(ctx->memory, ctx->registers->CPU[GB_HL_OFFSET]--, GB_GetReg8(ctx->registers, GB_A_OFFSET));
+
 }
+
 void GB_LDD_A_HL(const SystemContext *ctx)
 {
+    //A = read(HL--)
+    GB_SetReg8(ctx->registers, GB_A_OFFSET, GB_BusRead(ctx->memory, ctx->registers->CPU[GB_HL_OFFSET]--));
 }
+
 // 16 BIT LOAD INSTRUCTIONS
 void GB_LD_RR_NN(const SystemContext *ctx)
 {
@@ -108,8 +198,9 @@ void GB_ADC_A_R(const SystemContext *ctx)
 void GB_ADC_A_N(const SystemContext *ctx)
 {
 }
-void GB_ADC_A_HL(const SystemContext *ctx) {}
-
+void GB_ADC_A_HL(const SystemContext *ctx)
+{
+}
 void GB_SUB_R(const SystemContext *ctx)
 {
 }
