@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#define TEST_ROOM_PATH "../../../ROMS/test_opcode.ch8"
+#define TEST_ROOM_PATH "../../../ROMS/Chip8/test_opcode.ch8"
 #define BOOT_START 512
 
 extern "C" 
