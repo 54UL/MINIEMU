@@ -2,6 +2,7 @@
 #include <Emulation/GB_Instruction.h>
 
 #include <CPU/GB_Instructions.h>
+#include <string.h>
 
 static const GameBoyInstruction s_gb_instruction_set[GB_INSTRUCTION_SET_LENGHT] =
 {

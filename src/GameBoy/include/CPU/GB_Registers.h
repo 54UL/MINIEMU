@@ -38,8 +38,8 @@ H:4
 L:5
 A:6
 F:7
-
 */
+
 #define GB_BC_OFFSET 0
 #define GB_B_OFFSET  0
 #define GB_C_OFFSET  1
@@ -53,6 +53,11 @@ F:7
 #define GB_A_OFFSET  6
 #define GB_F_OFFSET  7
 
+#define GB_ZERO_FLAG_BIT        7
+#define GB_SUBTRACTION_FLAG_BIT 6
+#define GB_HALF_CARRY_FLAG_BIT  5
+#define GB_CARRY_FLAG_BIT       4
+
 typedef struct 
 {
     uint16_t CPU[4];
@@ -63,5 +68,8 @@ typedef struct
 
 void GB_SetReg8(GB_Registers *registers, uint8_t r, uint8_t value);
 uint8_t GB_GetReg8(const GB_Registers * registers, uint8_t r);
+
+void GB_SetFlag(GB_Registers *registers, uint8_t flag, uint8_t value);
+uint8_t GB_GetFlag(GB_Registers *registers, uint8_t flag);
 
 #endif
