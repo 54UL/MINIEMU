@@ -23,7 +23,7 @@ typedef struct
     long    (*LoadProgram)(const char * filePath);
     void    (*QuitProgram)();
     int     (*TickEmulation)();
-    void    (*TickDelayTimer)();
+    void    (*TickTimers)();
     void    (*SetEmulationContext)(const void * context);
 } Emulation;
 

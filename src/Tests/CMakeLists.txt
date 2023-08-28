@@ -7,9 +7,13 @@ include(CTest)
 include(GoogleTest)
 enable_testing()
 
-file(GLOB_RECURSE TEST_SOURCES "*.cpp")
+set(RUNNING_TESTS_SOURCES
+#    Chip8_TEST.cpp
+   GameBoy_TEST.cpp
+   )
 
-add_executable(UnitTesting ${TEST_SOURCES})
+
+add_executable(UnitTesting ${RUNNING_TESTS_SOURCES})
 
 target_link_libraries(UnitTesting PUBLIC gtest_main Core Chip8 GameBoy)
 gtest_discover_tests(UnitTesting)

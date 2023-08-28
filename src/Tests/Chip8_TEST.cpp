@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#define TEST_ROOM_PATH "../../../ROMS/Chip8/test_opcode.ch8"
+#define TEST_ROOM_PATH "../../../ROMS/chip8/3-corax+.ch8"
 #define BOOT_START 512
 
-extern "C" 
+extern "C"
 {
     #include <minemu.h>
     #include <CC8_Chip8.h>
@@ -29,7 +29,7 @@ TEST(Chip8_CPU, opcodeTest)
     {
         // Step emulation
         emulator->TickEmulation();
-        emulator->TickDelayTimer();
+        emulator->TickTimers();
         
         // Check if processed op code was executed right testing against invalid opcode and nop (not expecting any of those)
         if (context->INSTRUCTION == CC8_INVALID_INSTRUCTION || context->INSTRUCTION == 0)

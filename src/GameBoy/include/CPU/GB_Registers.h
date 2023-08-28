@@ -13,31 +13,20 @@
    HL  | H | L | HL
    SP  | - | - | Stack Pointer
    PC  | - | - | Program Counter/Pointer
-
-As shown above, most registers can be accessed either as one 16-bit
-register, or as two separate 8-bit registers.
-
-## The Flags Register (lower 8 bits of AF register)
-
-Bit | Name | Explanation
-----|------|-------
-  7 |   z  | Zero flag
-  6 |   n  | Subtraction flag (BCD)
-  5 |   h  | Half Carry flag (BCD)
-  4 |   c  | Carry flag
 */
 
 /*
-registers offsets
-
+r byte encoding
 B:0
 C:1
 D:2
 E:3
 H:4
 L:5
-A:6
-F:7
+HL:6
+A:7
+
+rr byte encoding
 */
 
 #define GB_BC_OFFSET 0
@@ -49,9 +38,8 @@ F:7
 #define GB_HL_OFFSET 4
 #define GB_H_OFFSET  4
 #define GB_L_OFFSET  5
-#define GB_AF_OFFSET 6
-#define GB_A_OFFSET  6
-#define GB_F_OFFSET  7
+#define GB_AF_OFFSET 7
+#define GB_A_OFFSET  7
 
 #define GB_ZERO_FLAG_BIT        7
 #define GB_SUBTRACTION_FLAG_BIT 6

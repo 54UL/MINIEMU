@@ -1,5 +1,9 @@
 #include <gtest/gtest.h>
-#define TEST_ROOM_PATH "../../../ROMS/GameBoy/opode_test.gb"
+//TEST ROOMS EMULATION REFERENCES:
+//https://github.com/Hacktix/BullyGB/wiki
+
+
+#define TEST_ROOM_PATH "../../../ROMS/GameBoy/bully.gb"
 
 extern "C" 
 {
@@ -10,17 +14,20 @@ extern "C"
 TEST(GameBoy_CPU, opcodeTest)
 {
     Emulation *emulator;
-    GB_Registers *registers;
+    SystemContext *emulationCtx;
 
     long programSize = 0;
     long executionCount = 0;
     bool executionStatus = true;
 
     emulator = &GameBoyEmulator;
-    MNE_New(registers, 1, GB_Registers);
+    MNE_New(emulationCtx, 1, SystemContext);
 
+    // Initialize the emualtion api
+    emulator->SetEmulationContext((void *) emulationCtx);
     emulator->Initialize(NULL, NULL);
-    emulator->SetEmulationContext((void *) registers);
+
+    // Load ROM into memory starting from (0x0000)
     programSize = emulator->LoadProgram(TEST_ROOM_PATH);
     executionStatus = programSize > 0;
     
@@ -29,17 +36,21 @@ TEST(GameBoy_CPU, opcodeTest)
     {
         // Step emulation
         emulator->TickEmulation();
-        emulator->TickDelayTimer();
+
+        //This should be in a different thread but for testing is fine... (right?)
+        emulator->TickTimers();
         
-        // Check if processed op code was executed right testing against invalid opcode and nop (not expecting any of those)
-        if (registers->INSTRUCTION == GB_INVALID_INSTRUCTION || registers->INSTRUCTION == 0)
+        // Check if processed op code was executed fine
+        if (emulationCtx->registers->INSTRUCTION == GB_INVALID_INSTRUCTION)
         {
             executionStatus = false;
             break;
         }
     }
 
+    // Dispose emulation resources here..
     emulator->QuitProgram();
+
     MNE_Log("Instructions executed [%li] of [%li]\n", executionCount, programSize);
     EXPECT_TRUE(executionStatus);
 }

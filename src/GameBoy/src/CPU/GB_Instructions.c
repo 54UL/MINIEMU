@@ -699,11 +699,11 @@ void GB_DEC_R(SystemContext *ctx)
 {
     //encoding: 0b00xxx101
     /*
-    result, carry_per_bit = B - 1
-    B = result
-    flags.Z = 1 if result == 0 else 0
-    flags.N = 1
-    flags.H = 1 if carry_per_bit[3] else 0
+        result, carry_per_bit = B - 1
+        B = result
+        flags.Z = 1 if result == 0 else 0
+        flags.N = 1
+        flags.H = 1 if carry_per_bit[3] else 0
     */
 }
 
