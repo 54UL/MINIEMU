@@ -25,6 +25,6 @@ typedef struct
     GB_FlagsReg*  flags;
 } SystemContext;
 
-typedef void (*instructionFnPtrGb)(SystemContext * ctx);
+typedef uint8_t (*instructionFnPtrGb)(SystemContext * ctx);
 
 #endif

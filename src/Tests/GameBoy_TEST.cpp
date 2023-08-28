@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 //TEST ROOMS EMULATION REFERENCES:
 //https://github.com/Hacktix/BullyGB/wiki
+//http://blargg.8bitalley.com/parodius/gb-tests/
 
-
-#define TEST_ROOM_PATH "../../../ROMS/GameBoy/bully.gb"
+// #define TEST_ROOM_PATH "../../../ROMS/GameBoy/bully.gb"
+#define TEST_ROOM_PATH "../../../ROMS/GameBoy/blargg-ld_r_r.gb"
 
 extern "C" 
 {

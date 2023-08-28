@@ -6,25 +6,29 @@
 #define yyy 0x07
 
 // 8-BIT LOAD INSTRUCTIONS
-void GB_LD_R_R(SystemContext *ctx)
+uint8_t GB_LD_R_R(SystemContext *ctx)
 {
     // encoding: b01xxxyyy/various
     const uint8_t r1 = (ctx->registers->INSTRUCTION & xxx) >> 3;
     const uint8_t r2 = (ctx->registers->INSTRUCTION & yyy);
 
     GB_SetReg8(ctx->registers, r1, GB_GetReg8(ctx->registers, r2));
+
+    return 4; // instruction clock cycles
 }
 
-void GB_LD_R_N(SystemContext *ctx)
+uint8_t GB_LD_R_N(SystemContext *ctx)
 {
     // encoding: 0b00xxx110/various + n
 
     const uint8_t r = (ctx->registers->INSTRUCTION & xxx) >> 3;
 
     ctx->registers->CPU[r] = GB_BusRead(ctx, ctx->registers->PC++);
+    
+    return 8; // instruction clock cycles
 }
 
-void GB_LD_R_HL(SystemContext *ctx)
+uint8_t GB_LD_R_HL(SystemContext *ctx)
 {
     // encoding: 0b01xxx110/various
 
@@ -33,7 +37,7 @@ void GB_LD_R_HL(SystemContext *ctx)
     ctx->registers->CPU[r] = GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
 }
 
-void GB_LD_HL_R(SystemContext *ctx)
+uint8_t GB_LD_HL_R(SystemContext *ctx)
 {
     // encoding: 0b01110xxx
 
@@ -42,7 +46,7 @@ void GB_LD_HL_R(SystemContext *ctx)
     GB_SetReg8(ctx->registers, r, GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]));
 }
 
-void GB_LD_HL_N(SystemContext *ctx)
+uint8_t GB_LD_HL_N(SystemContext *ctx)
 {
     // 0b00110110/0x36 + n
     /*
@@ -57,7 +61,7 @@ void GB_LD_HL_N(SystemContext *ctx)
     GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET], n);
 }
 
-void GB_LD_A_BC(SystemContext *ctx)
+uint8_t GB_LD_A_BC(SystemContext *ctx)
 {
     /*
     opcode = read(PC++)
@@ -68,12 +72,12 @@ void GB_LD_A_BC(SystemContext *ctx)
     ctx->registers->CPU[GB_A_OFFSET] = GB_BusRead(ctx, ctx->registers->CPU[GB_BC_OFFSET]);
 }
 
-void GB_LD_A_DE(SystemContext *ctx)
+uint8_t GB_LD_A_DE(SystemContext *ctx)
 {
     ctx->registers->CPU[GB_A_OFFSET] = GB_BusRead(ctx, ctx->registers->CPU[GB_DE_OFFSET]);
 }
 
-void GB_LD_A_NN(SystemContext *ctx)
+uint8_t GB_LD_A_NN(SystemContext *ctx)
 {
     /*
     opcode = read(PC++)
@@ -89,17 +93,17 @@ void GB_LD_A_NN(SystemContext *ctx)
     ctx->registers->CPU[GB_A_OFFSET] = GB_BusRead(ctx, nn);
 }
 
-void GB_LD_BC_A(SystemContext *ctx)
+uint8_t GB_LD_BC_A(SystemContext *ctx)
 {
     GB_BusWrite(ctx, ctx->registers->CPU[GB_BC_OFFSET], GB_GetReg8(ctx->registers, GB_A_OFFSET));
 }
 
-void GB_LD_DE_A(SystemContext *ctx)
+uint8_t GB_LD_DE_A(SystemContext *ctx)
 {
     GB_BusWrite(ctx, ctx->registers->CPU[GB_DE_OFFSET], GB_GetReg8(ctx->registers, GB_A_OFFSET));
 }
 
-void GB_LD_NN_A(SystemContext *ctx)
+uint8_t GB_LD_NN_A(SystemContext *ctx)
 {
     const uint8_t lsb = GB_BusRead(ctx, ctx->registers->PC++);
     const uint8_t msb = GB_BusRead(ctx, ctx->registers->PC++);
@@ -108,7 +112,7 @@ void GB_LD_NN_A(SystemContext *ctx)
     GB_BusWrite(ctx, nn, ctx->registers->CPU[GB_A_OFFSET]);
 }
 
-void GB_LDH_A_N(SystemContext *ctx)
+uint8_t GB_LDH_A_N(SystemContext *ctx)
 {
     /*
         n = read(PC++)
@@ -121,7 +125,7 @@ void GB_LDH_A_N(SystemContext *ctx)
     ctx->registers->CPU[GB_A_OFFSET] = GB_BusRead(ctx, u16);
 }
 
-void GB_LDH_N_A(SystemContext *ctx)
+uint8_t GB_LDH_N_A(SystemContext *ctx)
 {
     /*
         n = read(PC++)
@@ -134,46 +138,46 @@ void GB_LDH_N_A(SystemContext *ctx)
     GB_BusWrite(ctx, u16, ctx->registers->CPU[GB_A_OFFSET]);
 }
 
-void GB_LDH_A_C(SystemContext *ctx)
+uint8_t GB_LDH_A_C(SystemContext *ctx)
 {
     //A = read(unsigned_16(lsb=C, msb=0xFF))
     const uint16_t u16 = (uint16_t)(GB_GetReg8(ctx->registers, GB_C_OFFSET) | (0xFF << 8));
     GB_SetReg8(ctx->registers, GB_A_OFFSET, GB_BusRead(ctx, u16));
 }
 
-void GB_LDH_C_A(SystemContext *ctx)
+uint8_t GB_LDH_C_A(SystemContext *ctx)
 {
     //write(unsigned_16(lsb=C, msb=0xFF), A)
     const uint16_t u16 = (uint16_t)(GB_GetReg8(ctx->registers, GB_C_OFFSET) | (0xFF << 8));
     GB_BusWrite(ctx, u16,ctx->registers->CPU[GB_A_OFFSET]);
 }
 
-void GB_LDI_HL_A(SystemContext *ctx)
+uint8_t GB_LDI_HL_A(SystemContext *ctx)
 {
     //write(HL++, A)
     GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET]++, GB_GetReg8(ctx->registers, GB_A_OFFSET));
 }
 
-void GB_LDI_A_HL(SystemContext *ctx)
+uint8_t GB_LDI_A_HL(SystemContext *ctx)
 {
     //A = read(HL++)
     GB_SetReg8(ctx->registers, GB_A_OFFSET, GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]++));
 }
 
-void GB_LDD_HL_A(SystemContext *ctx)
+uint8_t GB_LDD_HL_A(SystemContext *ctx)
 {
     //write(HL--, A)
     GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET]--, GB_GetReg8(ctx->registers, GB_A_OFFSET));
 }
 
-void GB_LDD_A_HL(SystemContext *ctx)
+uint8_t GB_LDD_A_HL(SystemContext *ctx)
 {
     //A = read(HL--)
     GB_SetReg8(ctx->registers, GB_A_OFFSET, GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]--));
 }
 
 // 16 BIT LOAD INSTRUCTIONS
-void GB_LD_RR_NN(SystemContext *ctx)
+uint8_t GB_LD_RR_NN(SystemContext *ctx)
 {
     //encoding: 0b00xx0001, xx = 0x30
     /*
@@ -189,7 +193,7 @@ void GB_LD_RR_NN(SystemContext *ctx)
     ctx->registers->CPU[GB_BC_OFFSET] = u16;
 }
 
-void GB_LD_NN_SP(SystemContext *ctx)
+uint8_t GB_LD_NN_SP(SystemContext *ctx)
 {
     //encoding: 0b00001000
     /*
@@ -208,13 +212,13 @@ void GB_LD_NN_SP(SystemContext *ctx)
     GB_BusWrite(ctx, u16 + 1, sph);
 }
 
-void GB_LD_SP_HL(SystemContext *ctx)
+uint8_t GB_LD_SP_HL(SystemContext *ctx)
 {
     //  SP = HL
     ctx->registers->SP = ctx->registers->CPU[GB_HL_OFFSET];
 }
 
-void GB_PUSH_RR(SystemContext *ctx)
+uint8_t GB_PUSH_RR(SystemContext *ctx)
 {
     //encoding: 0b11xx0101,xx = 0x30
     /*
@@ -232,7 +236,7 @@ void GB_PUSH_RR(SystemContext *ctx)
     GB_BusWrite(ctx, ctx->registers->SP, l);
 }
 
-void GB_POP_RR(SystemContext *ctx)
+uint8_t GB_POP_RR(SystemContext *ctx)
 {
     // encoding: 0b11xx0001
     // BC = unsigned_16(lsb=read(SP++), msb=read(SP++))
@@ -245,7 +249,7 @@ void GB_POP_RR(SystemContext *ctx)
 }
 
 // 8 BIT ALU INSTRUCTIONS
-void GB_ADD_A_R(SystemContext *ctx)
+uint8_t GB_ADD_A_R(SystemContext *ctx)
 {
     //encoding:0b10000xxx
     /*
@@ -267,7 +271,7 @@ void GB_ADD_A_R(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_ADD_A_N(SystemContext *ctx)
+uint8_t GB_ADD_A_N(SystemContext *ctx)
 {
     //encoding:0b11000110
     /*
@@ -290,7 +294,7 @@ void GB_ADD_A_N(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_ADD_A_HL(SystemContext *ctx)
+uint8_t GB_ADD_A_HL(SystemContext *ctx)
 {
     //encoding:0b10000110
     /*
@@ -313,7 +317,7 @@ void GB_ADD_A_HL(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_ADC_A_R(SystemContext *ctx)
+uint8_t GB_ADC_A_R(SystemContext *ctx)
 {
     //encoding:0b10001xxx
     /*
@@ -335,7 +339,7 @@ void GB_ADC_A_R(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_ADC_A_N(SystemContext *ctx)
+uint8_t GB_ADC_A_N(SystemContext *ctx)
 {
     //encoding: 0b11001110
     /*
@@ -358,7 +362,7 @@ void GB_ADC_A_N(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_ADC_A_HL(SystemContext *ctx)
+uint8_t GB_ADC_A_HL(SystemContext *ctx)
 {
     //encoding: 0b10001110
     /*
@@ -381,7 +385,7 @@ void GB_ADC_A_HL(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_SUB_R(SystemContext *ctx)
+uint8_t GB_SUB_R(SystemContext *ctx)
 {
     //encoding: 0b10010xxx
     /*
@@ -403,7 +407,7 @@ void GB_SUB_R(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_SUB_N(SystemContext *ctx)
+uint8_t GB_SUB_N(SystemContext *ctx)
 {
     //encoding: 0b11010110
     /*
@@ -426,7 +430,7 @@ void GB_SUB_N(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_SUB_HL(SystemContext *ctx)
+uint8_t GB_SUB_HL(SystemContext *ctx)
 {
     //encoding: 0b10010110
     /*
@@ -449,7 +453,7 @@ void GB_SUB_HL(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_SBC_A_R(SystemContext *ctx)
+uint8_t GB_SBC_A_R(SystemContext *ctx)
 {
     //encoding: 0b10011xxx
     /*
@@ -470,7 +474,7 @@ void GB_SBC_A_R(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_SBC_A_N(SystemContext *ctx)
+uint8_t GB_SBC_A_N(SystemContext *ctx)
 {
     //encoding: 0b11011110
     /*
@@ -493,7 +497,7 @@ void GB_SBC_A_N(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_SBC_A_HL(SystemContext *ctx) 
+uint8_t GB_SBC_A_HL(SystemContext *ctx) 
 {
     //encoding: 0b10011110
     /*
@@ -516,7 +520,7 @@ void GB_SBC_A_HL(SystemContext *ctx)
     ctx->flags->C = sum >> 7 == 0x01;
 }
 
-void GB_AND_R(SystemContext *ctx)
+uint8_t GB_AND_R(SystemContext *ctx)
 {
     //encoding: 0b10100xxx
     /*
@@ -526,7 +530,7 @@ void GB_AND_R(SystemContext *ctx)
     */
 }
 
-void GB_AND_N(SystemContext *ctx)
+uint8_t GB_AND_N(SystemContext *ctx)
 {
     //encoding: 0b11100110 
     /*
@@ -540,7 +544,7 @@ void GB_AND_N(SystemContext *ctx)
     */
 }
 
-void GB_AND_HL(SystemContext *ctx)
+uint8_t GB_AND_HL(SystemContext *ctx)
 {
     //encoding: 0b10100110
     /*
@@ -553,7 +557,7 @@ void GB_AND_HL(SystemContext *ctx)
     flags.C = 0
     */
 }
-void GB_XOR_R(SystemContext *ctx)
+uint8_t GB_XOR_R(SystemContext *ctx)
 {
     //encoding: 0b10101xxx
     /*
@@ -568,7 +572,7 @@ void GB_XOR_R(SystemContext *ctx)
     */
 
 }
-void GB_XOR_N(SystemContext *ctx)
+uint8_t GB_XOR_N(SystemContext *ctx)
 {
     //encoding: 0b11101110
     /*
@@ -581,7 +585,7 @@ void GB_XOR_N(SystemContext *ctx)
         flags.C = 0
     */
 }
-void GB_XOR_HL(SystemContext *ctx)
+uint8_t GB_XOR_HL(SystemContext *ctx)
 {
     //encoding: 0b10101110
     /*
@@ -594,7 +598,7 @@ void GB_XOR_HL(SystemContext *ctx)
         flags.C = 0
     */
 }
-void GB_OR_R(SystemContext *ctx)
+uint8_t GB_OR_R(SystemContext *ctx)
 {
     //encoding: 0b10110xxx
     /*
@@ -606,7 +610,7 @@ void GB_OR_R(SystemContext *ctx)
         flags.C = 0
     */
 }
-void GB_OR_N(SystemContext *ctx)
+uint8_t GB_OR_N(SystemContext *ctx)
 {
     //encoding: 0b11110110
     /*
@@ -619,7 +623,7 @@ void GB_OR_N(SystemContext *ctx)
         flags.C = 0
     */
 }
-void GB_OR_HL(SystemContext *ctx)
+uint8_t GB_OR_HL(SystemContext *ctx)
 {
     //encoding: 0b10110110
     /*
@@ -632,7 +636,7 @@ void GB_OR_HL(SystemContext *ctx)
         flags.C = 0
     */
 }
-void GB_CP_R(SystemContext *ctx)
+uint8_t GB_CP_R(SystemContext *ctx)
 {
     //encoding: 0b10111xxx
     /*
@@ -644,7 +648,7 @@ void GB_CP_R(SystemContext *ctx)
     */
 }
 
-void GB_CP_N(SystemContext *ctx)
+uint8_t GB_CP_N(SystemContext *ctx)
 {
     //encoding: 0b11111110
     /*
@@ -657,7 +661,7 @@ void GB_CP_N(SystemContext *ctx)
     */
 }
 
-void GB_CP_HL(SystemContext *ctx)
+uint8_t GB_CP_HL(SystemContext *ctx)
 {
     //encoding: 0b10111110
     /*
@@ -670,7 +674,7 @@ void GB_CP_HL(SystemContext *ctx)
     */
 }
 
-void GB_INC_R(SystemContext *ctx)
+uint8_t GB_INC_R(SystemContext *ctx)
 {
     //encoding:0b00xxx100
     /*
@@ -682,7 +686,7 @@ void GB_INC_R(SystemContext *ctx)
     */
 }
 
-void GB_INC_HL(SystemContext *ctx)
+uint8_t GB_INC_HL(SystemContext *ctx)
 {
     //encoding: 0b00110100
     /*
@@ -695,7 +699,7 @@ void GB_INC_HL(SystemContext *ctx)
     */
 }
 
-void GB_DEC_R(SystemContext *ctx)
+uint8_t GB_DEC_R(SystemContext *ctx)
 {
     //encoding: 0b00xxx101
     /*
@@ -707,7 +711,7 @@ void GB_DEC_R(SystemContext *ctx)
     */
 }
 
-void GB_DEC_HL(SystemContext *ctx)
+uint8_t GB_DEC_HL(SystemContext *ctx)
 {
     //encoding: 0b00110101
     /*
@@ -720,7 +724,7 @@ void GB_DEC_HL(SystemContext *ctx)
     */
 }
 
-void GB_DAA(SystemContext *ctx)
+uint8_t GB_DAA(SystemContext *ctx)
 {
     //encoding: 0b00100111
     /*
@@ -728,7 +732,7 @@ void GB_DAA(SystemContext *ctx)
     */
 }
 
-void GB_CPL(SystemContext *ctx)
+uint8_t GB_CPL(SystemContext *ctx)
 {
     //encoding:0b00101111
     /*
@@ -739,35 +743,35 @@ void GB_CPL(SystemContext *ctx)
 }
 
 // 16 BIT ALU INSTRUCTIONS
-void GB_ADD_HL_RR(SystemContext *ctx)
+uint8_t GB_ADD_HL_RR(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_INC_RR(SystemContext *ctx)
+uint8_t GB_INC_RR(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_DEC_RR(SystemContext *ctx)
+uint8_t GB_DEC_RR(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_ADD_SP_DD(SystemContext *ctx)
+uint8_t GB_ADD_SP_DD(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_LD_HL_SP_PLUS_DD(SystemContext *ctx)
+uint8_t GB_LD_HL_SP_PLUS_DD(SystemContext *ctx)
 {
     //encoding:
     /*
@@ -775,140 +779,140 @@ void GB_LD_HL_SP_PLUS_DD(SystemContext *ctx)
     */
 }
 // ROTATE AND SHIFT INSTRUCTIONS
-void GB_RLCA(SystemContext *ctx)
+uint8_t GB_RLCA(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RLA(SystemContext *ctx)
+uint8_t GB_RLA(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RRCA(SystemContext *ctx)
+uint8_t GB_RRCA(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RRA(SystemContext *ctx)
+uint8_t GB_RRA(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RLC_R(SystemContext *ctx)
+uint8_t GB_RLC_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RLC_HL(SystemContext *ctx)
+uint8_t GB_RLC_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RL_R(SystemContext *ctx)
+uint8_t GB_RL_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RL_HL(SystemContext *ctx)
+uint8_t GB_RL_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RRC_R(SystemContext *ctx)
+uint8_t GB_RRC_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RRC_HL(SystemContext *ctx)
+uint8_t GB_RRC_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RR_R(SystemContext *ctx)
+uint8_t GB_RR_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RR_HL(SystemContext *ctx)
+uint8_t GB_RR_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SLA_R(SystemContext *ctx)
+uint8_t GB_SLA_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SLA_HL(SystemContext *ctx)
+uint8_t GB_SLA_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SWAP_R(SystemContext *ctx)
+uint8_t GB_SWAP_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SWAP_HL(SystemContext *ctx)
+uint8_t GB_SWAP_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SRA_R(SystemContext *ctx)
+uint8_t GB_SRA_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SRA_HL(SystemContext *ctx)
+uint8_t GB_SRA_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SRL_R(SystemContext *ctx)
+uint8_t GB_SRL_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SRL_HL(SystemContext *ctx)
+uint8_t GB_SRL_HL(SystemContext *ctx)
 {
     //encoding:
     /*
@@ -916,42 +920,42 @@ void GB_SRL_HL(SystemContext *ctx)
     */
 }
 // SINGLE BIT OPERATIONS
-void GB_BIT_N_R(SystemContext *ctx)
+uint8_t GB_BIT_N_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_BIT_N_HL(SystemContext *ctx)
+uint8_t GB_BIT_N_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SET_N_R(SystemContext *ctx)
+uint8_t GB_SET_N_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SET_N_HL(SystemContext *ctx)
+uint8_t GB_SET_N_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RES_N_R(SystemContext *ctx)
+uint8_t GB_RES_N_R(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RES_N_HL(SystemContext *ctx)
+uint8_t GB_RES_N_HL(SystemContext *ctx)
 {
     //encoding:
     /*
@@ -959,49 +963,49 @@ void GB_RES_N_HL(SystemContext *ctx)
     */
 }
 // CPU CONTROL INSTRUCTIONS
-void GB_CCF(SystemContext *ctx)
+uint8_t GB_CCF(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_SCF(SystemContext *ctx)
+uint8_t GB_SCF(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_NOP(SystemContext *ctx)
+uint8_t GB_NOP(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_HALT(SystemContext *ctx)
+uint8_t GB_HALT(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_STOP(SystemContext *ctx)
+uint8_t GB_STOP(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_DI(SystemContext *ctx)
+uint8_t GB_DI(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_EI(SystemContext *ctx)
+uint8_t GB_EI(SystemContext *ctx)
 {
     //encoding:
     /*
@@ -1009,71 +1013,63 @@ void GB_EI(SystemContext *ctx)
     */
 }
 // JUMP INSTRUCTIONS
-void GB_JP_NN(SystemContext *ctx)
+uint8_t GB_JP_NN(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_JP_HL(SystemContext *ctx)
+uint8_t GB_JP_HL(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_JP_F_NN(SystemContext *ctx)
+uint8_t GB_JP_F_NN(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_JR_PC_PLUS_DD(SystemContext *ctx)
+uint8_t GB_JR_PC_PLUS_DD(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_JR_F_PC_PLUS_DD(SystemContext *ctx)
+uint8_t GB_JR_F_PC_PLUS_DD(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_CALL_NN(SystemContext *ctx)
+uint8_t GB_CALL_NN(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_CALL_F_NN(SystemContext *ctx)
+uint8_t GB_CALL_F_NN(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RET(SystemContext *ctx)
+uint8_t GB_RET(SystemContext *ctx)
 {
     //encoding:
     /*
     
     */
 }
-void GB_RET_F(SystemContext *ctx)
-{
-    //encoding:
-    /*
-    
-    */
-}
-
-void GB_RETI(SystemContext *ctx)
+uint8_t GB_RET_F(SystemContext *ctx)
 {
     //encoding:
     /*
@@ -1081,7 +1077,15 @@ void GB_RETI(SystemContext *ctx)
     */
 }
 
-void GB_RST_N(SystemContext *ctx)
+uint8_t GB_RETI(SystemContext *ctx)
+{
+    //encoding:
+    /*
+    
+    */
+}
+
+uint8_t GB_RST_N(SystemContext *ctx)
 {
     //encoding:
     /*

@@ -10,8 +10,8 @@ static SystemContext * s_systemContext;
 static GameBoyInstruction s_gb_instruction_set[GB_INSTRUCTION_SET_LENGHT] =
 {
     //-------------MASK----OPCODE-CYCLES-HANDLER
-    GB_INSTRUCTION(0x00FF, 0x0040, 0X04, GB_LD_R_R),
-    GB_INSTRUCTION(0x000F, 0x0006, 0X08, GB_LD_R_N)
+    GB_INSTRUCTION(0x00FF, 0x0040, GB_LD_R_R),
+    GB_INSTRUCTION(0x000F, 0x0006, GB_LD_R_N)
 };
 
 uint8_t GB_Initialize(int argc, const char ** argv)
@@ -64,15 +64,20 @@ int GB_TickEmulation()
     // Fetch
     const uint8_t instr = s_systemContext->memory[s_systemContext->registers->PC++];
     GameBoyInstruction* fetchedInstruction = GB_FetchInstruction(instr);
-    
+    uint8_t clockCycles = 0;
+
     // Instruction execution
     if (fetchedInstruction != NULL)
     {
+
+        if (fetchedInstruction->opcode != 0) // If opcode is 0 then is an NOP... 
+        {
 #ifdef GB_DEBUG
-        MNE_Log(fetchedInstruction->handlerName, instr);
+            MNE_Log(fetchedInstruction->handlerName, instr, s_systemContext->registers->PC);
 #endif
-        s_systemContext->registers->INSTRUCTION = instr; // Stores executed opcode to check later if was running fine
-        fetchedInstruction->handler(s_systemContext);
+            s_systemContext->registers->INSTRUCTION = instr; // Stores executed opcode to check later if was running fine
+            clockCycles = fetchedInstruction->handler(s_systemContext);
+        }
         //TODO: ADD BELOW DELTA TIME DELAY TO IMPLEMENT CLOCK CYCLES TIMING
     }
     else
@@ -94,6 +99,7 @@ GameBoyInstruction* GB_FetchInstruction(const uint8_t opcode)
             return &s_gb_instruction_set[i];
         }
     }
+
     return NULL;
 }
 
