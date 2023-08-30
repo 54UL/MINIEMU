@@ -2,33 +2,6 @@
 #define GB_REGISTERS_H
 
 #include <stdint.h>
-#include <Emulation/GB_SystemContext.h>
-
-/*
-## Registers
-16-bit |Hi |Lo | Name/Function
--------|---|---|--------------
-   AF  | A | - | Accumulator & Flags
-   BC  | B | C | BC
-   DE  | D | E | DE
-   HL  | H | L | HL
-   SP  | - | - | Stack Pointer
-   PC  | - | - | Program Counter/Pointer
-*/
-
-/*
-r byte encoding
-B:0
-C:1
-D:2
-E:3
-H:4
-L:5
-HL:6
-A:7
-
-rr byte encoding
-*/
 
 #define GB_BC_OFFSET 0
 #define GB_B_OFFSET  GB_BC_OFFSET
@@ -39,14 +12,31 @@ rr byte encoding
 #define GB_HL_OFFSET 4
 #define GB_H_OFFSET  GB_HL_OFFSET
 #define GB_L_OFFSET  5
-#define GB_A_OFFSET  7
+#define GB_AF_OFFSET  7
+#define GB_A_OFFSET  GB_AF_OFFSET
+#define GB_F_OFFSET  8
 
-#define GB_HL_INSTR 0X06
+#define GB_ZERO_FLAG    7
+#define GB_N_FLAG       6
+#define GB_H_FLAG       5
+#define GB_C_FLAG       4
 
-#define GB_ZERO_FLAG_BIT        7
-#define GB_SUBTRACTION_FLAG_BIT 6
-#define GB_HALF_CARRY_FLAG_BIT  5
-#define GB_CARRY_FLAG_BIT       4
+//BRIEF: This is used for checking decoded 'r' value is an HL indirect addressing mode (NOT THE SAME AS THE GB_HL_OFFSET)
+#define GB_HL_R_INDIRECT_OFFSET 0X06
+
+//BRIEF: 16 bit offsets to decode 'rr' values on instructions...
+#define GB_BC_INSTR_OFFSET 0
+#define GB_DE_INSTR_OFFSET 1
+#define GB_HL_INSTR_OFFSET 2
+#define GB_AF_INSTR_OFFSET 3
+
+//TODO: WHEN WIDELY USED CHECK PERFORMANCE REPLACING A FUNCTION...
+
+#define GB_U8_TO_U16(LSB, MSB) (uint16_t)(lsb | (msb << 8))
+#define GB_F_OR_AF(CTX, F) CTX->registers->CPU[GB_AF_OFFSET] | (F << 8)
+
+#define GB_SET_F(F, FLAG, VALUE) F | ((FLAG) << (VALUE))
+#define GB_TEST_F(CTX, FLAG) (((CTX->registers->CPU[GB_AF_OFFSET] >> 8) >> FLAG) & 0X01)
 
 typedef struct 
 {

@@ -28,7 +28,6 @@ long MNE_ReadFile(const char *filePath, const uint8_t flags, void (*callback)(co
 
     bytes_read = fread(buffer, 1, file_size, file);
 
-    // TODO: ADD DEBUG FLAG for dumping hex
     if (MNE_TEST_FLAG(flags, MNE_HEX_DUMP_FILE_FLAG))
     {
         MNE_HexDump(buffer, bytes_read);

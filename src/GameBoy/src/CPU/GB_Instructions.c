@@ -265,10 +265,14 @@ uint8_t GB_ADD_A_R(SystemContext *ctx)
     const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] + ctx->registers->CPU[rr];
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 0;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_ADD_A_N(SystemContext *ctx)
@@ -287,11 +291,15 @@ uint8_t GB_ADD_A_N(SystemContext *ctx)
     const uint8_t n = GB_BusRead(ctx, ctx->registers->PC++);
     const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] + n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
-
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 0;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_ADD_A_HL(SystemContext *ctx)
@@ -311,10 +319,14 @@ uint8_t GB_ADD_A_HL(SystemContext *ctx)
     const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] + n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 0;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_ADC_A_R(SystemContext *ctx)
@@ -330,13 +342,19 @@ uint8_t GB_ADC_A_R(SystemContext *ctx)
     */
 
     const uint8_t rr = (ctx->registers->INSTRUCTION & yyy);
-    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] + ctx->flags->C + ctx->registers->CPU[rr];
+    const uint8_t c = GB_TEST_F(ctx, GB_C_FLAG);
+
+    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] + c + ctx->registers->CPU[rr];
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 0;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_ADC_A_N(SystemContext *ctx)
@@ -353,13 +371,19 @@ uint8_t GB_ADC_A_N(SystemContext *ctx)
     */
 
     const uint8_t n = GB_BusRead(ctx, ctx->registers->PC++);
-    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] + ctx->flags->C + n;
+    const uint8_t c = GB_TEST_F(ctx, GB_C_FLAG);
+
+    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] + c + n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 0;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_ADC_A_HL(SystemContext *ctx)
@@ -376,13 +400,19 @@ uint8_t GB_ADC_A_HL(SystemContext *ctx)
     */
 
     const uint8_t n = GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
-    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET]+ ctx->flags->C + n;
+    const uint8_t c = GB_TEST_F(ctx, GB_C_FLAG);
+
+    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] + c + n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 0;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_SUB_R(SystemContext *ctx)
@@ -401,10 +431,14 @@ uint8_t GB_SUB_R(SystemContext *ctx)
     const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] - ctx->registers->CPU[rr];
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 1;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_SUB_N(SystemContext *ctx)
@@ -424,10 +458,14 @@ uint8_t GB_SUB_N(SystemContext *ctx)
     const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] - n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 1;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_SUB_HL(SystemContext *ctx)
@@ -447,10 +485,14 @@ uint8_t GB_SUB_HL(SystemContext *ctx)
     const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] - n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 1;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_SBC_A_R(SystemContext *ctx)
@@ -465,13 +507,19 @@ uint8_t GB_SBC_A_R(SystemContext *ctx)
         flags.C = 1 if carry_per_bit[7] else 0
     */
     const uint8_t rr = (ctx->registers->INSTRUCTION & yyy);
-    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] - ctx->flags->C - ctx->registers->CPU[rr];
+    const uint8_t c = GB_TEST_F(ctx, GB_C_FLAG);
+
+    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] - c - ctx->registers->CPU[rr];
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 1;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_SBC_A_N(SystemContext *ctx)
@@ -488,13 +536,18 @@ uint8_t GB_SBC_A_N(SystemContext *ctx)
     */
 
     const uint8_t n = GB_BusRead(ctx, ctx->registers->PC++);
-    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] - ctx->flags->C - n;
+    const uint8_t c = GB_TEST_F(ctx, GB_C_FLAG);
+    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] - c - n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 1;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_SBC_A_HL(SystemContext *ctx) 
@@ -511,13 +564,19 @@ uint8_t GB_SBC_A_HL(SystemContext *ctx)
     */
 
     const uint8_t n = GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
-    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] - ctx->flags->C - n;
+    const uint8_t c = GB_TEST_F(ctx, GB_C_FLAG);
+
+    const uint8_t sum = ctx->registers->CPU[GB_A_OFFSET] - c - n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum);
 
-    ctx->flags->Z = sum == 0;
-    ctx->flags->N = 1;
-    ctx->flags->H = sum >> 3 == 0x01;
-    ctx->flags->C = sum >> 7 == 0x01;
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_AND_R(SystemContext *ctx)

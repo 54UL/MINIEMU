@@ -3,7 +3,7 @@
 void MNE_HexDump(uint8_t *buffer, const size_t size)
 {
     // Print header
-    MNE_Log("Hex dump:\n");
+    MNE_Log("Loaded file hex dump:\n");
     MNE_Log("---------------------------------------------------------------\n");
     MNE_Log("Offset |                         Hexadecimal                   \n");
     MNE_Log("-------|-------------------------------------------------------\n");
@@ -14,17 +14,32 @@ void MNE_HexDump(uint8_t *buffer, const size_t size)
 
     for (i = 0; i < size; i += 16)
     {
-        // Print offset
-        MNE_Log("%06X | ", i);
-
-        // Print hexadecimal values
+        // Check if the entire row is filled with zeros
+        uint8_t allZeros = 1;
         for (j = i; j < i + 16 && j < size; j++)
         {
-            MNE_Log("%02X ", buffer[j]);
+            if (buffer[j] != 0)
+            {
+                allZeros = 0;
+                break;
+            }
         }
-        MNE_Log("\n");
+
+        if (!allZeros)
+        {
+            // Print offset
+            MNE_Log("%06X | ", i);
+
+            // Print hexadecimal values
+            for (j = i; j < i + 16 && j < size; j++)
+            {
+                MNE_Log("%02X ", buffer[j]);
+            }
+            MNE_Log("\n");
+        }
     }
 
     // Print footer
     MNE_Log("-----------------------------------------------------------------\n");
 }
+

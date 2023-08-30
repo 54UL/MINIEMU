@@ -1,12 +1,4 @@
-
 #include <CPU/GB_Bus.h>
-
-static uint8_t * s_memory;
-
-static void GB_SetMemoryContext(uint8_t * memory)
-{
-    s_memory = memory;
-}
 
 uint8_t GB_BusRead(SystemContext *ctx, uint16_t address)
 {
@@ -26,7 +18,7 @@ void GB_SetReg8(SystemContext *ctx, uint8_t r, uint8_t value)
 
     uint8_t *halfregs = ((uint8_t *)ctx->registers->CPU);
 
-    if (r == GB_HL_INSTR) //idk if this has to be 0x06 or 0x07??
+    if (r == GB_HL_R_INDIRECT_OFFSET) //idk if this has to be 0x06 or 0x07??
     {
         return GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET], value);
     }
@@ -41,5 +33,11 @@ uint8_t GB_GetReg8(SystemContext *ctx, uint8_t r)
 #ifdef GB_DEBUG
     MNE_Log("GB_GetReg8(R:%04X):%0X4", r, halfregs[r]);
 #endif
+
+    if (r == GB_HL_R_INDIRECT_OFFSET) //idk if this has to be 0x06 or 0x07??
+    {
+        return GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
+    }
+
     return halfregs[r];
 }

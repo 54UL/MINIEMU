@@ -17,9 +17,7 @@ static GameBoyInstruction s_gb_instruction_set[GB_INSTRUCTION_SET_LENGHT] =
 uint8_t GB_Initialize(int argc, const char ** argv)
 {
     MNE_New(s_systemContext->registers, 1, GB_Registers);
-    MNE_New(s_systemContext->flags, 1, GB_FlagsReg);
     MNE_New(s_systemContext->memory, GB_MEMORY_SIZE, uint8_t);
-    // GB_SetMemoryContext(s_systemContext->memory);
 }
 
 long GB_LoadProgram(const char *filePath)
@@ -29,9 +27,6 @@ long GB_LoadProgram(const char *filePath)
 
 void GB_PopulateMemory(const uint8_t *buffer, size_t bytesRead)
 {
-    //Initialize memory (CHECK IF IS POSIBLE TO MOVE THIS MEMORY MANAGEMENT OUT THIS FILE)
-  
-
     //For development program is stored at 0x0000, when using the boot rom (bios) program should start at  0x1000
     uint16_t ramIndex = 0;// replace with 0x1000...
     uint16_t bufferIndex = 0;
@@ -46,7 +41,6 @@ void GB_PopulateMemory(const uint8_t *buffer, size_t bytesRead)
 
 void GB_QuitProgram()
 {
-    MNE_Delete(s_systemContext->flags);
     MNE_Delete(s_systemContext->registers);
     MNE_Delete(s_systemContext->memory);
 }

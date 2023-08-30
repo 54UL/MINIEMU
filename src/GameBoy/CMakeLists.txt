@@ -1,19 +1,18 @@
 project(GameBoy C)
-set(CMAKE_C_COMPILER "gcc")
+# set(CMAKE_C_COMPILER "gcc")
 message("Configuring MINEMU GameBoy")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # List all the source files of the GameBoy library
 set(GB_HEADERS
     include/GameBoy.h
-    include/CPU/GB_Registers.h
-    include/CPU/GB_Instructions.h
     include/CPU/GB_Bus.h
-    include/Memory/GB_MemoryMap.h
-    include/Emulation/GB_SystemContext.h
+    include/CPU/GB_Instructions.h
+    include/CPU/GB_Registers.h
     include/Emulation/GB_Emulation.h
     include/Emulation/GB_Instruction.h
+    include/Emulation/GB_SystemContext.h
+    include/Memory/GB_MemoryMap.h
 )
 
 set(GB_SOURCES
@@ -23,7 +22,10 @@ set(GB_SOURCES
 )
 
 # Create the GameBoy_MINEMU shared library
-add_library(GameBoy SHARED ${GB_HEADERS} ${GB_SOURCES})
+add_library(GameBoy STATIC  ${GB_SOURCES} ${GB_HEADERS})
+
+# Include directories for the proyect itself...
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Include directories for GameBoy
 target_include_directories(GameBoy PUBLIC

@@ -1,6 +1,6 @@
 #ifndef GB_INSTRUCTION_H
 #define GB_INSTRUCTION_H
-#include "GB_SystemContext.h"
+#include <Emulation/GB_SystemContext.h>
 
 //TODO: DEFINE THIS SYMBOL ON CMAKE AND NOT HERE...
 #define GB_DEBUG
