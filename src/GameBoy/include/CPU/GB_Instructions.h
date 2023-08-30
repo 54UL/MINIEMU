@@ -4,8 +4,6 @@
 
 #define GB_INSTRUCTION_SET_LENGHT 0xFF
 
-
-
 // 8-BIT LOAD INSTRUCTIONS
 uint8_t GB_LD_R_R(SystemContext *ctx);
 uint8_t GB_LD_R_N(SystemContext *ctx);
