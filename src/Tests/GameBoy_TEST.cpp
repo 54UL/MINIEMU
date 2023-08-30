@@ -19,6 +19,8 @@ TEST(GameBoy_CPU, opcodeTest)
 
     long programSize = 0;
     long executionCount = 0;
+    long instructionsExecuted = 0;
+
     bool executionStatus = true;
 
     emulator = &GameBoyEmulator;
@@ -36,7 +38,7 @@ TEST(GameBoy_CPU, opcodeTest)
     for (; executionCount < programSize; executionCount++)
     {
         // Step emulation
-        emulator->TickEmulation();
+        instructionsExecuted += emulator->TickEmulation();
 
         //This should be in a different thread but for testing is fine... (right?)
         emulator->TickTimers();
@@ -52,6 +54,6 @@ TEST(GameBoy_CPU, opcodeTest)
     // Dispose emulation resources here..
     emulator->QuitProgram();
 
-    MNE_Log("Instructions executed [%li] of [%li]\n", executionCount, programSize);
+    MNE_Log("Instruction executed [%li] of [%li] \n", instructionsExecuted, executionCount);
     EXPECT_TRUE(executionStatus);
 }

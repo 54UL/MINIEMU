@@ -2,6 +2,7 @@
 #define GB_REGISTERS_H
 
 #include <stdint.h>
+#include <Emulation/GB_SystemContext.h>
 
 /*
 ## Registers
@@ -30,16 +31,17 @@ rr byte encoding
 */
 
 #define GB_BC_OFFSET 0
-#define GB_B_OFFSET  0
+#define GB_B_OFFSET  GB_BC_OFFSET
 #define GB_C_OFFSET  1
 #define GB_DE_OFFSET 2
-#define GB_D_OFFSET  2
+#define GB_D_OFFSET  GB_DE_OFFSET
 #define GB_E_OFFSET  3
 #define GB_HL_OFFSET 4
-#define GB_H_OFFSET  4
+#define GB_H_OFFSET  GB_HL_OFFSET
 #define GB_L_OFFSET  5
-#define GB_AF_OFFSET 7
 #define GB_A_OFFSET  7
+
+#define GB_HL_INSTR 0X06
 
 #define GB_ZERO_FLAG_BIT        7
 #define GB_SUBTRACTION_FLAG_BIT 6
@@ -53,11 +55,5 @@ typedef struct
     uint16_t PC;
     uint16_t INSTRUCTION;
 } GB_Registers;
-
-void GB_SetReg8(GB_Registers *registers, uint8_t r, uint8_t value);
-uint8_t GB_GetReg8(const GB_Registers * registers, uint8_t r);
-
-void GB_SetFlag(GB_Registers *registers, uint8_t flag, uint8_t value);
-uint8_t GB_GetFlag(GB_Registers *registers, uint8_t flag);
 
 #endif
