@@ -9,7 +9,7 @@ static SystemContext * s_systemContext;
 
 static GameBoyInstruction s_gb_instruction_set[GB_INSTRUCTION_SET_LENGHT] =
 {
-    //-------------MASK----OPCODE-HANDLER
+    //-------------MASK----OPCODE--HANDLER
     GB_INSTRUCTION(0x00FF, 0x0040, GB_LD_R_R),
     GB_INSTRUCTION(0x000F, 0x0006, GB_LD_R_N)
 };
@@ -25,6 +25,82 @@ long GB_LoadProgram(const char *filePath)
     return MNE_ReadFile(filePath, 0, GB_PopulateMemory);
 }
 
+void GB_ParseRom(const uint8_t *buffer, size_t size)
+{   
+    MNE_New(s_systemContext->header, 1, GB_Header);
+    GB_Header * header = s_systemContext->header;
+
+    header->entry_point = buffer[0x100] | (buffer[0x101] << 8);
+
+    // Extract and assign the title (null-terminated string)
+    strncpy(header->title, (const char *)(buffer + 0x134), sizeof(header->title));
+    header->title[sizeof(header->title) - 1] = '\0'; // Ensure null-termination
+
+    // extracting and assigning the Game Boy Color Flag
+    header->gbc_flag = buffer[0x143];
+
+    // extracting and assigning the Manufacturer Code
+    strncpy(header->manufacturer_code, (const char *)(buffer + 0x13F), sizeof(header->manufacturer_code));
+    header->manufacturer_code[sizeof(header->manufacturer_code) - 1] = '\0'; // Ensure null-termination
+
+    // extracting and assigning the CGB Flag
+    header->cgb_flag = buffer[0x143];
+
+    // extracting and assigning the New Licensee Code
+    strncpy(header->new_licensee_code, (const char *)(buffer + 0x144), sizeof(header->new_licensee_code));
+    header->new_licensee_code[sizeof(header->new_licensee_code) - 1] = '\0'; // Ensure null-termination
+
+    // extracting and assigning the SGB Flag
+    header->sgb_flag = buffer[0x146];
+
+    // extracting and assigning the Cartridge Type
+    header->cartridge_type = buffer[0x147];
+
+    // extracting and assigning the ROM Size
+    header->rom_size = buffer[0x148];
+
+    // extracting and assigning the RAM Size
+    header->ram_size = buffer[0x149];
+
+    // extracting and assigning the Destination Code
+    header->destination_code = buffer[0x14A];
+
+    // extracting and assigning the Old Licensee Code
+    header->old_licensee_code = buffer[0x14B];
+
+    // extracting and assigning the Mask ROM Version Number
+    header->mask_rom_version = buffer[0x14C];
+
+    // extracting and assigning the Header Checksum
+    header->header_checksum = buffer[0x14D];
+
+    // extracting and assigning the Global Checksum
+    header->global_checksum = (buffer[0x14E] << 8) | buffer[0x14F];
+
+    // TODO: FINALIZE EXTRACTING FIELDS
+#ifdef GB_DEBUG
+    GB_PrintRomInfo(header);
+#endif
+}
+
+void GB_PrintRomInfo(const GB_Header * header)
+{
+    MNE_Log("Game boy title: %s\n", header->title);
+    MNE_Log("Game Boy Color Flag: 0x%02X\n", header->gbc_flag);
+    MNE_Log("Manufacturer Code: %s\n", header->manufacturer_code);
+    MNE_Log("CGB Flag: 0x%02X\n", header->cgb_flag);
+    MNE_Log("New Licensee Code: %s\n", header->new_licensee_code);
+    MNE_Log("SGB Flag: 0x%02X\n", header->sgb_flag);
+    MNE_Log("Cartridge Type: 0x%02X\n", header->cartridge_type);
+    MNE_Log("ROM Size: 0x%02X\n", header->rom_size);
+    MNE_Log("RAM Size: 0x%02X\n", header->ram_size);
+    MNE_Log("Destination Code: 0x%02X\n", header->destination_code);
+    MNE_Log("Old Licensee Code: 0x%02X\n", header->old_licensee_code);
+    MNE_Log("Mask ROM Version Number: 0x%02X\n", header->mask_rom_version);
+    MNE_Log("Header Checksum: 0x%02X\n", header->header_checksum);
+    MNE_Log("Global Checksum: 0x%04X\n", header->global_checksum);
+}
+
 void GB_PopulateMemory(const uint8_t *buffer, size_t bytesRead)
 {
     //For development program is stored at 0x0000, when using the boot rom (bios) program should start at  0x1000
@@ -37,12 +113,14 @@ void GB_PopulateMemory(const uint8_t *buffer, size_t bytesRead)
         s_systemContext->memory[ramIndex] = buffer[bufferIndex];
     }
     //TODO: ADD RETURN TO CHECK 
+    GB_ParseRom(buffer,bytesRead);
 }
 
 void GB_QuitProgram()
 {
     MNE_Delete(s_systemContext->registers);
     MNE_Delete(s_systemContext->memory);
+    MNE_Delete(s_systemContext->header);
 }
 
 void GB_TickTimers()

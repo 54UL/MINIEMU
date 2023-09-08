@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <CPU/GB_Registers.h>
+#include <Memory/GB_Header.h>
 
 #define GB_MEMORY_SIZE 0xFFFF
 
@@ -13,8 +14,9 @@ typedef struct
     uint8_t HALT;
    
     // OVERALL SYSTEM CONTEXT (TODO:IMPROVE MEMORY MANGEMENT)
-    uint8_t*      memory;
-    GB_Registers* registers;
+    uint8_t *memory;
+    GB_Registers *registers;
+    GB_Header * header;
 } SystemContext;
 
 typedef uint8_t (*instructionFnPtrGb)(SystemContext * ctx);
