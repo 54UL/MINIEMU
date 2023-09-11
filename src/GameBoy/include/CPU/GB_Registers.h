@@ -3,20 +3,24 @@
 
 #include <stdint.h>
 
+// 16 bit registers instruction encoding offests
 #define GB_BC_OFFSET 0
 #define GB_DE_OFFSET 1
 #define GB_HL_OFFSET 2
 #define GB_AF_OFFSET 3
 
-#define GB_B_OFFSET  0
-#define GB_C_OFFSET  1
-#define GB_D_OFFSET  2
-#define GB_E_OFFSET  3
-#define GB_H_OFFSET  4
-#define GB_L_OFFSET  5
-#define GB_A_OFFSET  6
-#define GB_F_OFFSET  7
+//REGISTERS OFFSETS
+// LSB MSB ARE FLIPPED THAT'S WHY B = 1 AND C = 0 AND 
+#define GB_B_OFFSET  1
+#define GB_C_OFFSET  0
+#define GB_D_OFFSET  3
+#define GB_E_OFFSET  2
+#define GB_H_OFFSET  5
+#define GB_L_OFFSET  4
+#define GB_A_OFFSET  7
+#define GB_F_OFFSET  6
 
+//FLAGS
 #define GB_ZERO_FLAG    7
 #define GB_N_FLAG       6
 #define GB_H_FLAG       5

@@ -16,7 +16,7 @@ typedef struct
     // OVERALL SYSTEM CONTEXT (TODO:IMPROVE MEMORY MANGEMENT)
     uint8_t *memory;
     GB_Registers *registers;
-    GB_Header * header;
+    GB_Header *header;
 } SystemContext;
 
 typedef uint8_t (*instructionFnPtrGb)(SystemContext * ctx);

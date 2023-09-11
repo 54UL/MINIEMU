@@ -85,6 +85,7 @@ void GB_ParseRom(const uint8_t *buffer, size_t size)
 
 void GB_PrintRomInfo(const GB_Header * header)
 {
+    MNE_Log("[GAME BOY HEADER DUMP] ---------------------------");
     MNE_Log("Game boy title: %s\n", header->title);
     MNE_Log("Game Boy Color Flag: 0x%02X\n", header->gbc_flag);
     MNE_Log("Manufacturer Code: %s\n", header->manufacturer_code);
@@ -99,6 +100,7 @@ void GB_PrintRomInfo(const GB_Header * header)
     MNE_Log("Mask ROM Version Number: 0x%02X\n", header->mask_rom_version);
     MNE_Log("Header Checksum: 0x%02X\n", header->header_checksum);
     MNE_Log("Global Checksum: 0x%04X\n", header->global_checksum);
+    MNE_Log("--------------------------------------------------");
 }
 
 void GB_PopulateMemory(const uint8_t *buffer, size_t bytesRead)

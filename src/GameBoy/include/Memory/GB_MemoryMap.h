@@ -2,7 +2,7 @@
 #define GB_MEMORY_MAP_H
 
 /*
-# Hardware Registers (NO SOUND REGS)
+# Hardware Registers (NO SOUND REGS) (NO CGB REGS)
 
 Address    | Name        | Description                                                       | Readable / Writable | Models
 -----------|-------------|-------------------------------------------------------------------|---------------------|-------
@@ -26,19 +26,6 @@ $FF48      | [OBP0]      | OBJ palette 0 data                                   
 $FF49      | [OBP1]      | OBJ palette 1 data                                                | R/W                 | DMG
 $FF4A      | [WY]        | Window Y position                                                 | R/W                 | All
 $FF4B      | [WX]        | Window X position plus 7                                          | R/W                 | All
-$FF4D      | [KEY1]      | Prepare speed switch                                              | Mixed               | CGB
-$FF4F      | [VBK]       | VRAM bank                                                         | R/W                 | CGB
-$FF51      | [HDMA1]     | VRAM DMA source high                                              | W                   | CGB
-$FF52      | [HDMA2]     | VRAM DMA source low                                               | W                   | CGB
-$FF53      | [HDMA3]     | VRAM DMA destination high                                         | W                   | CGB
-$FF54      | [HDMA4]     | VRAM DMA destination low                                          | W                   | CGB
-$FF55      | [HDMA5]     | VRAM DMA length/mode/start                                        | R/W                 | CGB
-$FF68      | [BCPS/BGPI] | Background color palette specification / Background palette index | R/W                 | CGB
-$FF69      | [BCPD/BGPD] | Background color palette data / Background palette data           | R/W                 | CGB
-$FF6A      | [OCPS/OBPI] | OBJ color palette specification / OBJ palette index               | R/W                 | CGB
-$FF6B      | [OCPD/OBPD] | OBJ color palette data / OBJ palette data                         | R/W                 | CGB
-$FF6C      | [OPRI]      | Object priority mode                                              | R/W                 | CGB
-$FF70      | [SVBK]      | WRAM bank                                                         | R/W                 | CGB
 $FFFF      | [IE]        | Interrupt enable                                                  | R/W                 | All
 */
 

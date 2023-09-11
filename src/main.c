@@ -1,4 +1,5 @@
 // MINEMU APP (UI + CORE + STATIC LINKED EMULATORS)
+// TODO: MAKE THIS A GENERIC ENTRY POINT
 #include <minemu.h>
 #include <CC8_Chip8.h>
 #include <App.h>
@@ -8,6 +9,8 @@
 
 AppApi *app;
 Emulation *emulator;
+
+// Chip 8
 CC8_Memory *context;
 
 // App
