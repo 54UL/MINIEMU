@@ -14,6 +14,7 @@ set(GB_HEADERS
     include/Emulation/GB_SystemContext.h
     include/Memory/GB_MemoryMap.h
     include/Memory/GB_Header.h
+    include/PPU/GB_Pallete.h
 )
 
 set(GB_SOURCES

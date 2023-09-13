@@ -717,8 +717,20 @@ uint8_t GB_XOR_R(SystemContext *ctx)
     flags.H = 0
     flags.C = 0
     */
+    const uint8_t r = (ctx->registers->INSTRUCTION & 0x07);
+    uint8_t xor = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) ^ GB_GetReg8(ctx, r, REG8_MODE_HL);
+    GB_SetReg8(ctx, GB_A_OFFSET, xor, REG8_MODE_A);
 
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, xor == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
+
 uint8_t GB_XOR_N(SystemContext *ctx)
 {
     // encoding: 0b11101110
@@ -731,6 +743,18 @@ uint8_t GB_XOR_N(SystemContext *ctx)
         flags.H = 0
         flags.C = 0
     */
+    const uint8_t n = GB_BusRead(ctx, ctx->registers->PC++);
+    uint8_t xor = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) ^ n;
+    GB_SetReg8(ctx, GB_A_OFFSET, xor, REG8_MODE_A);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, xor == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 uint8_t GB_XOR_HL(SystemContext *ctx)
 {
@@ -744,6 +768,19 @@ uint8_t GB_XOR_HL(SystemContext *ctx)
         flags.H = 0
         flags.C = 0
     */
+
+    const uint8_t data = GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
+    uint8_t xor = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) ^ n;
+    GB_SetReg8(ctx, GB_A_OFFSET, xor, REG8_MODE_A);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, xor == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 uint8_t GB_OR_R(SystemContext *ctx)
 {
@@ -756,6 +793,19 @@ uint8_t GB_OR_R(SystemContext *ctx)
         flags.H = 0
         flags.C = 0
     */
+
+    const uint8_t r = (ctx->registers->INSTRUCTION & 0x07);
+    uint8_t or = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) | GB_GetReg8(ctx, r, REG8_MODE_HL);
+    GB_SetReg8(ctx, GB_A_OFFSET, or, REG8_MODE_A);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, or == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 uint8_t GB_OR_N(SystemContext *ctx)
 {
@@ -769,6 +819,18 @@ uint8_t GB_OR_N(SystemContext *ctx)
         flags.H = 0
         flags.C = 0
     */
+    const uint8_t n = GB_BusRead(ctx, ctx->registers->PC++);
+    uint8_t or = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) | n;
+    GB_SetReg8(ctx, GB_A_OFFSET, or, REG8_MODE_A);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, or == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 uint8_t GB_OR_HL(SystemContext *ctx)
 {
@@ -782,6 +844,18 @@ uint8_t GB_OR_HL(SystemContext *ctx)
         flags.H = 0
         flags.C = 0
     */
+    const uint8_t data = GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
+    uint8_t or = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) | n;
+    GB_SetReg8(ctx, GB_A_OFFSET, or, REG8_MODE_A);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, or == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 uint8_t GB_CP_R(SystemContext *ctx)
 {
@@ -793,6 +867,17 @@ uint8_t GB_CP_R(SystemContext *ctx)
         flags.H = 1 if carry_per_bit[3] else 0
         flags.C = 1 if carry_per_bit[7] else 0
     */
+    const uint8_t r = (ctx->registers->INSTRUCTION & 0x07);
+    const uint8_t sub =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - GB_GetReg8(ctx, r, REG8_MODE_HL);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sub == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sub >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sub >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_CP_N(SystemContext *ctx)
@@ -806,6 +891,18 @@ uint8_t GB_CP_N(SystemContext *ctx)
         flags.H = 1 if carry_per_bit[3] else 0
         flags.C = 1 if carry_per_bit[7] else 0
     */
+
+    const uint8_t n = GB_BusRead(ctx, ctx->registers->PC++);
+    const uint8_t sub =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - n;
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sub == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sub >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sub >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_CP_HL(SystemContext *ctx)
@@ -819,6 +916,17 @@ uint8_t GB_CP_HL(SystemContext *ctx)
         flags.H = 1 if carry_per_bit[3] else 0
         flags.C = 1 if carry_per_bit[7] else 0
     */
+    const uint8_t data = GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
+    const uint8_t sub =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - data;
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sub == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sub >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_C_FLAG, sub >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_INC_R(SystemContext *ctx)
@@ -831,6 +939,18 @@ uint8_t GB_INC_R(SystemContext *ctx)
         flags.N = 0
         flags.H = 1 if carry_per_bit[3] else 0
     */
+    uint8_t result = 0;
+    const uint8_t r = (ctx->registers->INSTRUCTION & 0x38) >> 3;
+    result = GB_GetReg8(ctx, r, REG8_MODE_HL);
+    GB_SetReg8(ctx, r, ++result, REG8_MODE_HL);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, result == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, sub >> 3 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_INC_HL(SystemContext *ctx)
@@ -1232,7 +1352,7 @@ uint8_t GB_RETI(SystemContext *ctx)
     /*
     
     */
-}
+}   
 
 uint8_t GB_RST_N(SystemContext *ctx)
 {
