@@ -947,7 +947,7 @@ uint8_t GB_INC_R(SystemContext *ctx)
     uint8_t tmpRegF = 0x00;
     GB_SET_F(tmpRegF, GB_ZERO_FLAG, result == 0);
     GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sub >> 3 == 0x01);
+    GB_SET_F(tmpRegF, GB_H_FLAG, result >> 3 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -964,6 +964,19 @@ uint8_t GB_INC_HL(SystemContext *ctx)
         flags.N = 0
         flags.H = 1 if carry_per_bit[3] else 0
     */
+    uint8_t result = 0;
+    const uint8_t data = GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
+    
+    result = data + 1 
+    GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET], result);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, result == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
+    GB_SET_F(tmpRegF, GB_H_FLAG, result >> 3 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_DEC_R(SystemContext *ctx)
@@ -976,6 +989,18 @@ uint8_t GB_DEC_R(SystemContext *ctx)
         flags.N = 1
         flags.H = 1 if carry_per_bit[3] else 0
     */
+    uint8_t result = 0;
+    const uint8_t r = (ctx->registers->INSTRUCTION & 0x38) >> 3;
+    result = GB_GetReg8(ctx, r, REG8_MODE_HL);
+    GB_SetReg8(ctx, r, --result, REG8_MODE_HL);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, result == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, result >> 3 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_DEC_HL(SystemContext *ctx)
@@ -989,6 +1014,19 @@ uint8_t GB_DEC_HL(SystemContext *ctx)
         flags.N = 1
         flags.H = 1 if carry_per_bit[3] else 0
     */
+    uint8_t result = 0;
+    const uint8_t data = GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
+    
+    result = data - 1 
+    GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET], result);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_ZERO_FLAG, result == 0);
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, result >> 3 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 uint8_t GB_DAA(SystemContext *ctx)
@@ -997,6 +1035,7 @@ uint8_t GB_DAA(SystemContext *ctx)
     /*
       just flags???
     */
+    
 }
 
 uint8_t GB_CPL(SystemContext *ctx)
@@ -1007,42 +1046,52 @@ uint8_t GB_CPL(SystemContext *ctx)
     flags.N = 1
     flags.H = 1
     */
+    uint8_t A = GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A);
+    GB_SetReg8(ctx, GB_A_OFFSET, ~A, REG8_MODE_A);
+
+    uint8_t tmpRegF = 0x00;
+    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
+    GB_SET_F(tmpRegF, GB_H_FLAG, result >> 3 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 // 16 BIT ALU INSTRUCTIONS
 uint8_t GB_ADD_HL_RR(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: ???
     /*
-    
+        HL = HL+rr     ; rr may be BC,DE,HL,SP
     */
 }
+
 uint8_t GB_INC_RR(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: ??? 
     /*
-    
+        rr = rr+1      ; rr may be BC,DE,HL,SP
     */
 }
 uint8_t GB_DEC_RR(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: ???
     /*
-    
+        rr = rr-1      ; rr may be BC,DE,HL,SP
     */
 }
 uint8_t GB_ADD_SP_DD(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: ???
     /*
-    
+        SP = SP +/- dd ; dd is 8-bit signed number
     */
 }
 uint8_t GB_LD_HL_SP_PLUS_DD(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: ???
     /*
-    
+        HL = SP +/- dd ; dd is 8-bit signed number
     */
 }
 // ROTATE AND SHIFT INSTRUCTIONS
@@ -1187,50 +1236,6 @@ uint8_t GB_SRL_HL(SystemContext *ctx)
     */
 }
 
-// SINGLE BIT OPERATIONS
-uint8_t GB_BIT_N_R(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_BIT_N_HL(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_SET_N_R(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_SET_N_HL(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_RES_N_R(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_RES_N_HL(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-
 // CPU CONTROL INSTRUCTIONS
 uint8_t GB_CCF(SystemContext *ctx)
 {
@@ -1355,6 +1360,56 @@ uint8_t GB_RETI(SystemContext *ctx)
 }   
 
 uint8_t GB_RST_N(SystemContext *ctx)
+{
+    // encoding:
+    /*
+    
+    */
+}
+
+// SINGLE BIT OPERATIONS (CB PREFIX)
+
+uint8_t GB_CB_BIT_N_R(SystemContext *ctx)
+{
+    // encoding:
+    /*
+    
+    */
+}   
+
+uint8_t GB_CB_BIT_N_HL(SystemContext *ctx)
+{
+    // encoding:
+    /*
+    
+    */
+}
+
+uint8_t GB_CB_SET_N_R(SystemContext *ctx)
+{
+    // encoding:
+    /*
+    
+    */
+}   
+
+uint8_t GB_CB_SET_N_HL(SystemContext *ctx)
+{
+    // encoding:
+    /*
+    
+    */
+}
+
+uint8_t GB_CB_RES_N_R(SystemContext *ctx)
+{
+    // encoding:
+    /*
+    
+    */
+}   
+
+uint8_t GB_CB_RES_N_HL(SystemContext *ctx)
 {
     // encoding:
     /*

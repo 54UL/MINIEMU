@@ -93,14 +93,6 @@ uint8_t GB_SRA_HL(SystemContext *ctx);
 uint8_t GB_SRL_R(SystemContext *ctx);
 uint8_t GB_SRL_HL(SystemContext *ctx);
 
-// SINGLE BIT OPERATIONS
-uint8_t GB_BIT_N_R(SystemContext *ctx);
-uint8_t GB_BIT_N_HL(SystemContext *ctx);
-uint8_t GB_SET_N_R(SystemContext *ctx);
-uint8_t GB_SET_N_HL(SystemContext *ctx);
-uint8_t GB_RES_N_R(SystemContext *ctx);
-uint8_t GB_RES_N_HL(SystemContext *ctx);
-
 // CPU CONTROL INSTRUCTIONS
 uint8_t GB_CCF(SystemContext *ctx);
 uint8_t GB_SCF(SystemContext *ctx);
@@ -122,5 +114,13 @@ uint8_t GB_RET(SystemContext *ctx);
 uint8_t GB_RET_F(SystemContext *ctx);
 uint8_t GB_RETI(SystemContext *ctx);
 uint8_t GB_RST_N(SystemContext *ctx);
+
+// SINGLE BIT OPERATIONS (CB PREFIX)
+uint8_t GB_CB_BIT_N_R(SystemContext *ctx);   
+uint8_t GB_CB_BIT_N_HL(SystemContext *ctx);
+uint8_t GB_CB_SET_N_R(SystemContext *ctx);   
+uint8_t GB_CB_SET_N_HL(SystemContext *ctx);
+uint8_t GB_CB_RES_N_R(SystemContext *ctx);   
+uint8_t GB_CB_RES_N_HL(SystemContext *ctx);
 
 #endif
