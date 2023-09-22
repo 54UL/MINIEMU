@@ -17,6 +17,13 @@ typedef void (*StepCallback)(unsigned int * pixels);
 typedef void (*ActionCallback)(const char inputCode);
 typedef void (*ShellCallback)(void * data);
 
+
+typedef struct {
+    char     EmulationName[32];
+    uint32_t DISPLAY_WIDTH, DISPLAY_HEIGHT;
+
+} EmulationInfo;
+
 typedef struct 
 {
     uint8_t (*Initialize)(int argc, const char ** argv);
@@ -25,6 +32,7 @@ typedef struct
     int     (*TickEmulation)();
     void    (*TickTimers)();
     void    (*SetEmulationContext)(const void * context);
+    void    (*OnRender)(uint32_t* pixels, const int64_t w, const int64_t h);
 } Emulation;
 
 //Models

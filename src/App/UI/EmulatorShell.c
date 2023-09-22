@@ -11,6 +11,8 @@
 #include <math.h>
 
 #define MAX_ROMS 128
+#define MAX_SUB_FOLDERS 4
+
 #define PATH_LENGHT 64
 #define FRAME_WIDTH  300
 #define FRAME_HEIGHT 128
@@ -20,6 +22,7 @@ static volatile uint8_t s_showMenu = 1;
 static const uint32_t s_fontColor = 0X00FF00FF;
 static const uint32_t s_backgroundColor = 0X1E1E1E1E;
 static char s_files[MAX_ROMS][PATH_LENGHT]; // supports 128 paths with 64 characters wide path size
+static char s_full_path[PATH_LENGHT];
 static uint16_t s_readedRooms = 0;
 static int s_tabsIndex = 0;
 static int s_selectionIndex = 0;
@@ -52,6 +55,27 @@ void GetFolderContents(const char *folderPath)
     }
 }
 
+
+uint8_t ValidateDir(const char *dir)
+{
+    struct dirent *entry;
+    DIR *directory = opendir(dir);
+    uint8_t fileIndex = 0;
+
+    if (!directory)
+    {
+        return 1;
+    }
+    else
+    {
+        strcat(s_full_path, dir);
+        strcat(s_full_path, "/");
+
+        GetFolderContents(dir);
+        return 0;
+    }
+}
+
 void EmuShell_DrawChar(unsigned char character, uint32_t *pixels, const int x, const int y)
 {
     const uint16_t fontStartPos = (((uint8_t) character - 32) * 6);
@@ -59,7 +83,6 @@ void EmuShell_DrawChar(unsigned char character, uint32_t *pixels, const int x, c
     //TODO: OPTIMIZE THIS USING ONLY SEND DATA FUNCTION (REMOVE OVERHEAD LOOPS)
     for (uint8_t gylphIndex = 0; gylphIndex < 6; gylphIndex++)
     {
-        //TODO: IMPLEMENT MULTI ARCH REMOVING AVR INTRINSICTS
         for (uint8_t bit = 0; bit < 8; bit++)
         {
             pixels[((y + bit) % FRAME_HEIGHT) * FRAME_WIDTH + ((x + gylphIndex) % FRAME_WIDTH)] = (BitMapFont[fontStartPos + gylphIndex] >> bit) & 0x01 ? s_fontColor : s_backgroundColor;
@@ -84,7 +107,8 @@ void DrawString()
 
 void EmuShell_Init()
 {
-    // TODO: GET THIS VALUE FROM A CONFIG FILE
+    // TODO: GET THIS VALUE FROM A CONFIG FILE AND MOVE THE STRCAT???
+    strcat(s_full_path,CC8_ROMS_PATH);
     GetFolderContents(CC8_ROMS_PATH);
 }
 
@@ -105,7 +129,7 @@ void EmuShell_UpdateFrame(uint32_t *pixels)
    // Clear rendering buffer
    memset(pixels, s_backgroundColor, FRAME_WIDTH * FRAME_HEIGHT * sizeof(uint32_t));
 
-   EmuShell_DrawString("CC8 V1.0 (CHIP 8 EMULATOR BY XUL)", pixels, 32, ShellRow(&rowYLoc));
+   EmuShell_DrawString("[MINEMU 0.1b BY XUL]", pixels, 32, ShellRow(&rowYLoc));
 
    switch (s_selectionIndex)
    {
@@ -119,11 +143,15 @@ void EmuShell_UpdateFrame(uint32_t *pixels)
         case 1:
             if (s_currentState == Idle || s_currentState == Running)
             {
-                strcpy(currentStatusStr, "[STARTING]");
                 const char * romPath[PATH_LENGHT];
-                strcat(romPath, CC8_ROMS_PATH);
+                strcat(romPath,s_full_path);
                 strcat(romPath, s_files[s_tabsIndex]);
-                s_actions[Start](romPath);
+
+                if (ValidateDir(romPath))
+                {
+                    s_actions[Start](romPath);
+                }
+
                 s_selectionIndex = 0;// antibounce
             }
 

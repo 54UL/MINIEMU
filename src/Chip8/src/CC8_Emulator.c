@@ -33,7 +33,7 @@ static Instruction s_instructionSet[CC8_INSTRUCTION_SET_LENGHT] =
     {0xF00F, 0x8005, (instructionFnPtr) CC8_SUB_VX_VY},
     {0xF00F, 0x8006, (instructionFnPtr) CC8_SHR_VX_VY},
     {0xF00F, 0x8007, (instructionFnPtr) CC8_SUBN_VX_VY},
-    {0xF00E, 0x800E, (instructionFnPtr) CC8_SHL_VX_VY},
+    {0xF00F, 0x800E, (instructionFnPtr) CC8_SHL_VX_VY},
     {0xF000, 0x9000, (instructionFnPtr) CC8_SNE_VX_VY},
     {0xF000, 0xA000, (instructionFnPtr) CC8_LD_I_ADDR},
     {0xF000, 0xB000, (instructionFnPtr) CC8_JP_V0_ADDR},
@@ -174,4 +174,22 @@ void CC8_SetKeyboardValue(uint8_t key)
 void CC8_SetEmulationContext(const void *context)
 {
     s_currentChipCtx = (CC8_Memory *) context;
+}
+
+void CC8_OnRender(uint32_t* pixels, const int64_t w, const int64_t h)
+{
+    if (s_currentChipCtx == NULL) return;
+
+    for (int i = 0; i < CHIP_8_VRAM_HEIGHT; i++)
+    {
+        for (int j = 0; j < CHIP_8_VRAM_WIDTH; j++)
+        {
+            int byteIndex = (i * CHIP_8_VRAM_WIDTH + (j / 8));
+            int bitIndex = j % 8;
+            uint8_t vramByte = s_currentChipCtx->VRAM[byteIndex];
+            uint8_t vramBit = (vramByte >> bitIndex) & 0x1;
+
+            pixels[i * CHIP_8_VRAM_WIDTH + j] = vramBit ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
+        }
+    }
 }

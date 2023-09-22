@@ -10,7 +10,8 @@ Emulation Chip8Emulator =
     .QuitProgram = CC8_QuitProgram,
     .TickEmulation = CC8_TickEmulation,
     .TickTimers = CC8_TickDelayTimer,
-    .SetEmulationContext = CC8_SetEmulationContext
+    .SetEmulationContext = CC8_SetEmulationContext,
+    .OnRender = CC8_OnRender
 };
 
 #endif

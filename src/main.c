@@ -36,10 +36,12 @@ int main(int argc, char **argv)
     EmulatorUI.ShellAction(Quit, QuitEmulation);
 
     // App and emulator initialization
+    // TODO: Use emulation Info to get the propper screen dimensions
     app->Init(SCREEN_WIDTH, SCREEN_HEIGHT, OnInputAction, &EmulatorUI);
     uint8_t status = 1 ;
 
     // Main loop (render pass)
+    // TODO: REFACTOR THE LOOP TO BE GENERIC (Emulation info model required)
     while (status)
     {
         uint32_t current_time = SDL_GetTicks();
@@ -56,7 +58,7 @@ int main(int argc, char **argv)
 
                 if (delta_time_timers > 16) // TIMERS FREQ
                 {
-                    emulator->TickDelayTimer();
+                    emulator->TickTimers();
                     last_update_time_timers = current_time;
                 }
             }
@@ -70,20 +72,8 @@ int main(int argc, char **argv)
 
 void OnRender(unsigned int *pixels)
 {
-    if (context == NULL) return;
-
-    for (int i = 0; i < SCREEN_HEIGHT; i++)
-    {
-        for (int j = 0; j < SCREEN_WIDTH; j++)
-        {
-            int byteIndex = (i * SCREEN_WIDTH + (j / 8));
-            int bitIndex = j % 8;
-            uint8_t vramByte = context->VRAM[byteIndex];
-            uint8_t vramBit = (vramByte >> bitIndex) & 0x1;
-
-            pixels[i * SCREEN_WIDTH + j] = vramBit ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
-        }
-    }
+    // TODO: PASS PROPPER DIMENSSIONS OR USE DESCRIPTORS...
+    emulator->OnRender(pixels, 0,0);
 }
 
 void OnInputAction(const char code)
