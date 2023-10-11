@@ -19,15 +19,15 @@ static quitStatus = 1 ;
 
 // Rendering
 static uint32_t s_last_update_time;
-static unsigned int *s_chip8_pixels;
-static unsigned int *s_emulator_pixels;
+static unsigned int *s_emulation_pixels;
+static unsigned int *s_emulator_ui_pixels;
 
 static SDL_Texture *s_screen_texture;
 static SDL_Texture *s_emulator_ui_texture;
 
 static uint64_t s_rendering_ticks;
-static int s_chip8_frame_width, s_chip8_frame_height;
-static int s_emulator_frame_width, s_emulator_frame_height;
+static int s_emulation_frame_width, s_emulation_frame_height;
+static int s_emulator_ui_frame_width, s_emulator_ui_frame_height;
 
 char DesktopKeyMapping(const char code)
 {
@@ -171,9 +171,9 @@ void PlaySquareWave(int frequency, int duration)
 
 // END AUDIO IMPLEMENTATION
 
-void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorShell * shell)
+void Init_App(EmulationInfo *info, ActionCallback actionsCallback, EmulatorShell * shell)
 {
-    // CC8 App initialization...
+    // App initialization...
     quitStatus = 1;
     s_emulator_shell = NULL;
     s_eventCallback = actionsCallback;
@@ -189,9 +189,9 @@ void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorSh
     // SDL Video initialization
     SDL_Init(SDL_INIT_VIDEO);
 
-    s_window = SDL_CreateWindow("CC8",
+    s_window = SDL_CreateWindow(info->name,
                                 SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                w, h,
+                                info->displayWidth, info->displayHeight,
                                 SDL_WINDOW_RESIZABLE);
 
     s_renderer = SDL_CreateRenderer(s_window,
@@ -199,51 +199,47 @@ void Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorSh
 
     SDL_SetRenderTarget(s_renderer, NULL);  // Set the render target to the default
 
-    s_chip8_frame_width = w;
-    s_chip8_frame_height = h;
+    s_emulation_frame_width = info->displayWidth;
+    s_emulation_frame_height = info->displayHeight;
 
     //TESTING EMULATOR BUFFER SIZE: 300 X 128 
-    s_emulator_frame_width = 300;
-    s_emulator_frame_height = 128;
+    s_emulator_ui_frame_width = info->UIConfig.frameWidth;
+    s_emulator_ui_frame_height = info->UIConfig.frameHeight;
 
     // Since we are going to display a low resolution buffer
     // it is best to limit the window size so that it cannot
     // be smaller than our internal buffer size.
-    SDL_SetWindowMinimumSize(s_window, s_chip8_frame_width * SCREEN_FACTOR, s_chip8_frame_height * SCREEN_FACTOR);
-    SDL_RenderSetLogicalSize(s_renderer, s_chip8_frame_width * SCREEN_FACTOR, s_chip8_frame_height * SCREEN_FACTOR);
+    SDL_SetWindowMinimumSize(s_window, s_emulation_frame_width * SCREEN_FACTOR, s_emulation_frame_height * SCREEN_FACTOR);
+    SDL_RenderSetLogicalSize(s_renderer, s_emulation_frame_width * SCREEN_FACTOR, s_emulation_frame_height * SCREEN_FACTOR);
     SDL_RenderSetIntegerScale(s_renderer, 1);
 
     s_screen_texture = SDL_CreateTexture(s_renderer,
                                          SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
-                                         s_chip8_frame_width, s_chip8_frame_height);
+                                         s_emulation_frame_width, s_emulation_frame_height);
 
     s_emulator_ui_texture = SDL_CreateTexture(s_renderer,
                                          SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
-                                         s_emulator_frame_width , s_emulator_frame_height );
+                                         s_emulator_ui_frame_width , s_emulator_ui_frame_height );
 
-    MNE_New(s_chip8_pixels, s_chip8_frame_width * s_chip8_frame_height, int);
-    MNE_New(s_emulator_pixels, s_emulator_frame_height * s_emulator_frame_width, int);
+    MNE_New(s_emulation_pixels, s_emulation_frame_width * s_emulation_frame_height, int);
+    MNE_New(s_emulator_ui_pixels, s_emulator_ui_frame_height * s_emulator_ui_frame_width, int);
 
-    //TODO: MOVE THIS WHEN TESTED MNE NEW MACROS...
-    // s_chip8_pixels = calloc(s_chip8_frame_width * s_chip8_frame_height, sizeof(int));
-    // s_emulator_pixels = calloc(s_emulator_frame_height * s_emulator_frame_width, sizeof(int));
-
-    // Randomize the buffer (ready state) (CHIP 8 RENDERING TEST)
+    // Randomize the buffer (ready state) (Emulation RENDERING TEST)
     int i = 0,j = 0;
-    for (i = 0; i < s_chip8_frame_height; i++) 
+    for (i = 0; i < s_emulation_frame_height; i++) 
     {
-        for (j = 0; j < s_chip8_frame_width; j++)
+        for (j = 0; j < s_emulation_frame_width; j++)
         {
-             s_chip8_pixels[i+j*s_chip8_frame_height] = rand() % 0xFFFFFF7F;
+             s_emulation_pixels[i+j*s_emulation_frame_height] = rand() % 0xFFFFFF7F;
         }
     }
 
     // Emulator buffer test.
-    for (i = 0; i < s_emulator_frame_height; i++) 
+    for (i = 0; i < s_emulator_ui_frame_height; i++) 
     {
-        for (j = 0; j < s_emulator_frame_width; j++)
+        for (j = 0; j < s_emulator_ui_frame_width; j++)
         {
-            s_emulator_pixels[i+j*s_emulator_frame_height] = 0x1E1E1E1E;
+            s_emulator_ui_pixels[i+j*s_emulator_ui_frame_height] = 0x1E1E1E1E;
         }
     }
 
@@ -265,32 +261,33 @@ void Render()
     SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 0);
     SDL_RenderClear(s_renderer);
 
-    // // Set the blend mode to enable texture blending
     // SDL_SetRenderDrawBlendMode(s_renderer, SDL_BLENDMODE_BLEND);
 
-    // Chip 8 display rendering
-    SDL_UpdateTexture(s_screen_texture, NULL, s_chip8_pixels, s_chip8_frame_width * 4);
+    // Emulation display rendering
+    SDL_UpdateTexture(s_screen_texture, NULL, s_emulation_pixels, s_emulation_frame_width * 4);
     SDL_RenderCopy(s_renderer, s_screen_texture, NULL, NULL);
 
     // Emulator display rendering
-    SDL_UpdateTexture(s_emulator_ui_texture, NULL, s_emulator_pixels, s_emulator_frame_width * 4);
+    SDL_UpdateTexture(s_emulator_ui_texture, NULL, s_emulator_ui_pixels, s_emulator_ui_frame_width * 4);
 
-    // Chip 8 rendering buffer area
+    // Emulation rendering buffer area
     SDL_Rect destinationRect;
     destinationRect.x = 0;
     destinationRect.y = 0;
-    destinationRect.w = s_emulator_frame_width ;
-    destinationRect.h = s_emulator_frame_height;
+    destinationRect.w = s_emulator_ui_frame_width ;
+    destinationRect.h = s_emulator_ui_frame_height;
 
     // Emulator frame buffer area
     SDL_Rect sourceRect;
     sourceRect.x = 0;
     sourceRect.y = 0;
-    sourceRect.w = s_emulator_frame_width ;
-    sourceRect.h = s_emulator_frame_width ;
+    sourceRect.w = s_emulator_ui_frame_width ;
+    sourceRect.h = s_emulator_ui_frame_width ;
 
     if (s_emulator_shell->Shown())
+    {
         SDL_RenderCopyEx(s_renderer, s_emulator_ui_texture, &sourceRect, &destinationRect, 0, NULL, SDL_FLIP_NONE);
+    }
 
     // Update the screen
     SDL_RenderPresent(s_renderer);
@@ -298,28 +295,18 @@ void Render()
 
 uint8_t Step_SDL(StepCallback renderCallback)
 {
-    uint32_t  current_time = SDL_GetTicks();
-    uint32_t  delta_time = current_time - s_last_update_time;
-
-    //TODO: FIX TIMING ISSUES
-    if (delta_time >= 16)
-    {
-        // Call callbacks 
-        s_emulator_shell->UpdateFrame(s_emulator_pixels);
-        renderCallback(s_chip8_pixels);
-        Render();
-
-        //Update frame time...
-        s_last_update_time = current_time;
-    }   
-
+    // Toy Rendering pipeline (monothread)
+    // UI RENDER UPDATES -> EMU RENDER UPDATES -> DRAWCALL(Render)
+    s_emulator_shell->UpdateFrame(s_emulator_ui_pixels);
+    renderCallback(s_emulation_pixels);
+    Render();
     return quitStatus;
 }
 
 void Reset_SDL(void)
 {
-    free(s_chip8_pixels);
-    free(s_emulator_pixels);
+    free(s_emulation_pixels);
+    free(s_emulator_ui_pixels);
 }
 
 void Exit_SDL_App(void)
@@ -328,8 +315,8 @@ void Exit_SDL_App(void)
     SDL_WaitThread(eventThread, &eventThreadReturnValue);
     MNE_Log("Event thread returned:%i\n",eventThreadReturnValue);
 
-    free(s_chip8_pixels);
-    free(s_emulator_pixels);
+    free(s_emulation_pixels);
+    free(s_emulator_ui_pixels);
     
     // Release SDL
     SDL_CloseAudio();

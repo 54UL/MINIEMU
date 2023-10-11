@@ -1,33 +1,29 @@
 // MINEMU APP (UI + CORE + STATIC LINKED EMULATORS)
-// TODO: MAKE THIS A GENERIC ENTRY POINT
+#include <App.h>
 #include <minemu.h>
 #include <CC8_Chip8.h>
-#include <App.h>
 
-#define SCREEN_HEIGHT 32
-#define SCREEN_WIDTH 64
-
-AppApi *app;
+// Api elements
+EmuApp *app;
 Emulation *emulator;
 
-// Chip 8
-CC8_Memory *context;
-
-// App
+// App callbacks
 void OnRender(unsigned int *pixels);
-void OnInputAction(const char code);
 
-// Shell
+// UI Shell callbacks
 void StartEmulation(void * data);
 void StopEmulation(void * data);
 void QuitEmulation(void * data);
 
 int main(int argc, char **argv)
 {
+    uint8_t  running = 1 ;
     uint32_t last_update_time;
     uint32_t last_update_time_timers;
 
+    //TODO: ADD APP SELECTOR
     app = &TinySDLApp;
+    //TODO: ADD EMULATOR SELECTOR
     emulator = &Chip8Emulator;
 
     // Configure emulator shell actions (if available)
@@ -36,51 +32,34 @@ int main(int argc, char **argv)
     EmulatorUI.ShellAction(Quit, QuitEmulation);
 
     // App and emulator initialization
-    // TODO: Use emulation Info to get the propper screen dimensions
-    app->Init(SCREEN_WIDTH, SCREEN_HEIGHT, OnInputAction, &EmulatorUI);
-    uint8_t status = 1 ;
+    app->Init(emulator->GetInfo(), emulator->OnInput, &EmulatorUI);
 
-    // Main loop (render pass)
-    // TODO: REFACTOR THE LOOP TO BE GENERIC (Emulation info model required)
-    while (status)
+    // Main loop
+    while (running)
     {
         uint32_t current_time = SDL_GetTicks();
         uint32_t delta_time = current_time - last_update_time;
-        uint32_t delta_time_timers = current_time - last_update_time_timers;
 
-        if (delta_time >= 2 ) // CPU FREQ
+        // TODO: WHY TF DOES THE RENDER STATUS CONTROL THE MAIN LOOP???
+        running = app->Render(OnRender);
+
+        if (EmulatorUI.GetState() == Running)
         {
-            status = app->Render(OnRender);
-
-            if (EmulatorUI.GetState() == Running)
-            {
-                emulator->TickEmulation();
-
-                if (delta_time_timers > 16) // TIMERS FREQ
-                {
-                    emulator->TickTimers();
-                    last_update_time_timers = current_time;
-                }
-            }
-            last_update_time = current_time;
+            emulator->Loop(current_time, delta_time);
         }
+
+        last_update_time = current_time;
     }
 
+    // App termination
     emulator->QuitProgram();
     app->Exit();
 }
 
 void OnRender(unsigned int *pixels)
 {
-    // TODO: PASS PROPPER DIMENSSIONS OR USE DESCRIPTORS...
+    // TODO: ADD REAL TIME WINDOW HEIGHT/WIDTH
     emulator->OnRender(pixels, 0,0);
-}
-
-void OnInputAction(const char code)
-{
-    if (context == NULL) return;
-
-    context->KEYBOARD = code;
 }
 
 void StartEmulation(void * data)
@@ -97,9 +76,6 @@ void StartEmulation(void * data)
             break;
     }
     
-    MNE_New(context, 1, CC8_Memory);
-    emulator->SetEmulationContext((void *) context);
-
     if (emulator->LoadProgram((const char*) data) > 1)
     {
         EmulatorUI.SetState(Running);

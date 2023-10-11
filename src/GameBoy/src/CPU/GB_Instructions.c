@@ -319,11 +319,11 @@ uint8_t GB_ADD_A_R(SystemContext *ctx)
 
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -346,11 +346,11 @@ uint8_t GB_ADD_A_N(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) + n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
     
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -373,11 +373,11 @@ uint8_t GB_ADD_A_HL(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) + n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -401,11 +401,11 @@ uint8_t GB_ADC_A_R(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) + c + ctx->registers->CPU[rr];
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -430,11 +430,11 @@ uint8_t GB_ADC_A_N(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) + c + n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -459,11 +459,11 @@ uint8_t GB_ADC_A_HL(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) + c + n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -485,11 +485,11 @@ uint8_t GB_SUB_R(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - ctx->registers->CPU[rr];
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -512,11 +512,11 @@ uint8_t GB_SUB_N(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -539,11 +539,11 @@ uint8_t GB_SUB_HL(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -566,11 +566,11 @@ uint8_t GB_SBC_A_R(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - c - ctx->registers->CPU[rr];
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -594,11 +594,11 @@ uint8_t GB_SBC_A_N(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - c - n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -623,11 +623,11 @@ uint8_t GB_SBC_A_HL(SystemContext *ctx)
     const uint8_t sum =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - c - n;
     GB_SetReg8(ctx, GB_A_OFFSET, sum, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sum == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sum >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sum == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -645,8 +645,8 @@ uint8_t GB_AND_R(SystemContext *ctx)
     uint8_t and = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) & GB_GetReg8(ctx, r, REG8_MODE_HL);
     GB_SetReg8(ctx, GB_A_OFFSET, and, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, and == 0);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, and == 0);
 
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -668,11 +668,11 @@ uint8_t GB_AND_N(SystemContext *ctx)
     uint8_t and = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) & n;
     GB_SetReg8(ctx, GB_A_OFFSET, and, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, and == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, and == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 1);
+    GB_SET_F(GB_C_FLAG, 0);
 
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -694,11 +694,11 @@ uint8_t GB_AND_HL(SystemContext *ctx)
     uint8_t and = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) & data;
     GB_SetReg8(ctx, GB_A_OFFSET, and, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, and == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, and == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 1);
+    GB_SET_F(GB_C_FLAG, 0);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -721,11 +721,11 @@ uint8_t GB_XOR_R(SystemContext *ctx)
     uint8_t xor = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) ^ GB_GetReg8(ctx, r, REG8_MODE_HL);
     GB_SetReg8(ctx, GB_A_OFFSET, xor, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, xor == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, xor == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 0);
+    GB_SET_F(GB_C_FLAG, 0);
 
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -747,11 +747,11 @@ uint8_t GB_XOR_N(SystemContext *ctx)
     uint8_t xor = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) ^ n;
     GB_SetReg8(ctx, GB_A_OFFSET, xor, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, xor == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, xor == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 0);
+    GB_SET_F(GB_C_FLAG, 0);
 
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -773,11 +773,11 @@ uint8_t GB_XOR_HL(SystemContext *ctx)
     uint8_t xor = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) ^ data;
     GB_SetReg8(ctx, GB_A_OFFSET, xor, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, xor == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, xor == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 1);
+    GB_SET_F(GB_C_FLAG, 0);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -798,11 +798,11 @@ uint8_t GB_OR_R(SystemContext *ctx)
     uint8_t or = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) | GB_GetReg8(ctx, r, REG8_MODE_HL);
     GB_SetReg8(ctx, GB_A_OFFSET, or, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, or == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, or == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 0);
+    GB_SET_F(GB_C_FLAG, 0);
 
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -823,11 +823,11 @@ uint8_t GB_OR_N(SystemContext *ctx)
     uint8_t or = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) | n;
     GB_SetReg8(ctx, GB_A_OFFSET, or, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, or == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, or == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 0);
+    GB_SET_F(GB_C_FLAG, 0);
 
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -848,15 +848,16 @@ uint8_t GB_OR_HL(SystemContext *ctx)
     uint8_t or = GB_GetReg8(ctx,GB_A_OFFSET, REG8_MODE_A) | data;
     GB_SetReg8(ctx, GB_A_OFFSET, or, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, or == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_C_FLAG, 0);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, or == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 0);
+    GB_SET_F(GB_C_FLAG, 0);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
 }
+
 uint8_t GB_CP_R(SystemContext *ctx)
 {
     // encoding: 0b10111xxx
@@ -870,11 +871,11 @@ uint8_t GB_CP_R(SystemContext *ctx)
     const uint8_t r = (ctx->registers->INSTRUCTION & 0x07);
     const uint8_t sub =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - GB_GetReg8(ctx, r, REG8_MODE_HL);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sub == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sub >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sub >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sub == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, sub >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sub >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -895,11 +896,11 @@ uint8_t GB_CP_N(SystemContext *ctx)
     const uint8_t n = GB_BusRead(ctx, ctx->registers->PC++);
     const uint8_t sub =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - n;
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sub == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sub >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sub >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sub == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, sub >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sub >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -919,11 +920,11 @@ uint8_t GB_CP_HL(SystemContext *ctx)
     const uint8_t data = GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]);
     const uint8_t sub =  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) - data;
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, sub == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, sub >> 3 == 0x01);
-    GB_SET_F(tmpRegF, GB_C_FLAG, sub >> 7 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, sub == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, sub >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sub >> 7 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -944,10 +945,10 @@ uint8_t GB_INC_R(SystemContext *ctx)
     result = GB_GetReg8(ctx, r, REG8_MODE_HL);
     GB_SetReg8(ctx, r, ++result, REG8_MODE_HL);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, result == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, result >> 3 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, result == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, result >> 3 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -970,10 +971,10 @@ uint8_t GB_INC_HL(SystemContext *ctx)
     result = data + 1; 
     GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET], result);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, result == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 0);
-    GB_SET_F(tmpRegF, GB_H_FLAG, result >> 3 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, result == 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, result >> 3 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -994,10 +995,10 @@ uint8_t GB_DEC_R(SystemContext *ctx)
     result = GB_GetReg8(ctx, r, REG8_MODE_HL);
     GB_SetReg8(ctx, r, --result, REG8_MODE_HL);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, result == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, result >> 3 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, result == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, result >> 3 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -1020,10 +1021,10 @@ uint8_t GB_DEC_HL(SystemContext *ctx)
     result = data - 1; 
     GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET], result);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_ZERO_FLAG, result == 0);
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, result >> 3 == 0x01);
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, result == 0);
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, result >> 3 == 0x01);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -1049,9 +1050,9 @@ uint8_t GB_CPL(SystemContext *ctx)
     uint8_t A = GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A);
     GB_SetReg8(ctx, GB_A_OFFSET, ~A, REG8_MODE_A);
 
-    uint8_t tmpRegF = 0x00;
-    GB_SET_F(tmpRegF, GB_N_FLAG, 1);
-    GB_SET_F(tmpRegF, GB_H_FLAG, 1);
+    GB_TMP_F();
+    GB_SET_F(GB_N_FLAG, 1);
+    GB_SET_F(GB_H_FLAG, 1);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -1064,6 +1065,33 @@ uint8_t GB_ADD_HL_RR(SystemContext *ctx)
     /*
         HL = HL+rr     ; rr may be BC,DE,HL,SP
     */
+       /*
+    HL = HL + rr; rr may be BC, DE, HL, SP
+    Flags affected:
+    Z - Not affected
+    N - 0
+    H - Set if carry from bits 11-12
+    C - Set if carry from bits 15-16
+    */
+
+    const uint8_t rr = (ctx->registers->INSTRUCTION & 0x30) >> 4; // Extract rr from instruction
+    const uint16_t HL = GB_GetReg16(ctx, GB_HL_OFFSET, REG16_MODE_SP);
+    const uint16_t rr_value = GB_GetReg16(ctx, rr << 4, REG16_MODE_SP);
+
+    // Update HL with the result
+    GB_SetReg16(ctx, GB_HL_OFFSET, (uint16_t)result, REG16_MODE_SP);
+
+    // Calculate the result
+    uint32_t result = HL + rr_value;
+
+    // Set the flags
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, ((HL & 0xFFF) + (rr_value & 0xFFF)) > 0xFFF);
+    GB_SET_F(GB_C_FLAG, result > 0xFFFF);
+
+    return 0;
 }
 
 uint8_t GB_INC_RR(SystemContext *ctx)

@@ -4,6 +4,7 @@
 #include <CC8_Instructions.h>
 #include <minemu.h>
 
+static uint32_t last_update_time_timers;
 static CC8_Memory * s_currentChipCtx;
 static int columCount =0; // TODO: remove this debug var
 
@@ -69,6 +70,19 @@ instructionFnPtr FetchInstruction(uint16_t opcode)
     return NULL;
 }
 
+EmulationInfo CC8_GetInfo()
+{
+    EmulationInfo info;
+
+    info.name = "CC8";
+    info.displayWidth = CHIP_8_VRAM_WIDTH;
+    info.displayHeight = CHIP_8_VRAM_HEIGHT;
+    info.UIConfig.frameWidth = 380;
+    info.UIConfig.frameHeight = 128;
+
+    return info;
+}
+
 void CC8_PopulateMemory(const uint8_t *buffer, size_t bytesRead)
 {
     // LOAD PROGRAM
@@ -92,6 +106,12 @@ void CC8_PopulateMemory(const uint8_t *buffer, size_t bytesRead)
 
 long CC8_LoadProgram(const char *filePath)
 {
+    if (context == NULL)
+    {
+        MNE_New(context, 1, CC8_Memory);
+        emulator->SetEmulationContext((void *) context);
+    }
+
     return MNE_ReadFile(filePath, MNE_HEX_DUMP_FILE_FLAG, CC8_PopulateMemory);
 }
 
@@ -106,14 +126,14 @@ void CC8_QuitProgram()
 
 void CC8_Step(uint16_t opcode)
 {
+    InstructionContext ctx;
+
     if (opcode == 0x0000) // NOP
     { 
         s_currentChipCtx->INSTRUCTION = 0x0000;
         return; 
     }
 
-    InstructionContext ctx;
-    
     // Instruction decoding
     ctx.x = (opcode >> 8) & 0x0F;
     ctx.y = (opcode >> 4) & 0x0F;
@@ -176,6 +196,12 @@ void CC8_SetEmulationContext(const void *context)
     s_currentChipCtx = (CC8_Memory *) context;
 }
 
+void CC8_OnInput(const char code)
+{
+    if (s_currentChipCtx == null) return;
+    s_currentChipCtx->KEYBOARD = code;
+}
+
 void CC8_OnRender(uint32_t* pixels, const int64_t w, const int64_t h)
 {
     if (s_currentChipCtx == NULL) return;
@@ -190,6 +216,22 @@ void CC8_OnRender(uint32_t* pixels, const int64_t w, const int64_t h)
             uint8_t vramBit = (vramByte >> bitIndex) & 0x1;
 
             pixels[i * CHIP_8_VRAM_WIDTH + j] = vramBit ? CHIP_8_FOREGROUND_DISPLAY_COLOR : CHIP_8_BACKGROUND_DISPLAY_COLOR;
+        }
+    }
+}
+
+void CC8_Loop(uint32_t currentTime, uint32_t deltaTime)
+{
+    uint32_t delta_time_timers = currentTime - last_update_time_timers;
+
+    if (deltaTime >= 2 ) // CPU FREQ IN MS
+    {
+        TickEmulation();
+
+        if (delta_time_timers > 16) // TIMERS FREQ IN MS
+        {
+            TickTimers();
+            last_update_time_timers = currentTime;
         }
     }
 }

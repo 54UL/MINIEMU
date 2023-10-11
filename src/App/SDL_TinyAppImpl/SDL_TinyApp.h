@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <minemu.h>
 
-//Function definitions
-void    Init_App(uint16_t w, uint16_t h, ActionCallback actionsCallback, EmulatorShell * shell);
+// Emu app api implementation...
+void    Init_App(EmulationInfo *info, ActionCallback actionsCallback, EmulatorShell * shell);
 uint8_t Step_SDL(StepCallback renderCallback);
 void    Reset_SDL(void);
 void    Exit_SDL_App(void);
