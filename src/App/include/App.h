@@ -6,7 +6,7 @@
 #include "../SDL_TinyAppImpl/SDL_TinyApp.h"
 
 //App implementation
-AppApi TinySDLApp = {
+EmuApp TinySDLApp = {
     .Init   = Init_App,
     .Render = Step_SDL,
     .Reset  = Reset_SDL,

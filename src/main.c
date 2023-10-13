@@ -26,13 +26,16 @@ int main(int argc, char **argv)
     //TODO: ADD EMULATOR SELECTOR
     emulator = &Chip8Emulator;
 
+    // Fetch default emulation config
+    EmulationInfo emuInfo = emulator->GetInfo();
+
     // Configure emulator shell actions (if available)
     EmulatorUI.ShellAction(Start, StartEmulation);
     EmulatorUI.ShellAction(Stop, StopEmulation);
     EmulatorUI.ShellAction(Quit, QuitEmulation);
 
     // App and emulator initialization
-    app->Init(emulator->GetInfo(), emulator->OnInput, &EmulatorUI);
+    app->Init(&emuInfo, emulator->OnInput, &EmulatorUI);
 
     // Main loop
     while (running)
@@ -49,6 +52,7 @@ int main(int argc, char **argv)
         }
 
         last_update_time = current_time;
+        
     }
 
     // App termination

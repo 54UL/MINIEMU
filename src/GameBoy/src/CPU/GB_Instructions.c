@@ -1078,12 +1078,12 @@ uint8_t GB_ADD_HL_RR(SystemContext *ctx)
     const uint16_t HL = GB_GetReg16(ctx, GB_HL_OFFSET, REG16_MODE_SP);
     const uint16_t rr_value = GB_GetReg16(ctx, rr << 4, REG16_MODE_SP);
 
-    // Update HL with the result
-    GB_SetReg16(ctx, GB_HL_OFFSET, (uint16_t)result, REG16_MODE_SP);
-
     // Calculate the result
     uint32_t result = HL + rr_value;
 
+    // Update HL with the result
+    GB_SetReg16(ctx, GB_HL_OFFSET, (uint16_t)result, REG16_MODE_SP);
+    
     // Set the flags
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, 0);

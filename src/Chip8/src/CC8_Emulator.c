@@ -73,11 +73,10 @@ instructionFnPtr FetchInstruction(uint16_t opcode)
 EmulationInfo CC8_GetInfo()
 {
     EmulationInfo info;
-
-    info.name = "CC8";
+    strcpy(info.name,"CC8");
     info.displayWidth = CHIP_8_VRAM_WIDTH;
     info.displayHeight = CHIP_8_VRAM_HEIGHT;
-    info.UIConfig.frameWidth = 380;
+    info.UIConfig.frameWidth = 300;
     info.UIConfig.frameHeight = 128;
 
     return info;
@@ -106,10 +105,10 @@ void CC8_PopulateMemory(const uint8_t *buffer, size_t bytesRead)
 
 long CC8_LoadProgram(const char *filePath)
 {
-    if (context == NULL)
+    if (s_currentChipCtx == NULL)
     {
-        MNE_New(context, 1, CC8_Memory);
-        emulator->SetEmulationContext((void *) context);
+        MNE_New(s_currentChipCtx, 1, CC8_Memory);
+        CC8_SetEmulationContext((void *) s_currentChipCtx);
     }
 
     return MNE_ReadFile(filePath, MNE_HEX_DUMP_FILE_FLAG, CC8_PopulateMemory);
@@ -198,7 +197,7 @@ void CC8_SetEmulationContext(const void *context)
 
 void CC8_OnInput(const char code)
 {
-    if (s_currentChipCtx == null) return;
+    if (s_currentChipCtx == NULL) return;
     s_currentChipCtx->KEYBOARD = code;
 }
 
@@ -222,16 +221,17 @@ void CC8_OnRender(uint32_t* pixels, const int64_t w, const int64_t h)
 
 void CC8_Loop(uint32_t currentTime, uint32_t deltaTime)
 {
-    uint32_t delta_time_timers = currentTime - last_update_time_timers;
-
-    if (deltaTime >= 2 ) // CPU FREQ IN MS
-    {
-        TickEmulation();
-
-        if (delta_time_timers > 16) // TIMERS FREQ IN MS
-        {
-            TickTimers();
-            last_update_time_timers = currentTime;
-        }
-    }
+    MNE_Log("DELTA %i\n",deltaTime);
+    // if (currentTime >= 2 ) // CPU FREQ IN MS
+    // {
+        CC8_TickEmulation();
+        last_update_time_timers += 2;
+        // BIG TODO: FIX THIS TRASH TIMING ISSUE...
+        // if (last_update_time_timers > 16) // TIMERS FREQ IN MS
+        // {
+            CC8_TickDelayTimer();
+            last_update_time_timers = 0;
+        // }
+    // }
+    
 }
