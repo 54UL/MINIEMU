@@ -4,7 +4,7 @@
 #include <CC8_Instructions.h>
 #include <minemu.h>
 
-static uint32_t last_update_time_timers;
+
 static CC8_Memory * s_currentChipCtx;
 static int columCount =0; // TODO: remove this debug var
 
@@ -219,19 +219,26 @@ void CC8_OnRender(uint32_t* pixels, const int64_t w, const int64_t h)
     }
 }
 
+// TODO: REMOVE ALL STATIC VARS FROM ALL THE CODE!!!
+static uint32_t last_update_emulation;
+static uint32_t last_update_time_timers;
+
 void CC8_Loop(uint32_t currentTime, uint32_t deltaTime)
 {
-    MNE_Log("DELTA %i\n",deltaTime);
-    // if (currentTime >= 2 ) // CPU FREQ IN MS
-    // {
-        CC8_TickEmulation();
-        last_update_time_timers += 2;
-        // BIG TODO: FIX THIS TRASH TIMING ISSUE...
-        // if (last_update_time_timers > 16) // TIMERS FREQ IN MS
-        // {
-            CC8_TickDelayTimer();
-            last_update_time_timers = 0;
-        // }
-    // }
+    last_update_emulation += deltaTime;
+    last_update_time_timers += deltaTime;
     
+    if (last_update_time_timers > 16) // TIMERS FREQ IN MS
+    { 
+        CC8_TickDelayTimer();
+        last_update_time_timers = 0;
+    }
+
+    if (last_update_emulation >= 2 ) // CPU FREQ IN MS
+    {
+        CC8_TickEmulation();
+        last_update_emulation = 0;
+    }
+
+   
 }

@@ -46,7 +46,7 @@ typedef struct
     void            (*SetEmulationContext)(const void * context);
     void            (*OnRender)(uint32_t* pixels, const int64_t w, const int64_t h);
     void            (*OnInput)(const char code); //TODO: REFACTOR THIS TO USE A CUSTOM MODEL THAT HANDLES KEYBOARD,JOYSTICKS AND MOUSE
-    void            (*Loop)(uint32_t currentTime, uint32_t deltaTime);
+    void            (*Loop)(uint32_t frameTicks, uint32_t deltaTime);
 } Emulation;
 
 typedef struct

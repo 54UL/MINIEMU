@@ -40,19 +40,19 @@ int main(int argc, char **argv)
     // Main loop
     while (running)
     {
-        uint32_t current_time = SDL_GetTicks();
-        uint32_t delta_time = current_time - last_update_time;
+        //TODO: SDL_GetTicks must be abstracted into app->getTicks()...
+        uint32_t frameBeginTicks = SDL_GetTicks();
+        uint32_t delta_time = frameBeginTicks - last_update_time;
 
         // TODO: WHY TF DOES THE RENDER STATUS CONTROL THE MAIN LOOP???
         running = app->Render(OnRender);
 
         if (EmulatorUI.GetState() == Running)
         {
-            emulator->Loop(current_time, delta_time);
+            emulator->Loop(last_update_time, delta_time);
         }
 
-        last_update_time = current_time;
-        
+        last_update_time = frameBeginTicks;
     }
 
     // App termination
