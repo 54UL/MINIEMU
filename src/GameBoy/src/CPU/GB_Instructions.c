@@ -1096,302 +1096,198 @@ uint8_t GB_ADD_HL_RR(SystemContext *ctx)
 
 uint8_t GB_INC_RR(SystemContext *ctx)
 {
-    // encoding: ??? 
+    // encoding: 0b0000rr11
     /*
         rr = rr+1      ; rr may be BC,DE,HL,SP
     */
+    const uint8_t rr = (ctx->registers->INSTRUCTION & 0x0C) >> 2; // Extract rr from instruction
+    const uint16_t rrInc = GB_GetReg16(ctx, rr, REG16_MODE_SP) + 1;
+    GB_SetReg16(ctx, rr, rrInc, REG16_MODE_SP);
 }
+
 uint8_t GB_DEC_RR(SystemContext *ctx)
 {
-    // encoding: ???
+    // encoding: 0b00rr1011
     /*
         rr = rr-1      ; rr may be BC,DE,HL,SP
     */
+    const uint8_t rr = (ctx->registers->INSTRUCTION & 0x30) >> 4; // Extract rr from instruction
+    const uint16_t rrDec = GB_GetReg16(ctx, rr, REG16_MODE_SP) - 1;
+    GB_SetReg16(ctx, rr, rrDec, REG16_MODE_SP);
 }
+
 uint8_t GB_ADD_SP_DD(SystemContext *ctx)
 {
-    // encoding: ???
+    // encoding: E8 dd 
     /*
         SP = SP +/- dd ; dd is 8-bit signed number
     */
 }
+
 uint8_t GB_LD_HL_SP_PLUS_DD(SystemContext *ctx)
 {
-    // encoding: ???
+    // encoding: F8 dd
     /*
         HL = SP +/- dd ; dd is 8-bit signed number
     */
 }
+
 // ROTATE AND SHIFT INSTRUCTIONS
 uint8_t GB_RLCA(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: 0x07
     /*
-    
+        rotate A left  
     */
 }
+
 uint8_t GB_RLA(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: 0x17
     /*
     
     */
 }
+
 uint8_t GB_RRCA(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: 0x0F
     /*
-    
+        rotate A right      
     */
 }
+
 uint8_t GB_RRA(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: 0x1F
     /*
-    
+        rotate A right through carry
     */
 }
+
 uint8_t GB_RLC_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 0x 
     /*
-    
+        rotate left r
     */
 }
+
 uint8_t GB_RLC_HL(SystemContext *ctx)
 {
-    //encoding:
+    //encoding: CB 06
     /*
-    
+        rotate left  hl
     */
 }
+
 uint8_t GB_RL_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 1x
     /*
-    
+        rotate left through carry r
     */
 }
+
 uint8_t GB_RL_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 16 
     /*
-    
+        rotate left through carry hl
     */
 }
+
 uint8_t GB_RRC_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 0x
     /*
-    
+        rotate right r
     */
 }
+
 uint8_t GB_RRC_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 0E
     /*
-    
+         rotate right (hl)
     */
 }
+
 uint8_t GB_RR_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 1x
     /*
-    
+        rotate right through carry R
     */
 }
+
 uint8_t GB_RR_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 1E 
     /*
-    
+        rotate right through carry (hl)
     */
 }
+
 uint8_t GB_SLA_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 2x
     /*
-    
+        shift left arithmetic (b0=0) r
     */
 }
+
 uint8_t GB_SLA_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 26
     /*
-    
+        shift left arithmetic (b0=0) (hl)
     */
 }
+
 uint8_t GB_SWAP_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 3x
     /*
-    
+        exchange low/hi-nibble r
     */
 }
+
 uint8_t GB_SWAP_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 36
     /*
-    
+
     */
 }
+
 uint8_t GB_SRA_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 2x
     /*
-    
+        shift right arithmetic (b7=b7) r
     */
 }
+
 uint8_t GB_SRA_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 2E
     /*
-    
+        shift right arithmetic (b7=b7) (hl)
     */
 }
 uint8_t GB_SRL_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 3x 
     /*
-    
+        shift right logical (b7=0) r
     */
 }
 uint8_t GB_SRL_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB 3E 
     /*
-    
-    */
-}
-
-// CPU CONTROL INSTRUCTIONS
-uint8_t GB_CCF(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_SCF(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_NOP(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_HALT(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_STOP(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_DI(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_EI(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-// JUMP INSTRUCTIONS
-uint8_t GB_JP_NN(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_JP_HL(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_JP_F_NN(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_JR_PC_PLUS_DD(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_JR_F_PC_PLUS_DD(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_CALL_NN(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_CALL_F_NN(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_RET(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-uint8_t GB_RET_F(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}
-
-uint8_t GB_RETI(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
-    */
-}   
-
-uint8_t GB_RST_N(SystemContext *ctx)
-{
-    // encoding:
-    /*
-    
+        shift right logical (b7=0) (hl)
     */
 }
 
@@ -1399,48 +1295,192 @@ uint8_t GB_RST_N(SystemContext *ctx)
 
 uint8_t GB_CB_BIT_N_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB xx
     /*
-    
+        test bit n 
     */
 }   
 
 uint8_t GB_CB_BIT_N_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB xx
     /*
-    
+        test bit n  
     */
 }
 
 uint8_t GB_CB_SET_N_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB xx
     /*
-    
+        set bit n
     */
 }   
 
 uint8_t GB_CB_SET_N_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB xx
     /*
-    
+        reset bit n
     */
 }
 
 uint8_t GB_CB_RES_N_R(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB xx
     /*
-    
+        reset bit n
     */
 }   
 
 uint8_t GB_CB_RES_N_HL(SystemContext *ctx)
 {
-    // encoding:
+    // encoding: CB xx
     /*
-    
+        reset bit n
+    */
+}
+
+
+// CPU CONTROL INSTRUCTIONS
+uint8_t GB_CCF(SystemContext *ctx)
+{
+    // encoding: 3F
+    /*
+        cy=cy xor 1 
+    */
+}
+uint8_t GB_SCF(SystemContext *ctx)
+{
+    // encoding: 37
+    /*
+        cy=1
+    */
+}
+
+uint8_t GB_NOP(SystemContext *ctx)
+{
+    // encoding: 00
+    /*
+        no operation
+    */
+   return 4;
+}
+
+uint8_t GB_HALT(SystemContext *ctx)
+{
+    // encoding: 76
+    /*
+        halt until interrupt occurs (low power)
+    */
+}
+
+uint8_t GB_STOP(SystemContext *ctx)
+{
+    // encoding: 10 00
+    /*
+        low power standby mode (VERY low power)
+    */
+}
+
+uint8_t GB_DI(SystemContext *ctx)
+{
+    // encoding: F3
+    /*
+        disable interrupts, IME=0  
+    */
+}
+
+uint8_t GB_EI(SystemContext *ctx)
+{
+    // encoding: FB
+    /*
+        enable interrupts, IME=1 
+    */
+}
+
+// JUMP INSTRUCTIONS
+uint8_t GB_JP_NN(SystemContext *ctx)
+{
+    // encoding: C3 nn nn
+    /*
+        jump to nn, PC=nn
+    */
+}
+
+uint8_t GB_JP_HL(SystemContext *ctx)
+{
+    // encoding: E9
+    /*
+        jump to HL, PC=HL 
+    */
+}
+
+uint8_t GB_JP_F_NN(SystemContext *ctx)
+{
+    // encoding: xx nn nn
+    /*
+        conditional jump if nz,z,nc,c
+    */
+}
+
+uint8_t GB_JR_PC_PLUS_DD(SystemContext *ctx)
+{
+    // encoding: 18 dd
+    /*
+        relative jump to nn (PC=PC+8-bit signed)
+    */
+}
+
+uint8_t GB_JR_F_PC_PLUS_DD(SystemContext *ctx)
+{
+    // encoding: xx dd
+    /*
+        conditional relative jump if nz,z,nc,c
+    */
+}
+
+uint8_t GB_CALL_NN(SystemContext *ctx)
+{
+    // encoding: CD nn nn 
+    /*
+        call to nn, SP=SP-2, (SP)=PC, PC=nn
+    */
+}
+uint8_t GB_CALL_F_NN(SystemContext *ctx)
+{
+    // encoding: xx nn nn
+    /*
+        conditional call if nz,z,nc,c
+    */
+}
+uint8_t GB_RET(SystemContext *ctx)
+{
+    // encoding: C9
+    /*
+        return, PC=(SP), SP=SP+2  
+    */
+}
+uint8_t GB_RET_F(SystemContext *ctx)
+{
+    // encoding: xx
+    /*
+        conditional return if nz,z,nc,c
+    */
+}
+
+uint8_t GB_RETI(SystemContext *ctx)
+{
+    // encoding: D9
+    /*
+        return and enable interrupts (IME=1)
+    */
+}   
+
+uint8_t GB_RST_N(SystemContext *ctx)
+{
+    // encoding: xx
+    /*
+        call to 00,08,10,18,20,28,30,38
     */
 }

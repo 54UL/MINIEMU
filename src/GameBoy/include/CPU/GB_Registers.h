@@ -3,6 +3,18 @@
 
 #include <stdint.h>
 
+/*
+    posible structure for registers, put this inside of a structure:
+    union {
+        struct {
+            u16 AF, BC, DE, HL;
+        } reg16;
+        struct {
+            u8 F, A, C, B, E, D, L, H;
+        } reg8;
+    };
+*/
+
 // 16 bit registers instruction encoding offests
 #define GB_BC_OFFSET 0
 #define GB_DE_OFFSET 1
