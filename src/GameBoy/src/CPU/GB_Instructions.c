@@ -11,7 +11,7 @@
 */
 
 // 8-BIT LOAD INSTRUCTIONS
-uint8_t GB_LD_R_R(SystemContext *ctx)
+uint8_t GB_LD_R_R(EmulationState *ctx)
 {
     // encoding: b01xxxyyy/various
     /*
@@ -25,7 +25,7 @@ uint8_t GB_LD_R_R(SystemContext *ctx)
     return 4; // instruction clock cycles
 }
 
-uint8_t GB_LD_R_N(SystemContext *ctx)
+uint8_t GB_LD_R_N(EmulationState *ctx)
 {
     // encoding: 0b00xxx110/various + n
     /*
@@ -38,7 +38,7 @@ uint8_t GB_LD_R_N(SystemContext *ctx)
     return 8; // instruction clock cycles
 }
 
-uint8_t GB_LD_R_HL(SystemContext *ctx)
+uint8_t GB_LD_R_HL(EmulationState *ctx)
 {
     // encoding: 0b01xxx110/various
     /*
@@ -50,7 +50,7 @@ uint8_t GB_LD_R_HL(SystemContext *ctx)
     return 8;
 }
 
-uint8_t GB_LD_HL_R(SystemContext *ctx)
+uint8_t GB_LD_HL_R(EmulationState *ctx)
 {
     // encoding: 0b01110xxx
     /*
@@ -59,9 +59,10 @@ uint8_t GB_LD_HL_R(SystemContext *ctx)
     const uint8_t r = ctx->registers->INSTRUCTION & 0x07;
 
     GB_SetReg8(ctx, r, GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]), REG8_MODE_HL);
+    return 8;
 }
 
-uint8_t GB_LD_HL_N(SystemContext *ctx)
+uint8_t GB_LD_HL_N(EmulationState *ctx)
 {
     // encoding: 0b00110110/0x36 + n
     /*
@@ -71,9 +72,10 @@ uint8_t GB_LD_HL_N(SystemContext *ctx)
     const uint8_t n = GB_BusRead(ctx, ctx->registers->PC++);
 
     GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET], n);
+
 }
 
-uint8_t GB_LD_A_BC(SystemContext *ctx)
+uint8_t GB_LD_A_BC(EmulationState *ctx)
 {
     // encoding: 0b00001010
     /*
@@ -82,7 +84,7 @@ uint8_t GB_LD_A_BC(SystemContext *ctx)
     ctx->registers->CPU[GB_AF_OFFSET] = GB_BusRead(ctx, ctx->registers->CPU[GB_BC_OFFSET]);
 }
 
-uint8_t GB_LD_A_DE(SystemContext *ctx)
+uint8_t GB_LD_A_DE(EmulationState *ctx)
 {
     // encoding: 0b00011010
     /*
@@ -92,7 +94,7 @@ uint8_t GB_LD_A_DE(SystemContext *ctx)
     GB_SetReg8(ctx, GB_A_OFFSET, GB_BusRead(ctx, ctx->registers->CPU[GB_DE_OFFSET]), REG8_MODE_A);
 }
 
-uint8_t GB_LD_A_NN(SystemContext *ctx)
+uint8_t GB_LD_A_NN(EmulationState *ctx)
 {
     // encoding: 0b11111010/0xFA + LSB of nn + MSB of nn
     /*
@@ -107,7 +109,7 @@ uint8_t GB_LD_A_NN(SystemContext *ctx)
     GB_SetReg8(ctx, GB_A_OFFSET, GB_BusRead(ctx, nn), REG8_MODE_A);
 }
 
-uint8_t GB_LD_BC_A(SystemContext *ctx)
+uint8_t GB_LD_BC_A(EmulationState *ctx)
 {
     //encoding: 0b00000010
     /*
@@ -119,7 +121,7 @@ uint8_t GB_LD_BC_A(SystemContext *ctx)
     GB_BusWrite(ctx, ctx->registers->CPU[GB_BC_OFFSET], GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A));
 }
 
-uint8_t GB_LD_DE_A(SystemContext *ctx)
+uint8_t GB_LD_DE_A(EmulationState *ctx)
 {
     //encoding: 0b00010010
     /*
@@ -128,7 +130,7 @@ uint8_t GB_LD_DE_A(SystemContext *ctx)
     GB_BusWrite(ctx, ctx->registers->CPU[GB_DE_OFFSET], GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A));
 }
 
-uint8_t GB_LD_NN_A(SystemContext *ctx)
+uint8_t GB_LD_NN_A(EmulationState *ctx)
 {
     //encoding: 0b11101010/0xEA + LSB of nn + MSB of nn
     /*
@@ -142,7 +144,7 @@ uint8_t GB_LD_NN_A(SystemContext *ctx)
     GB_BusWrite(ctx, nn,  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A));
 }
 
-uint8_t GB_LDH_A_N(SystemContext *ctx)
+uint8_t GB_LDH_A_N(EmulationState *ctx)
 {
     //encoding: 0b11110000
     /*
@@ -156,7 +158,7 @@ uint8_t GB_LDH_A_N(SystemContext *ctx)
     GB_SetReg8(ctx, GB_A_OFFSET, GB_BusRead(ctx, u16), REG8_MODE_A);
 }
 
-uint8_t GB_LDH_N_A(SystemContext *ctx)
+uint8_t GB_LDH_N_A(EmulationState *ctx)
 {
     //encoding: 0b11100000
     /*
@@ -170,7 +172,7 @@ uint8_t GB_LDH_N_A(SystemContext *ctx)
     GB_BusWrite(ctx, u16,  GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A));
 }
 
-uint8_t GB_LDH_A_C(SystemContext *ctx)
+uint8_t GB_LDH_A_C(EmulationState *ctx)
 {
     // encoding: 0b11110010
     /*
@@ -180,7 +182,7 @@ uint8_t GB_LDH_A_C(SystemContext *ctx)
     GB_SetReg8(ctx, GB_A_OFFSET, GB_BusRead(ctx, u16), REG8_MODE_A);
 }
 
-uint8_t GB_LDH_C_A(SystemContext *ctx)
+uint8_t GB_LDH_C_A(EmulationState *ctx)
 {
     // encoding: 0b11100010
     /*
@@ -190,7 +192,7 @@ uint8_t GB_LDH_C_A(SystemContext *ctx)
     GB_BusWrite(ctx, u16, GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A));
 }
 
-uint8_t GB_LDI_HL_A(SystemContext *ctx)
+uint8_t GB_LDI_HL_A(EmulationState *ctx)
 {
     // encoding: 0b00100010
     /*
@@ -199,7 +201,7 @@ uint8_t GB_LDI_HL_A(SystemContext *ctx)
     GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET]++, GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A));
 }
 
-uint8_t GB_LDI_A_HL(SystemContext *ctx)
+uint8_t GB_LDI_A_HL(EmulationState *ctx)
 {
     // encoding: 0b00101010
     /*
@@ -208,7 +210,7 @@ uint8_t GB_LDI_A_HL(SystemContext *ctx)
     GB_SetReg8(ctx, GB_A_OFFSET, GB_BusRead(ctx, ctx->registers->CPU[GB_HL_OFFSET]++), REG8_MODE_A);
 }
 
-uint8_t GB_LDD_HL_A(SystemContext *ctx)
+uint8_t GB_LDD_HL_A(EmulationState *ctx)
 {
     // encoding: 0b00110010
     /*
@@ -218,7 +220,7 @@ uint8_t GB_LDD_HL_A(SystemContext *ctx)
     GB_BusWrite(ctx, ctx->registers->CPU[GB_HL_OFFSET]--, GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A));
 }
 
-uint8_t GB_LDD_A_HL(SystemContext *ctx)
+uint8_t GB_LDD_A_HL(EmulationState *ctx)
 {
     // encoding: 0b00111010
     /*
@@ -228,7 +230,7 @@ uint8_t GB_LDD_A_HL(SystemContext *ctx)
 }
 
 // 16 BIT LOAD INSTRUCTIONS
-uint8_t GB_LD_RR_NN(SystemContext *ctx)
+uint8_t GB_LD_RR_NN(EmulationState *ctx)
 {
     //encoding: 0b00xx0001, xx : 0x30
     /*
@@ -244,7 +246,7 @@ uint8_t GB_LD_RR_NN(SystemContext *ctx)
     GB_SetReg16(ctx, rr, nn, REG16_MODE_SP);
 }
 
-uint8_t GB_LD_NN_SP(SystemContext *ctx)
+uint8_t GB_LD_NN_SP(EmulationState *ctx)
 {
     //encoding: 0b00001000
     /*
@@ -262,7 +264,7 @@ uint8_t GB_LD_NN_SP(SystemContext *ctx)
     GB_BusWrite(ctx, u16 + 1, sph);
 }
 
-uint8_t GB_LD_SP_HL(SystemContext *ctx)
+uint8_t GB_LD_SP_HL(EmulationState *ctx)
 {
     // encoding:  0b11111001
     /*
@@ -271,7 +273,7 @@ uint8_t GB_LD_SP_HL(SystemContext *ctx)
     ctx->registers->SP = ctx->registers->CPU[GB_HL_OFFSET];
 }
 
-uint8_t GB_PUSH_RR(SystemContext *ctx)
+uint8_t GB_PUSH_RR(EmulationState *ctx)
 {
     //encoding: 0b11xx0101,xx : 0x30
     /*
@@ -289,7 +291,7 @@ uint8_t GB_PUSH_RR(SystemContext *ctx)
     GB_BusWrite(ctx, ctx->registers->SP, l);
 }
 
-uint8_t GB_POP_RR(SystemContext *ctx)
+uint8_t GB_POP_RR(EmulationState *ctx)
 {
     // encoding: 0b11xx0001
     /*
@@ -303,7 +305,7 @@ uint8_t GB_POP_RR(SystemContext *ctx)
 }
 
 // 8 BIT ALU INSTRUCTIONS
-uint8_t GB_ADD_A_R(SystemContext *ctx)
+uint8_t GB_ADD_A_R(EmulationState *ctx)
 {
     // encoding: 0b10000xxx
     /*
@@ -329,7 +331,7 @@ uint8_t GB_ADD_A_R(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_ADD_A_N(SystemContext *ctx)
+uint8_t GB_ADD_A_N(EmulationState *ctx)
 {
     // encoding: 0b11000110
     /*
@@ -356,7 +358,7 @@ uint8_t GB_ADD_A_N(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_ADD_A_HL(SystemContext *ctx)
+uint8_t GB_ADD_A_HL(EmulationState *ctx)
 {
     // encoding: 0b10000110
     /*
@@ -383,7 +385,7 @@ uint8_t GB_ADD_A_HL(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_ADC_A_R(SystemContext *ctx)
+uint8_t GB_ADC_A_R(EmulationState *ctx)
 {
     //encoding:0b10001xxx
     /*
@@ -411,7 +413,7 @@ uint8_t GB_ADC_A_R(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_ADC_A_N(SystemContext *ctx)
+uint8_t GB_ADC_A_N(EmulationState *ctx)
 {
     //encoding: 0b11001110
     /*
@@ -440,7 +442,7 @@ uint8_t GB_ADC_A_N(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_ADC_A_HL(SystemContext *ctx)
+uint8_t GB_ADC_A_HL(EmulationState *ctx)
 {
     //encoding: 0b10001110
     /*
@@ -469,7 +471,7 @@ uint8_t GB_ADC_A_HL(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_SUB_R(SystemContext *ctx)
+uint8_t GB_SUB_R(EmulationState *ctx)
 {
     // encoding: 0b10010xxx
     /*
@@ -495,7 +497,7 @@ uint8_t GB_SUB_R(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_SUB_N(SystemContext *ctx)
+uint8_t GB_SUB_N(EmulationState *ctx)
 {
     // encoding: 0b11010110
     /*
@@ -522,7 +524,7 @@ uint8_t GB_SUB_N(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_SUB_HL(SystemContext *ctx)
+uint8_t GB_SUB_HL(EmulationState *ctx)
 {
     // encoding: 0b10010110
     /*
@@ -549,7 +551,7 @@ uint8_t GB_SUB_HL(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_SBC_A_R(SystemContext *ctx)
+uint8_t GB_SBC_A_R(EmulationState *ctx)
 {
     // encoding: 0b10011xxx
     /*
@@ -576,7 +578,7 @@ uint8_t GB_SBC_A_R(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_SBC_A_N(SystemContext *ctx)
+uint8_t GB_SBC_A_N(EmulationState *ctx)
 {
     // encoding: 0b11011110
     /*
@@ -604,7 +606,7 @@ uint8_t GB_SBC_A_N(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_SBC_A_HL(SystemContext *ctx) 
+uint8_t GB_SBC_A_HL(EmulationState *ctx) 
 {
     // encoding: 0b10011110
     /*
@@ -633,7 +635,7 @@ uint8_t GB_SBC_A_HL(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_AND_R(SystemContext *ctx)
+uint8_t GB_AND_R(EmulationState *ctx)
 {
     // encoding: 0b10100xxx
     /*
@@ -652,7 +654,7 @@ uint8_t GB_AND_R(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_AND_N(SystemContext *ctx)
+uint8_t GB_AND_N(EmulationState *ctx)
 {
     // encoding: 0b11100110 
     /*
@@ -678,7 +680,7 @@ uint8_t GB_AND_N(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_AND_HL(SystemContext *ctx)
+uint8_t GB_AND_HL(EmulationState *ctx)
 {
     // encoding: 0b10100110
     /*
@@ -704,7 +706,7 @@ uint8_t GB_AND_HL(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_XOR_R(SystemContext *ctx)
+uint8_t GB_XOR_R(EmulationState *ctx)
 {
     // encoding: 0b10101xxx
     /*
@@ -731,7 +733,7 @@ uint8_t GB_XOR_R(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_XOR_N(SystemContext *ctx)
+uint8_t GB_XOR_N(EmulationState *ctx)
 {
     // encoding: 0b11101110
     /*
@@ -756,7 +758,8 @@ uint8_t GB_XOR_N(SystemContext *ctx)
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
 }
-uint8_t GB_XOR_HL(SystemContext *ctx)
+
+uint8_t GB_XOR_HL(EmulationState *ctx)
 {
     // encoding: 0b10101110
     /*
@@ -782,7 +785,7 @@ uint8_t GB_XOR_HL(SystemContext *ctx)
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
 }
-uint8_t GB_OR_R(SystemContext *ctx)
+uint8_t GB_OR_R(EmulationState *ctx)
 {
     // encoding: 0b10110xxx
     /*
@@ -807,7 +810,7 @@ uint8_t GB_OR_R(SystemContext *ctx)
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
 }
-uint8_t GB_OR_N(SystemContext *ctx)
+uint8_t GB_OR_N(EmulationState *ctx)
 {
     // encoding: 0b11110110
     /*
@@ -832,7 +835,7 @@ uint8_t GB_OR_N(SystemContext *ctx)
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
 }
-uint8_t GB_OR_HL(SystemContext *ctx)
+uint8_t GB_OR_HL(EmulationState *ctx)
 {
     // encoding: 0b10110110
     /*
@@ -858,7 +861,7 @@ uint8_t GB_OR_HL(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_CP_R(SystemContext *ctx)
+uint8_t GB_CP_R(EmulationState *ctx)
 {
     // encoding: 0b10111xxx
     /*
@@ -881,7 +884,7 @@ uint8_t GB_CP_R(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_CP_N(SystemContext *ctx)
+uint8_t GB_CP_N(EmulationState *ctx)
 {
     // encoding: 0b11111110
     /*
@@ -906,7 +909,7 @@ uint8_t GB_CP_N(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_CP_HL(SystemContext *ctx)
+uint8_t GB_CP_HL(EmulationState *ctx)
 {
     // encoding: 0b10111110
     /*
@@ -930,7 +933,7 @@ uint8_t GB_CP_HL(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_INC_R(SystemContext *ctx)
+uint8_t GB_INC_R(EmulationState *ctx)
 {
     // encoding:0b00xxx100
     /*
@@ -954,7 +957,7 @@ uint8_t GB_INC_R(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_INC_HL(SystemContext *ctx)
+uint8_t GB_INC_HL(EmulationState *ctx)
 {
     // encoding: 0b00110100
     /*
@@ -980,7 +983,7 @@ uint8_t GB_INC_HL(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_DEC_R(SystemContext *ctx)
+uint8_t GB_DEC_R(EmulationState *ctx)
 {
     // encoding: 0b00xxx101
     /*
@@ -1004,7 +1007,7 @@ uint8_t GB_DEC_R(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_DEC_HL(SystemContext *ctx)
+uint8_t GB_DEC_HL(EmulationState *ctx)
 {
     // encoding: 0b00110101
     /*
@@ -1030,7 +1033,7 @@ uint8_t GB_DEC_HL(SystemContext *ctx)
     GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_DAA(SystemContext *ctx)
+uint8_t GB_DAA(EmulationState *ctx)
 {
     // encoding: 0b00100111
     /*
@@ -1039,7 +1042,7 @@ uint8_t GB_DAA(SystemContext *ctx)
     
 }
 
-uint8_t GB_CPL(SystemContext *ctx)
+uint8_t GB_CPL(EmulationState *ctx)
 {
     // encoding:0b00101111
     /*
@@ -1059,7 +1062,7 @@ uint8_t GB_CPL(SystemContext *ctx)
 }
 
 // 16 BIT ALU INSTRUCTIONS
-uint8_t GB_ADD_HL_RR(SystemContext *ctx)
+uint8_t GB_ADD_HL_RR(EmulationState *ctx)
 {
     // encoding: ???
     /*
@@ -1094,7 +1097,7 @@ uint8_t GB_ADD_HL_RR(SystemContext *ctx)
     return 0;
 }
 
-uint8_t GB_INC_RR(SystemContext *ctx)
+uint8_t GB_INC_RR(EmulationState *ctx)
 {
     // encoding: 0b0000rr11
     /*
@@ -1105,7 +1108,7 @@ uint8_t GB_INC_RR(SystemContext *ctx)
     GB_SetReg16(ctx, rr, rrInc, REG16_MODE_SP);
 }
 
-uint8_t GB_DEC_RR(SystemContext *ctx)
+uint8_t GB_DEC_RR(EmulationState *ctx)
 {
     // encoding: 0b00rr1011
     /*
@@ -1116,72 +1119,147 @@ uint8_t GB_DEC_RR(SystemContext *ctx)
     GB_SetReg16(ctx, rr, rrDec, REG16_MODE_SP);
 }
 
-uint8_t GB_ADD_SP_DD(SystemContext *ctx)
+uint8_t GB_ADD_SP_DD(EmulationState *ctx)
 {
     // encoding: E8 dd 
     /*
         SP = SP +/- dd ; dd is 8-bit signed number
     */
+    const char dd = (char) GB_BusRead(ctx, ctx->registers->PC++);
+    const short sum =  GB_GetReg16(ctx, GB_SP_OFFSET, REG16_MODE_SP) + dd;
+    GB_SetReg16(ctx, GB_SP_OFFSET, sum, REG16_MODE_SP);
+    
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG,0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_LD_HL_SP_PLUS_DD(SystemContext *ctx)
+uint8_t GB_LD_HL_SP_PLUS_DD(EmulationState *ctx)
 {
     // encoding: F8 dd
     /*
         HL = SP +/- dd ; dd is 8-bit signed number
     */
+
+    const char dd = (char) GB_BusRead(ctx, ctx->registers->PC++);
+    const short sum =  GB_GetReg16(ctx, GB_SP_OFFSET, REG16_MODE_SP) + dd;
+    GB_SetReg16(ctx, GB_HL_OFFSET, sum, REG16_MODE_SP);
+    
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG,0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
+    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
 // ROTATE AND SHIFT INSTRUCTIONS
-uint8_t GB_RLCA(SystemContext *ctx)
+uint8_t GB_RLCA(EmulationState *ctx)
 {
     // encoding: 0x07
     /*
-        rotate A left  
-    */
+        rotate A left trough carry
+    */   
+   const uint8_t c = GB_TEST_F(ctx, GB_C_FLAG);
+   uint8_t shifted = GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) << 1 << c;
+   GB_SetReg8(ctx, GB_A_OFFSET, shifted, REG8_MODE_A);
+   
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 0);
+    GB_SET_F(GB_C_FLAG, shifted >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_RLA(SystemContext *ctx)
+uint8_t GB_RLA(EmulationState *ctx)
 {
     // encoding: 0x17
     /*
-    
+        rotate A left
     */
+
+   uint8_t shifted = GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) << 1;
+   GB_SetReg8(ctx, GB_A_OFFSET, shifted, REG8_MODE_A);
+   
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 0);
+    GB_SET_F(GB_C_FLAG, shifted >> 7 == 0x01);
+    
+    //Used to set F reg 
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_RRCA(SystemContext *ctx)
+uint8_t GB_RRCA(EmulationState *ctx)
 {
     // encoding: 0x0F
     /*
-        rotate A right      
+        rotate right A through carry
     */
+    const uint8_t c = GB_TEST_F(ctx, GB_C_FLAG);
+    uint8_t shifted = GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) >> 1 >> c;
+    GB_SetReg8(ctx, GB_A_OFFSET, shifted, REG8_MODE_A);
+
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 0);
+    GB_SET_F(GB_C_FLAG, shifted >> 7 == 0x01);
+
+    // Used to set F reg
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_RRA(SystemContext *ctx)
+uint8_t GB_RRA(EmulationState *ctx)
 {
     // encoding: 0x1F
     /*
-        rotate A right through carry
+        rotate A right 
     */
+    uint8_t shifted = GB_GetReg8(ctx, GB_A_OFFSET, REG8_MODE_A) >> 1;
+    GB_SetReg8(ctx, GB_A_OFFSET, shifted, REG8_MODE_A);
+
+    GB_TMP_F();
+    GB_SET_F(GB_ZERO_FLAG, 0);
+    GB_SET_F(GB_N_FLAG, 0);
+    GB_SET_F(GB_H_FLAG, 0);
+    GB_SET_F(GB_C_FLAG, shifted >> 7 == 0x01);
+
+    // Used to set F reg
+    GB_F_OR_AF(ctx, tmpRegF);
 }
 
-uint8_t GB_RLC_R(SystemContext *ctx)
+// CB PREFIX INSTRUCTIONS STARTS HERE!!!
+// SINGLE BIT OPERATIONS (CB PREFIX)
+
+uint8_t GB_RLC_R(EmulationState *ctx)
 {
     // encoding: CB 0x 
     /*
-        rotate left r
+        rotate left r trough carry
     */
 }
 
-uint8_t GB_RLC_HL(SystemContext *ctx)
+uint8_t GB_RLC_HL(EmulationState *ctx)
 {
     //encoding: CB 06
     /*
-        rotate left  hl
+        rotate left  hl trough carry
     */
 }
 
-uint8_t GB_RL_R(SystemContext *ctx)
+uint8_t GB_RL_R(EmulationState *ctx)
 {
     // encoding: CB 1x
     /*
@@ -1189,7 +1267,7 @@ uint8_t GB_RL_R(SystemContext *ctx)
     */
 }
 
-uint8_t GB_RL_HL(SystemContext *ctx)
+uint8_t GB_RL_HL(EmulationState *ctx)
 {
     // encoding: CB 16 
     /*
@@ -1197,7 +1275,7 @@ uint8_t GB_RL_HL(SystemContext *ctx)
     */
 }
 
-uint8_t GB_RRC_R(SystemContext *ctx)
+uint8_t GB_RRC_R(EmulationState *ctx)
 {
     // encoding: CB 0x
     /*
@@ -1205,7 +1283,7 @@ uint8_t GB_RRC_R(SystemContext *ctx)
     */
 }
 
-uint8_t GB_RRC_HL(SystemContext *ctx)
+uint8_t GB_RRC_HL(EmulationState *ctx)
 {
     // encoding: CB 0E
     /*
@@ -1213,7 +1291,7 @@ uint8_t GB_RRC_HL(SystemContext *ctx)
     */
 }
 
-uint8_t GB_RR_R(SystemContext *ctx)
+uint8_t GB_RR_R(EmulationState *ctx)
 {
     // encoding: CB 1x
     /*
@@ -1221,7 +1299,7 @@ uint8_t GB_RR_R(SystemContext *ctx)
     */
 }
 
-uint8_t GB_RR_HL(SystemContext *ctx)
+uint8_t GB_RR_HL(EmulationState *ctx)
 {
     // encoding: CB 1E 
     /*
@@ -1229,7 +1307,7 @@ uint8_t GB_RR_HL(SystemContext *ctx)
     */
 }
 
-uint8_t GB_SLA_R(SystemContext *ctx)
+uint8_t GB_SLA_R(EmulationState *ctx)
 {
     // encoding: CB 2x
     /*
@@ -1237,7 +1315,7 @@ uint8_t GB_SLA_R(SystemContext *ctx)
     */
 }
 
-uint8_t GB_SLA_HL(SystemContext *ctx)
+uint8_t GB_SLA_HL(EmulationState *ctx)
 {
     // encoding: CB 26
     /*
@@ -1245,7 +1323,7 @@ uint8_t GB_SLA_HL(SystemContext *ctx)
     */
 }
 
-uint8_t GB_SWAP_R(SystemContext *ctx)
+uint8_t GB_SWAP_R(EmulationState *ctx)
 {
     // encoding: CB 3x
     /*
@@ -1253,7 +1331,7 @@ uint8_t GB_SWAP_R(SystemContext *ctx)
     */
 }
 
-uint8_t GB_SWAP_HL(SystemContext *ctx)
+uint8_t GB_SWAP_HL(EmulationState *ctx)
 {
     // encoding: CB 36
     /*
@@ -1261,7 +1339,7 @@ uint8_t GB_SWAP_HL(SystemContext *ctx)
     */
 }
 
-uint8_t GB_SRA_R(SystemContext *ctx)
+uint8_t GB_SRA_R(EmulationState *ctx)
 {
     // encoding: CB 2x
     /*
@@ -1269,21 +1347,21 @@ uint8_t GB_SRA_R(SystemContext *ctx)
     */
 }
 
-uint8_t GB_SRA_HL(SystemContext *ctx)
+uint8_t GB_SRA_HL(EmulationState *ctx)
 {
     // encoding: CB 2E
     /*
         shift right arithmetic (b7=b7) (hl)
     */
 }
-uint8_t GB_SRL_R(SystemContext *ctx)
+uint8_t GB_SRL_R(EmulationState *ctx)
 {
     // encoding: CB 3x 
     /*
         shift right logical (b7=0) r
     */
 }
-uint8_t GB_SRL_HL(SystemContext *ctx)
+uint8_t GB_SRL_HL(EmulationState *ctx)
 {
     // encoding: CB 3E 
     /*
@@ -1291,9 +1369,7 @@ uint8_t GB_SRL_HL(SystemContext *ctx)
     */
 }
 
-// SINGLE BIT OPERATIONS (CB PREFIX)
-
-uint8_t GB_CB_BIT_N_R(SystemContext *ctx)
+uint8_t GB_CB_BIT_N_R(EmulationState *ctx)
 {
     // encoding: CB xx
     /*
@@ -1301,7 +1377,7 @@ uint8_t GB_CB_BIT_N_R(SystemContext *ctx)
     */
 }   
 
-uint8_t GB_CB_BIT_N_HL(SystemContext *ctx)
+uint8_t GB_CB_BIT_N_HL(EmulationState *ctx)
 {
     // encoding: CB xx
     /*
@@ -1309,7 +1385,7 @@ uint8_t GB_CB_BIT_N_HL(SystemContext *ctx)
     */
 }
 
-uint8_t GB_CB_SET_N_R(SystemContext *ctx)
+uint8_t GB_CB_SET_N_R(EmulationState *ctx)
 {
     // encoding: CB xx
     /*
@@ -1317,7 +1393,7 @@ uint8_t GB_CB_SET_N_R(SystemContext *ctx)
     */
 }   
 
-uint8_t GB_CB_SET_N_HL(SystemContext *ctx)
+uint8_t GB_CB_SET_N_HL(EmulationState *ctx)
 {
     // encoding: CB xx
     /*
@@ -1325,7 +1401,7 @@ uint8_t GB_CB_SET_N_HL(SystemContext *ctx)
     */
 }
 
-uint8_t GB_CB_RES_N_R(SystemContext *ctx)
+uint8_t GB_CB_RES_N_R(EmulationState *ctx)
 {
     // encoding: CB xx
     /*
@@ -1333,7 +1409,7 @@ uint8_t GB_CB_RES_N_R(SystemContext *ctx)
     */
 }   
 
-uint8_t GB_CB_RES_N_HL(SystemContext *ctx)
+uint8_t GB_CB_RES_N_HL(EmulationState *ctx)
 {
     // encoding: CB xx
     /*
@@ -1341,16 +1417,15 @@ uint8_t GB_CB_RES_N_HL(SystemContext *ctx)
     */
 }
 
-
 // CPU CONTROL INSTRUCTIONS
-uint8_t GB_CCF(SystemContext *ctx)
+uint8_t GB_CCF(EmulationState *ctx)
 {
     // encoding: 3F
     /*
         cy=cy xor 1 
     */
 }
-uint8_t GB_SCF(SystemContext *ctx)
+uint8_t GB_SCF(EmulationState *ctx)
 {
     // encoding: 37
     /*
@@ -1358,7 +1433,7 @@ uint8_t GB_SCF(SystemContext *ctx)
     */
 }
 
-uint8_t GB_NOP(SystemContext *ctx)
+uint8_t GB_NOP(EmulationState *ctx)
 {
     // encoding: 00
     /*
@@ -1367,7 +1442,7 @@ uint8_t GB_NOP(SystemContext *ctx)
    return 4;
 }
 
-uint8_t GB_HALT(SystemContext *ctx)
+uint8_t GB_HALT(EmulationState *ctx)
 {
     // encoding: 76
     /*
@@ -1375,7 +1450,7 @@ uint8_t GB_HALT(SystemContext *ctx)
     */
 }
 
-uint8_t GB_STOP(SystemContext *ctx)
+uint8_t GB_STOP(EmulationState *ctx)
 {
     // encoding: 10 00
     /*
@@ -1383,7 +1458,7 @@ uint8_t GB_STOP(SystemContext *ctx)
     */
 }
 
-uint8_t GB_DI(SystemContext *ctx)
+uint8_t GB_DI(EmulationState *ctx)
 {
     // encoding: F3
     /*
@@ -1391,7 +1466,7 @@ uint8_t GB_DI(SystemContext *ctx)
     */
 }
 
-uint8_t GB_EI(SystemContext *ctx)
+uint8_t GB_EI(EmulationState *ctx)
 {
     // encoding: FB
     /*
@@ -1400,7 +1475,7 @@ uint8_t GB_EI(SystemContext *ctx)
 }
 
 // JUMP INSTRUCTIONS
-uint8_t GB_JP_NN(SystemContext *ctx)
+uint8_t GB_JP_NN(EmulationState *ctx)
 {
     // encoding: C3 nn nn
     /*
@@ -1408,7 +1483,7 @@ uint8_t GB_JP_NN(SystemContext *ctx)
     */
 }
 
-uint8_t GB_JP_HL(SystemContext *ctx)
+uint8_t GB_JP_HL(EmulationState *ctx)
 {
     // encoding: E9
     /*
@@ -1416,7 +1491,7 @@ uint8_t GB_JP_HL(SystemContext *ctx)
     */
 }
 
-uint8_t GB_JP_F_NN(SystemContext *ctx)
+uint8_t GB_JP_F_NN(EmulationState *ctx)
 {
     // encoding: xx nn nn
     /*
@@ -1424,7 +1499,7 @@ uint8_t GB_JP_F_NN(SystemContext *ctx)
     */
 }
 
-uint8_t GB_JR_PC_PLUS_DD(SystemContext *ctx)
+uint8_t GB_JR_PC_PLUS_DD(EmulationState *ctx)
 {
     // encoding: 18 dd
     /*
@@ -1432,7 +1507,7 @@ uint8_t GB_JR_PC_PLUS_DD(SystemContext *ctx)
     */
 }
 
-uint8_t GB_JR_F_PC_PLUS_DD(SystemContext *ctx)
+uint8_t GB_JR_F_PC_PLUS_DD(EmulationState *ctx)
 {
     // encoding: xx dd
     /*
@@ -1440,28 +1515,28 @@ uint8_t GB_JR_F_PC_PLUS_DD(SystemContext *ctx)
     */
 }
 
-uint8_t GB_CALL_NN(SystemContext *ctx)
+uint8_t GB_CALL_NN(EmulationState *ctx)
 {
     // encoding: CD nn nn 
     /*
         call to nn, SP=SP-2, (SP)=PC, PC=nn
     */
 }
-uint8_t GB_CALL_F_NN(SystemContext *ctx)
+uint8_t GB_CALL_F_NN(EmulationState *ctx)
 {
     // encoding: xx nn nn
     /*
         conditional call if nz,z,nc,c
     */
 }
-uint8_t GB_RET(SystemContext *ctx)
+uint8_t GB_RET(EmulationState *ctx)
 {
     // encoding: C9
     /*
         return, PC=(SP), SP=SP+2  
     */
 }
-uint8_t GB_RET_F(SystemContext *ctx)
+uint8_t GB_RET_F(EmulationState *ctx)
 {
     // encoding: xx
     /*
@@ -1469,7 +1544,7 @@ uint8_t GB_RET_F(SystemContext *ctx)
     */
 }
 
-uint8_t GB_RETI(SystemContext *ctx)
+uint8_t GB_RETI(EmulationState *ctx)
 {
     // encoding: D9
     /*
@@ -1477,10 +1552,15 @@ uint8_t GB_RETI(SystemContext *ctx)
     */
 }   
 
-uint8_t GB_RST_N(SystemContext *ctx)
+uint8_t GB_RST_N(EmulationState *ctx)
 {
     // encoding: xx
     /*
         call to 00,08,10,18,20,28,30,38
     */
+}
+
+uint8_t GB_CB_PREFIX_INSTRUCTIONS(EmulationState *ctx)
+{
+    //INSERT HERE THE DECODING PROCESSES OF CB PREFIX INSTRUCTIONS...
 }

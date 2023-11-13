@@ -7,17 +7,17 @@
  
 */
 
-uint8_t GB_BusRead(SystemContext *ctx, uint16_t address)
+uint8_t GB_BusRead(EmulationState *ctx, uint16_t address)
 {
     return 0;
 }
 
-void GB_BusWrite(SystemContext *ctx, uint16_t address, uint8_t value)
+void GB_BusWrite(EmulationState *ctx, uint16_t address, uint8_t value)
 {
 }
 
 // Normal register file accesing functions (indexed as B,E,D,E,H,L,A,F)
-void GB_SetReg8(SystemContext *ctx, uint8_t r, uint8_t value, uint8_t mode)
+void GB_SetReg8(EmulationState *ctx, uint8_t r, uint8_t value, uint8_t mode)
 {
     uint8_t *halfregs = ((uint8_t *)ctx->registers->CPU);
 
@@ -34,7 +34,7 @@ void GB_SetReg8(SystemContext *ctx, uint8_t r, uint8_t value, uint8_t mode)
     halfregs[r] = value;
 }
 
-uint8_t GB_GetReg8(SystemContext *ctx, uint8_t r, uint8_t mode)
+uint8_t GB_GetReg8(EmulationState *ctx, uint8_t r, uint8_t mode)
 {
     const uint8_t *halfregs = ((uint8_t *)ctx->registers->CPU);
 
@@ -50,12 +50,12 @@ uint8_t GB_GetReg8(SystemContext *ctx, uint8_t r, uint8_t mode)
     return halfregs[r];
 }
 
-void GB_SetReg16(SystemContext *ctx, uint8_t r, uint16_t value, uint8_t mode)
+void GB_SetReg16(EmulationState *ctx, uint8_t r, uint16_t value, uint8_t mode)
 {
 
 }
 
-uint16_t GB_GetReg16(SystemContext *ctx, uint8_t r, uint8_t mode)
+uint16_t GB_GetReg16(EmulationState *ctx, uint8_t r, uint8_t mode)
 {
 
 }

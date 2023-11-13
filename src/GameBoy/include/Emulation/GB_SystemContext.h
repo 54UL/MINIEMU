@@ -10,15 +10,14 @@
 typedef struct
 {
     // CPU STATE
-    uint8_t  IE;
-    uint8_t HALT;
-   
-    // OVERALL SYSTEM CONTEXT (TODO:IMPROVE MEMORY MANGEMENT)
-    uint8_t *memory;
-    GB_Registers *registers;
-    GB_Header *header;
-} SystemContext;
+    uint8_t         IE;
+    uint8_t         HALT;
+    uint8_t         *memory;
+    GB_Registers    *registers;
+    // Cartige
+    GB_Header       *header;
+} EmulationState;
 
-typedef uint8_t (*instructionFnPtrGb)(SystemContext * ctx);
+typedef uint8_t (*instructionFnPtrGb)(EmulationState *ctx);
 
 #endif
