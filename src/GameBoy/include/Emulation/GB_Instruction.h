@@ -6,7 +6,8 @@
 #define GB_DEBUG
 
 typedef struct {
-    uint16_t mask;
+    uint16_t maskl;
+    // uint16_t maskh;
     uint16_t opcode;
     instructionFnPtrGb handler;
 #ifdef GB_DEBUG

@@ -3,7 +3,6 @@
 //https://github.com/Hacktix/BullyGB/wiki
 //http://blargg.8bitalley.com/parodius/gb-tests/
 
-#define TEST_ROOM_PATH "../../../ROMS/GameBoy/bully.gb"
 // #define TEST_ROOM_PATH "../../../ROMS/GameBoy/blargg-ld_r_r.gb"
 
 extern "C" 
@@ -15,7 +14,7 @@ extern "C"
 TEST(GameBoy_CPU, opcodeTest)
 {
     Emulation *emulator;
-    SystemContext *emulationCtx;
+    EmulationState *emulationCtx;
 
     long programSize = 0;
     long executionCount = 0;
@@ -24,14 +23,14 @@ TEST(GameBoy_CPU, opcodeTest)
     bool executionStatus = true;
 
     emulator = &GameBoyEmulator;
-    MNE_New(emulationCtx, 1, SystemContext);
+    MNE_New(emulationCtx, 1, EmulationState);
 
     // Initialize the emualtion api
     emulator->SetEmulationContext((void *) emulationCtx);
     emulator->Initialize(NULL, NULL);
 
     // Load ROM into memory starting from (0x0000)
-    programSize = emulator->LoadProgram(TEST_ROOM_PATH);
+    // programSize = emulator->LoadProgram(TEST_ROOM_PATH);
     executionStatus = programSize > 0;
     
     // // Program size is just an reference for max execution limit (thus due to data in the code...)

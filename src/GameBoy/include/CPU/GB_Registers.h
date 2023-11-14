@@ -3,11 +3,24 @@
 
 #include <stdint.h>
 
+/*
+    posible structure for registers, put this inside of a structure:
+    union {
+        struct {
+            u16 AF, BC, DE, HL;
+        } reg16;
+        struct {
+            u8 F, A, C, B, E, D, L, H;
+        } reg8;
+    };
+*/
+
 // 16 bit registers instruction encoding offests
 #define GB_BC_OFFSET 0
 #define GB_DE_OFFSET 1
 #define GB_HL_OFFSET 2
 #define GB_AF_OFFSET 3
+#define GB_SP_OFFSET 3
 
 //REGISTERS OFFSETS
 // LSB MSB ARE FLIPPED THAT'S WHY B = 1 AND C = 0 AND 
@@ -28,7 +41,6 @@
 
 //BRIEF: This is used for checking decoded 'r' value is an HL indirect addressing mode (NOT THE SAME AS THE GB_HL_OFFSET)
 #define GB_HL_R_INDIRECT_OFFSET 0x06
-#define GB_SP_RR_OFFSET 0x04
 
 //TODO: WHEN WIDELY USED CHECK PERFORMANCE REPLACING FOR A FUNCTION...
 #define GB_U8_TO_U16(LSB, MSB) (uint16_t)(lsb | (msb << 8))
