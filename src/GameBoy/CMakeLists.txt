@@ -1,7 +1,6 @@
 project(GameBoy C)
 # set(CMAKE_C_COMPILER "gcc")
-message("Configuring MINEMU GameBoy")
-
+message("MINEMU GameBoy")
 
 # List all the source files of the GameBoy library
 set(GB_HEADERS
@@ -36,3 +35,4 @@ target_include_directories(GameBoy PUBLIC
 
 # Link any necessary libraries 
 target_link_libraries(GameBoy PRIVATE Core)
+

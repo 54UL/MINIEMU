@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 project(MINEMU C)
 
 # BUILD CONFIGS
-set(MINEMU_TESTS OFF)
+set(MINEMU_TESTS ON)
+set(MINEMU_DEBUG ON)
 
 # gtests
 include(FetchContent)
@@ -14,11 +15,14 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+
+message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 # MINEMU MODULES
 add_subdirectory(src/Core)
 add_subdirectory(src/Chip8)
 add_subdirectory(src/GameBoy)
 add_subdirectory(src/App)
+
 
 if (MINEMU_TESTS) 
   # TEST EXECUTABLE TARGET

@@ -324,8 +324,8 @@ uint8_t GB_ADD_A_R(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 0);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -351,8 +351,8 @@ uint8_t GB_ADD_A_N(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 0);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -378,8 +378,8 @@ uint8_t GB_ADD_A_HL(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 0);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -406,8 +406,8 @@ uint8_t GB_ADC_A_R(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 0);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -435,8 +435,8 @@ uint8_t GB_ADC_A_N(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 0);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -464,8 +464,8 @@ uint8_t GB_ADC_A_HL(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 0);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -490,8 +490,8 @@ uint8_t GB_SUB_R(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 1);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -517,8 +517,8 @@ uint8_t GB_SUB_N(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 1);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -544,8 +544,8 @@ uint8_t GB_SUB_HL(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 1);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -571,8 +571,8 @@ uint8_t GB_SBC_A_R(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 1);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -599,8 +599,8 @@ uint8_t GB_SBC_A_N(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 1);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -628,8 +628,8 @@ uint8_t GB_SBC_A_HL(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG, sum == 0);
     GB_SET_F(GB_N_FLAG, 1);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -1132,8 +1132,8 @@ uint8_t GB_ADD_SP_DD(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG,0);
     GB_SET_F(GB_N_FLAG, 0);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);
@@ -1153,8 +1153,8 @@ uint8_t GB_LD_HL_SP_PLUS_DD(EmulationState *ctx)
     GB_TMP_F();
     GB_SET_F(GB_ZERO_FLAG,0);
     GB_SET_F(GB_N_FLAG, 0);
-    GB_SET_F(GB_H_FLAG, sum >> 3 == 0x01);
-    GB_SET_F(GB_C_FLAG, sum >> 7 == 0x01);
+    GB_SET_F(GB_H_FLAG, (sum & 0x0F) > 0x0F);
+    GB_SET_F(GB_C_FLAG, sum > 0xFF);
     
     //Used to set F reg 
     GB_F_OR_AF(ctx, tmpRegF);

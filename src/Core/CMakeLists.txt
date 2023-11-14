@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-message("Configuring MINEMU Core")
+message("MINEMU Core")
 project(Core C)
 set(CMAKE_C_COMPILER "gcc")
 

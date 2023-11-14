@@ -2,9 +2,6 @@
 #define GB_INSTRUCTION_H
 #include <Emulation/GB_SystemContext.h>
 
-//TODO: DEFINE THIS SYMBOL ON CMAKE AND NOT HERE...
-#define GB_DEBUG
-
 typedef struct {
     uint16_t maskl;
     // uint16_t maskh;
