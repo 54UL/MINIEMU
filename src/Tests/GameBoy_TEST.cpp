@@ -15,17 +15,9 @@ extern "C"
 
 // 8-BIT LOAD INSTRUCTIONS TEST to implement...
 
-// Load value 0x34 into register B
-const uint8_t loadB[] = {0x06, 0x34};
 
-// Load value 0x56 into register C
-const uint8_t loadC[] = {0x0E, 0x56};
 
-// Load value 0x78 into register D
-const uint8_t loadD[] = {0x16, 0x78};
 
-// Load value 0x9A into register E
-const uint8_t loadE[] = {0x1E, 0x9A};
 
 // Load value 0xBC into register H
 const uint8_t loadH[] = {0x26, 0xBC};
@@ -75,53 +67,71 @@ const uint8_t storeEFAtHL[] = {0x36, 0xEF};
 // Store value 0xCD at address DE
 const uint8_t storeCDAtDE[] = {0x12, 0xCD};
 
+bool LoadTests8B(const Emulation *emulator, const EmulationState *emulationCtx);
+bool RunProgram(const Emulation *emulator, const EmulationState *emulationCtx, const uint8_t *programArray, const uint16_t programLength);
 
-bool loadATest(Emulation *emulator, EmulationState *emulationCtx)
+bool LoadTests8B(const Emulation *emulator, const EmulationState *emulationCtx)
 {
-    // Load value 0x12 into register A -> LD A,r8
-
-    // 
-    const uint8_t loadA[] = {0x3E, 0x12};
-    const long programSize = sizeof(loadA);
-
     bool executionStatus = true;
+    constexpr uint8_t testValue = 0x12;
+    const uint8_t loadA[] = {0x3E, testValue};
+    const uint8_t loadB[] = {0x06, testValue};
+    const uint8_t loadC[] = {0x0E, testValue};
+    const uint8_t loadD[] = {0x16, testValue};
+    const uint8_t loadE[] = {0x1E, testValue};
 
-    // From the start of the program, later on it will have to be pc...
-    for (int i = 0; i < programSize; i++)
-    {
-        emulationCtx->memory[i] = loadA[i];
-    }
+    // Run the program 
+    executionStatus = RunProgram(emulator, emulationCtx, loadA, sizeof(loadA));
 
-    // Step emulation
-    emulator->TickEmulation();
-
-    // Check if processed op code was executed fine
-    executionStatus = emulationCtx->registers->INSTRUCTION != GB_INVALID_INSTRUCTION;
-
-    // Check opcode operation was ok...
+    // Check the program result
     executionStatus = emulationCtx->registers->CPU[GB_AF_OFFSET] >> 8 == 0x0012;
 
     return executionStatus;
 }
 
+bool RunProgram(const Emulation *emulator, const EmulationState *emulationCtx, const uint8_t *programArray, const uint16_t programLength)
+{
+    bool executionStatus = true;
+
+    // From the start of the program, later on it will have to be pc...
+    const uint16_t pos = emulationCtx->registers->PC;
+
+    // Copy program into current pc position (just for testing...)
+    for (int i = pos; i < (pos + programLength); i++)
+    {
+        emulationCtx->memory[i] = programArray[i];
+    }
+
+    // Process instructions...
+    for (int i = 0; i < programLength; i++)
+    {
+        // Step emulation
+        emulator->TickEmulation();
+
+         // Check if processed op code was executed fine
+        executionStatus = emulationCtx->registers->INSTRUCTION != GB_INVALID_INSTRUCTION;
+
+        if (executionStatus) break;
+    }
+
+    return executionStatus;
+}
 
 TEST(GameBoy_CPU, opcodeTest)
 {
-    Emulation *emulator;
-    EmulationState *emulationCtx;
-    bool executionStatus = true;
-
+    const Emulation *emulator = &GameBoyEmulator;;
+    const EmulationState *emulationCtx;
+    bool executionStatus = false;
     long instructionsExecuted = 0;
 
-    emulator = &GameBoyEmulator;
     MNE_New(emulationCtx, 1, EmulationState);
 
     // Initialize the emualtion api
     emulator->SetEmulationContext((void *)emulationCtx);
     emulator->Initialize(NULL, NULL);
 
-    // loadA test
-    executionStatus = loadATest(emulator, emulationCtx);
+    // 8 Bit load instructions
+    executionStatus = LoadTests8B(emulator, emulationCtx);
 
     // Dispose emulation resources here..
     emulator->QuitProgram();
