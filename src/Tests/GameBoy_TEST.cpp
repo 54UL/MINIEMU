@@ -1,23 +1,25 @@
 /*
 TODO WALL:
     - SEPARTE LOAD/COPY/STORE INSTRUCTIONS INTO INDEPEDENT TEST CASES FROM LoadTests8B
+    - IMPLEMENT CORNER CASES AND CB PREFIX TESTS... (OH GOOD PLEASE HAVE MERCY ON ME)
     - Refactors needed and a header file...
     - Rename this test file to 'GameBoyCpuTest'
+    - Make expectMessage only to return the name of the function...
+
 RESOURCES:
 - TEST ROOMS EMULATION REFERENCES:
     - https://github.com/Hacktix/BullyGB/wiki
     - http://blargg.8bitalley.com/parodius/gb-tests/
-
 */
 
 // #define TEST_ROOM_PATH "../../../ROMS/GameBoy/blargg-ld_r_r.gb"
 #define ExpectMessage(instr, message) "GB INSTRUCTION [" << #instr << "] EXPECTED: " << #message;
+#define GB_DEBUG
 
 #include <gtest/gtest.h>
 #include <stdlib.h>
 extern "C"
 {
-#define GB_DEBUG
 #include <minemu.h>
 #include <GameBoy.h>
 }
