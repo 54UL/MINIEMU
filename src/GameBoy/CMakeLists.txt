@@ -25,6 +25,10 @@ set(GB_SOURCES
 # Create the GameBoy_MINEMU shared library
 add_library(GameBoy STATIC  ${GB_SOURCES} ${GB_HEADERS})
 
+if(MINEMU_DEBUG)
+    add_compile_definitions(GB_DEBUG)
+endif()
+
 # Include directories for the proyect itself...
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 

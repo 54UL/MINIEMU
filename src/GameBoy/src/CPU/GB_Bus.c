@@ -4,7 +4,6 @@
 - IMPLEMENT HARDWARE REGISTER HASH LIST TO CHECK ACCESS POLICY (R, R/W,TRIGGER ON W, ETC)
 - IMPLEMENT HARDWARE REGISTERS.... LOL
 - MEMORY ACCESS SHOULD NOT BE MULTI THREADED...
-
 */
 
 uint8_t GB_BusRead(EmulationState *ctx, uint16_t address)
@@ -45,7 +44,7 @@ uint8_t GB_GetReg8(EmulationState *ctx, uint8_t r, uint8_t mode)
 
 void GB_SetReg16(EmulationState *ctx, uint8_t r, uint16_t value, uint8_t mode)
 {
-    if (REG16_MODE_AF)
+    if ((REG16_MODE_AF & mode) == 1)
     {
         ctx->registers->CPU[r] = value;
         return;
@@ -58,5 +57,5 @@ void GB_SetReg16(EmulationState *ctx, uint8_t r, uint16_t value, uint8_t mode)
 
 uint16_t GB_GetReg16(EmulationState *ctx, uint8_t r, uint8_t mode)
 {
-    return REG16_MODE_AF ? ctx->registers->CPU[r] : ctx->registers->SP;
+    return (REG16_MODE_AF & mode) ? ctx->registers->CPU[r] : ctx->registers->SP;
 }

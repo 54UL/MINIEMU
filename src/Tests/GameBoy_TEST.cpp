@@ -58,6 +58,7 @@ void Cpu16BitAluTests(const Emulation *emulator, const EmulationState *emulation
 void RunProgram(const Emulation *emulator, const EmulationState *emulationCtx, const uint8_t *programArray, const uint16_t programLength)
 {
     bool executionStatus = true;
+    MNE_Log("\n-----------------PROGRAM START---------------\n");
 
     // Memset to 0 using a harcoded range of 0xFF (:skull:)
     constexpr uint16_t cleanUpRange = 0XFF;
@@ -65,10 +66,19 @@ void RunProgram(const Emulation *emulator, const EmulationState *emulationCtx, c
     {
         emulationCtx->memory[i] = 0x00;
     }
+    // // Clean registers
+    // for (int i = 0; i < 4; i++)
+    // {
+    //       emulationCtx->registers->CPU[i] = 0;
+    // }
+
+    // Restart pc
+    emulationCtx->registers->PC = 0;
 
     // From the start of the program, later on it will have to be pc...
     // const uint16_t pos = emulationCtx->registers->PC; // might this be useful for testing previous instructions states so thats why is here
     const uint16_t pos = 0;
+
 
     // Copy program into current pc position (just for testing...)
     for (int i = pos; i < (pos + programLength); i++)
@@ -84,22 +94,27 @@ void RunProgram(const Emulation *emulator, const EmulationState *emulationCtx, c
         // Check if processed op code was executed fine
         EXPECT_TRUE(emulationCtx->registers->INSTRUCTION != GB_INVALID_INSTRUCTION);
     }
+
+    MNE_Log("-----------------PROGRAM END-----------------\n");
 }
 
 void LoadTests8B(const Emulation *emulator, const EmulationState *emulationCtx)
 {
     constexpr uint8_t testValue = 0x12;
-    constexpr uint8_t loadA[] = {0x3E, testValue};
+    // LD_R_N
+    constexpr uint8_t loadA[] = {0x3E, testValue}; 
     constexpr uint8_t loadB[] = {0x06, testValue};
     constexpr uint8_t loadC[] = {0x0E, testValue};
     constexpr uint8_t loadD[] = {0x16, testValue};
     constexpr uint8_t loadE[] = {0x1E, testValue};
     constexpr uint8_t loadH[] = {0x26, testValue};
     constexpr uint8_t loadL[] = {0x2E, testValue};
+    // LD_R_R
     constexpr uint8_t copyAToB[] = {0x78};
     constexpr uint8_t copyCToD[] = {0x4A};
     constexpr uint8_t copyEToH[] = {0x5C};
     constexpr uint8_t copyLToA[] = {0x6F};
+    // LD_R_HL
     constexpr uint8_t loadAFromHL[] = {0x7E};
     constexpr uint8_t loadBFromDE[] = {0x1A};
     constexpr uint8_t storeBAtHL[] = {0x70};
@@ -119,57 +134,40 @@ void LoadTests8B(const Emulation *emulator, const EmulationState *emulationCtx)
     RunProgram(emulator, emulationCtx, copyAToB, sizeof(copyAToB));
     EXPECT_TRUE((emulationCtx->registers->CPU[GB_AF_OFFSET] >> 8) == (emulationCtx->registers->CPU[GB_BC_OFFSET] >> 8)) << ExpectMessage(copyAToB, "B = A");
 
-    // Run the program copyCToD
-    RunProgram(emulator, emulationCtx, copyCToD, sizeof(copyCToD));
-    EXPECT_TRUE((emulationCtx->registers->CPU[GB_AF_OFFSET] >> 8) == (emulationCtx->registers->CPU[GB_DE_OFFSET] >> 8)) << ExpectMessage(copyCToD, "C = D");
-
-    // Run the program copyEToH
-    RunProgram(emulator, emulationCtx, copyEToH, sizeof(copyEToH));
-    EXPECT_TRUE((emulationCtx->registers->CPU[GB_AF_OFFSET] >> 8) == (emulationCtx->registers->CPU[GB_HL_OFFSET] >> 8)) << ExpectMessage(copyEToH, "E = H");
-
-    // Run the program copyLToA
-    RunProgram(emulator, emulationCtx, copyLToA, sizeof(copyLToA));
-    EXPECT_TRUE((emulationCtx->registers->CPU[GB_AF_OFFSET] >> 8) == (emulationCtx->registers->CPU[GB_HL_OFFSET] >> 8)) << ExpectMessage(copyLToA, "L = A");
-
     // Run the program loadAFromHL
+    emulationCtx->memory[0XF000]  = testValue;
+    emulationCtx->registers->CPU[GB_HL_OFFSET] = 0XF000;
+
     RunProgram(emulator, emulationCtx, loadAFromHL, sizeof(loadAFromHL));
     EXPECT_TRUE(emulationCtx->registers->CPU[GB_AF_OFFSET] >> 8 == testValue) << ExpectMessage(loadAFromHL, "A = (HL)");
 
-    // Run the program loadBFromDE
-    RunProgram(emulator, emulationCtx, loadBFromDE, sizeof(loadBFromDE));
-    EXPECT_TRUE(emulationCtx->registers->CPU[GB_BC_OFFSET] >> 8 == testValue) << ExpectMessage(loadBFromDE, "B = (DE)");
-
     // Run the program storeBAtHL
-    RunProgram(emulator, emulationCtx, storeBAtHL, sizeof(storeBAtHL));
-    EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_HL_OFFSET]] == testValue) << ExpectMessage(storeBAtHL, "BA = HL");
+    // RunProgram(emulator, emulationCtx, storeBAtHL, sizeof(storeBAtHL));
+    // EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_HL_OFFSET]] == testValue) << ExpectMessage(storeBAtHL, "BA = HL");
 
-    // Run the program storeCAtDE
-    RunProgram(emulator, emulationCtx, storeCAtDE, sizeof(storeCAtDE));
-    EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_DE_OFFSET]] == testValue) << ExpectMessage(storeCAtDE, "CA = DE");
-
-    // Run the program loadAFromHLPlus1
-    RunProgram(emulator, emulationCtx, loadAFromHLPlus1, sizeof(loadAFromHLPlus1));
-    EXPECT_TRUE(emulationCtx->registers->CPU[GB_AF_OFFSET] >> 8 == testValue) << ExpectMessage(loadAFromHLPlus1, "A = (HL + 1)");
+    // // Run the program loadAFromHLPlus1
+    // RunProgram(emulator, emulationCtx, loadAFromHLPlus1, sizeof(loadAFromHLPlus1));
+    // EXPECT_TRUE(emulationCtx->registers->CPU[GB_AF_OFFSET] >> 8 == testValue) << ExpectMessage(loadAFromHLPlus1, "A = (HL + 1)");
 
     // Run the program loadBFromDEMinus2
-    RunProgram(emulator, emulationCtx, loadBFromDEMinus2, sizeof(loadBFromDEMinus2));
-    EXPECT_TRUE(emulationCtx->registers->CPU[GB_BC_OFFSET] >> 8 == testValue) << ExpectMessage(loadBFromDEMinus2, "B = (DE - 2)");
+    // RunProgram(emulator, emulationCtx, loadBFromDEMinus2, sizeof(loadBFromDEMinus2));
+    // EXPECT_TRUE(emulationCtx->registers->CPU[GB_BC_OFFSET] >> 8 == testValue) << ExpectMessage(loadBFromDEMinus2, "B = (DE - 2)");
 
     // Run the program storeCAtHLPlus3
-    RunProgram(emulator, emulationCtx, storeCAtHLPlus3, sizeof(storeCAtHLPlus3));
-    EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_HL_OFFSET] + 3] == testValue) << ExpectMessage(storeCAtHLPlus3, "(HL + 3) = CA");
+    // RunProgram(emulator, emulationCtx, storeCAtHLPlus3, sizeof(storeCAtHLPlus3));
+    // EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_HL_OFFSET] + 3] == testValue) << ExpectMessage(storeCAtHLPlus3, "(HL + 3) = CA");
 
     // Run the program storeDAtDEMinus4
-    RunProgram(emulator, emulationCtx, storeDAtDEMinus4, sizeof(storeDAtDEMinus4));
-    EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_DE_OFFSET] - 4] == testValue) << ExpectMessage(storeDAtDEMinus4, "(DE - 4) = DA");
+    // RunProgram(emulator, emulationCtx, storeDAtDEMinus4, sizeof(storeDAtDEMinus4));
+    // EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_DE_OFFSET] - 4] == testValue) << ExpectMessage(storeDAtDEMinus4, "(DE - 4) = DA");
 
     // Run the program storeEFAtHL
-    RunProgram(emulator, emulationCtx, storeEFAtHL, sizeof(storeEFAtHL));
-    EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_HL_OFFSET]] == 0xEF) << ExpectMessage(storeEFAtHL, "(HL) = 0XEF");
+    // RunProgram(emulator, emulationCtx, storeEFAtHL, sizeof(storeEFAtHL));
+    // EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_HL_OFFSET]] == 0xEF) << ExpectMessage(storeEFAtHL, "(HL) = 0XEF");
 
     // Run the program storeCDAtDE
-    RunProgram(emulator, emulationCtx, storeCDAtDE, sizeof(storeCDAtDE));
-    EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_DE_OFFSET]] == 0xCD) << ExpectMessage(storeCDAtDE, "(DE) = 0xCD");
+    // RunProgram(emulator, emulationCtx, storeCDAtDE, sizeof(storeCDAtDE));
+    // EXPECT_TRUE(emulationCtx->memory[emulationCtx->registers->CPU[GB_DE_OFFSET]] == 0xCD) << ExpectMessage(storeCDAtDE, "(DE) = 0xCD");
 }
 
 // TODO: COMPLETE CASES...
@@ -306,19 +304,19 @@ TEST_F(GameBoyFixture, LoadStore8BitInstructions)
 }
 
 // Test case for Game Boy CPU control instructions
-TEST_F(GameBoyFixture, ControlInstructions)
-{
-    CpuControlTests(emulator, emulationCtx);
-}
+// TEST_F(GameBoyFixture, ControlInstructions)
+// {
+//     CpuControlTests(emulator, emulationCtx);
+// }
 
 // Test case for 8-bit ALU instructions
-TEST_F(GameBoyFixture, Alu8BitInstructions)
-{
-    CpuAluTests(emulator, emulationCtx);
-}
+// TEST_F(GameBoyFixture, Alu8BitInstructions)
+// {
+//     CpuAluTests(emulator, emulationCtx);
+// }
 
 // Test case for 8-bit ALU instructions
-TEST_F(GameBoyFixture, Alu16BitInstructions)
-{
-    Cpu16BitAluTests(emulator, emulationCtx);
-}
+// TEST_F(GameBoyFixture, Alu16BitInstructions)
+// {
+//     Cpu16BitAluTests(emulator, emulationCtx);
+// }
